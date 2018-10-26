@@ -3,6 +3,9 @@ language: java
 services:
 - docker
 jdk: openjdk11
+cache:
+  directories:
+  - $HOME/.m2
 env:
   global:
   - COMMIT=${TRAVIS_COMMIT::7}
@@ -11,10 +14,13 @@ env:
   - secure: gcBDhdjwck4IrU5PIEuNbCUYnaiUyYh34F5Hw8KabW1nQvCjYxi12Uojpe2FM4KpoNd2oc4fo/NksXBWGYtkiBJigOCBybLQVV4kbsIg1NJ/v5+nze1mhYe0dzJMx6EmhEnOmWTRqyDPJOiptDtOWBk6KqrF19zprXzhlo8rjr2h3yJk0uox70i8d8whGNsjLgYLlA+BjXX2t60je6ODCCX48Jjf23Lq2vYPvn7LUg8E+dFmxYbisE75ea+3/z+NhV3YoGmj1f+Iv2h+6v8uIP6HaSTnCAX80eXmPr9VB9dM55H1zJnSV3FOpaOcX3fc1os8qLS+Ht1zt8pIvJc0+EjwU8HNK8g2ad17ZNqxiAD28GixSdbi8COdelvtwK+cMW5fKTMo7A3jQQux2H61bF6GSvNtCbBiaf9ljZDxqxObB2NTh82ruw15legbtIsJUO3ZcYIdtVgNrIjYsBt8AOj0Gh70va/BxvlliMf/UEJhnH12slWiw5eWAjk4hxaxvsLyK46hljSCwsQPIsDKL1ZeA4ZUyYh7ahlH7cl5VH2S1Mm1rmddg29o1un7FBwfBFwRof1OfksKD+qv9FrsUWKIrHJjr4j0GugFRI6SVkBO3vc7OhrVWSfgEbTnQab7Cp+360X8qOzSfnLkl2NBmcoJiQRNrfdwNfoPigVp5lU=
 jobs:
   include:
+  - stage: test
+    script: "mvn test"
+    after_success:
+    - bash <(curl -s https://codecov.io/bash)
   - stage: production build
     script:
-    - docker login -u $DOCKER_USER -p $DOCKER_PASS
-    - export REPO=localmotion/smokefree-initiative-service
+    - docker login -u $DOCKER_USER -p $DOCKER_PASS    - export REPO=localmotion/smokefree-initiative-service
     - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo
       $TRAVIS_BRANCH | sed 's/\//_/g' ; fi`
     - docker build -f Dockerfile -t $REPO:$COMMIT .

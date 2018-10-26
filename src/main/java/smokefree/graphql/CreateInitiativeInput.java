@@ -1,16 +1,22 @@
-package smokefree.domain;
+package smokefree.graphql;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
+import smokefree.domain.Status;
+import smokefree.domain.Type;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
-class JoinInitiativeCommand {
-    @TargetAggregateIdentifier
+public
+class CreateInitiativeInput {
     String initiativeId;
-    String citizenId;
+    Type type;
+    Status status;
+    String name;
+    Double lat;
+    Double lng;
 }
