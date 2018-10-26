@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/local-motion/smokefree-initiative-service.svg?branch=master)](https://travis-ci.org/local-motion/smokefree-initiative-service)
+
 ## Running in Intellij
 
 Simply run `smokefree.Application`
