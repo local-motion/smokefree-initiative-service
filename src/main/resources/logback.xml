@@ -10,6 +10,9 @@
     <logger name="smokefree" level="trace" additivity="false">
         <appender-ref ref="stdout" />
     </logger>
+    <logger name="org.axonframework" level="trace" additivity="false">
+        <appender-ref ref="stdout" />
+    </logger>
     <logger name="graphql" level="trace" additivity="false">
         <appender-ref ref="stdout" />
     </logger>

@@ -7,22 +7,30 @@ type Query {
 }
 
 type Mutation {
-    createArticle(input: CreateArticleInput!): ArticleId!
+    createInitiative(input: CreateInitiativeInput!): InputAcceptedResponse!
     joinInitiative(input: JoinInitiativeInput!): InputAcceptedResponse!
-}
-type ArticleId {
-    id : String!
 }
 type InputAcceptedResponse {
     id : String!
 }
+enum Status {
+    not_started
+    in_progress
+    finished
+}
+enum Type {
+    smokefree
+}
 
-input CreateArticleInput {
-    title: String!
-    text: String!
-    authorId: Int!
+input CreateInitiativeInput {
+    initiativeId: String!
+    type: Type!
+    status: Status!
+    name: String!
+    lat: Float!
+    lng: Float!
 }
 input JoinInitiativeInput {
-    invitationId: String!
+    initiativeId: String!
     citizenId: String!
 }

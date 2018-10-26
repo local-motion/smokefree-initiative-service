@@ -1,6 +1,6 @@
 micronaut:
   server:
-    port: 18085
+    port: 18086
     cors:
       enabled: true
 #      configurations:

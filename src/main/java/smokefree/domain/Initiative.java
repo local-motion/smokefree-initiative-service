@@ -1,28 +1,47 @@
 package smokefree.domain;
 
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
-import org.axonframework.commandhandling.model.AggregateIdentifier;
-import org.axonframework.commandhandling.model.AggregateRoot;
 import org.axonframework.eventsourcing.EventSourcingHandler;
+import org.axonframework.modelling.command.AggregateIdentifier;
+import org.axonframework.modelling.command.AggregateRoot;
 
-import static org.axonframework.commandhandling.model.AggregateLifecycle.apply;
+import java.util.Set;
 
+import static com.google.common.collect.Sets.newHashSet;
+import static org.axonframework.modelling.command.AggregateLifecycle.apply;
+
+@Slf4j
 @NoArgsConstructor
 @AggregateRoot
 public class Initiative {
-
     @AggregateIdentifier
     private String id;
+    private Set<String> citizens = newHashSet();
 
     @CommandHandler
-    public Initiative(JoinInitiativeCommand cmd) {
-        apply(new InitiativeJoinedEvent(cmd.getInitiativeId()));
+    public Initiative(CreateInitiativeCommand cmd) {
+        apply(new InitiativeCreatedEvent(cmd.initiativeId, cmd.type, cmd.status, cmd.name, cmd.lat, cmd.lng));
+    }
+
+    @CommandHandler
+    public void joinInitiative(JoinInitiativeCommand cmd) {
+        if (citizens.contains(cmd.citizenId)) {
+            log.warn("{} tried joining initiative {} multiple times. Ignoring...", cmd.citizenId, cmd.initiativeId);
+        } else {
+            apply(new InitiativeJoinedEvent(cmd.initiativeId, cmd.citizenId));
+        }
+    }
+
+    @EventSourcingHandler
+    void on(InitiativeCreatedEvent evt) {
+        this.id = evt.getInitiativeId();
     }
 
     @EventSourcingHandler
     void on(InitiativeJoinedEvent evt) {
-        this.id = evt.getInitiativeId();
+        citizens.add(evt.getCitizenId());
     }
 }
 
