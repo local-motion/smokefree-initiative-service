@@ -1,0 +1,5 @@
+profile: service
+defaultPackage: smokefree
+---
+testFramework: junit
+sourceLanguage: java

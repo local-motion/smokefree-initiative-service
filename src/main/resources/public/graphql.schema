@@ -1,0 +1,28 @@
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+type Query {
+}
+
+type Mutation {
+    createArticle(input: CreateArticleInput!): ArticleId!
+    joinInitiative(input: JoinInitiativeInput!): InputAcceptedResponse!
+}
+type ArticleId {
+    id : String!
+}
+type InputAcceptedResponse {
+    id : String!
+}
+
+input CreateArticleInput {
+    title: String!
+    text: String!
+    authorId: Int!
+}
+input JoinInitiativeInput {
+    invitationId: String!
+    citizenId: String!
+}

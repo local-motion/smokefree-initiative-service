@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: smokefree-initiative-service
+  labels:
+    app: smokefree-initiative-service
+spec:
+  ports:
+  - port: 8085
+    name: http
+  selector:
+    app: smokefree-initiative-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: smokefree-initiative-service
+  labels:
+    app: smokefree-initiative-service
+spec:
+  selector:
+    matchLabels:
+      app: smokefree-initiative-service
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: smokefree-initiative-service
+    spec:
+      containers:
+      - name: smokefree-initiative-service
+        image: localmotion/smokefree-initiative-service:local
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        ports:
+        - containerPort: 18085
