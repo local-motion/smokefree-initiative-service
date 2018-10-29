@@ -1,0 +1,16 @@
+mutation createInitiative($input: CreateInitiativeInput!) {
+    joinInitiative(input: $input) {
+        id
+    }
+}
+
+{
+    "input": {
+        "initiativeId": "initiative-999",
+        "name": "Linnaeushof"
+        "type": "smokefree",
+        "status": "finished"
+        "lat": 52.327292
+        "lng": 4.603781
+    }
+}

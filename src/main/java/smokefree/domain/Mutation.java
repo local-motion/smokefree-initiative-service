@@ -35,8 +35,7 @@ public class Mutation implements GraphQLMutationResolver {
 
     @SneakyThrows
     public InputAcceptedResponse joinInitiative(JoinInitiativeInput input) {
-        final CompletableFuture<Void> result = gateway.send(new JoinInitiativeCommand(input.getInitiativeId(), input.getCitizenId()));
-        result.get();
+        gateway.sendAndWait(new JoinInitiativeCommand(input.getInitiativeId(), input.getCitizenId()));
         return new InputAcceptedResponse(input.getInitiativeId());
     }
 }

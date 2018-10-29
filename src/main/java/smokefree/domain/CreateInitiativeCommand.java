@@ -1,15 +1,14 @@
 package smokefree.domain;
 
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
-@Getter
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Data
+@NoArgsConstructor
 @AllArgsConstructor
-class CreateInitiativeCommand {
+public class CreateInitiativeCommand {
     @TargetAggregateIdentifier
     String initiativeId;
     Type type;
