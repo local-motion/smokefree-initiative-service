@@ -5,8 +5,6 @@ import org.axonframework.test.aggregate.FixtureConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.fail;
-
 class InitiativeTest {
     private FixtureConfiguration<Initiative> fixture;
 
@@ -25,13 +23,22 @@ class InitiativeTest {
 
     @Test
     void should_allow_first_time_join() {
-        fail("Not yet implemented");
+        fixture.given(new InitiativeCreatedEvent("initiative-1", null, null, null, null, null))
+                .when(new JoinInitiativeCommand("initiative-1", "citizen-1"))
+                .expectSuccessfulHandlerExecution()
+                .expectEvents(new InitiativeJoinedEvent("initiative-1", "citizen-1"));
     }
 
 
     @Test
     void should_ignore_multiple_joins_to_same_initiative() {
-        fail("Not yet implemented");
+        fixture
+                .given(
+                        new InitiativeCreatedEvent("initiative-1", null, null, null, null, null),
+                        new InitiativeJoinedEvent("initiative-1", "citizen-1"))
+                .when(new JoinInitiativeCommand("initiative-1", "citizen-1")) // Attempt to join again!
+                .expectSuccessfulHandlerExecution()
+                .expectNoEvents();
     }
 
 

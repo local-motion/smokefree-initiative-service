@@ -35,7 +35,9 @@ public class Mutation implements GraphQLMutationResolver {
 
     @SneakyThrows
     public InputAcceptedResponse joinInitiative(JoinInitiativeInput input) {
-        throw new UnsupportedOperationException("Not yet implemented");
+        JoinInitiativeCommand cmd = new JoinInitiativeCommand(input.getInitiativeId(), input.getCitizenId());
+        gateway.sendAndWait(cmd);
+        return new InputAcceptedResponse(input.getInitiativeId());
     }
 
 

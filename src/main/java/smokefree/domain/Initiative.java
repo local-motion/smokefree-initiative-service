@@ -30,9 +30,19 @@ public class Initiative {
         this.id = evt.getInitiativeId();
     }
 
+    @CommandHandler
+    public void joinInitiative(JoinInitiativeCommand cmd) {
+        if (citizens.contains(cmd.getCitizenId())) {
+            log.warn("{} already joined {}. Ignoring...", cmd.getCitizenId(), cmd.getInitiativeId());
+        } else {
+            apply(new InitiativeJoinedEvent(cmd.getInitiativeId(), cmd.getCitizenId()));
+        }
+    }
 
-
-
+    @EventSourcingHandler
+    void on(InitiativeJoinedEvent evt) {
+        citizens.add(evt.getCitizenId());
+    }
 
 
 
