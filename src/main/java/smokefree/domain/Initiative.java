@@ -25,6 +25,53 @@ public class Initiative {
         apply(new InitiativeCreatedEvent(cmd.initiativeId, cmd.type, cmd.status, cmd.name, cmd.lat, cmd.lng));
     }
 
+    @EventSourcingHandler
+    void on(InitiativeCreatedEvent evt) {
+        this.id = evt.getInitiativeId();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /*
     @CommandHandler
     public void joinInitiative(JoinInitiativeCommand cmd) {
         if (citizens.contains(cmd.citizenId)) {
@@ -35,13 +82,9 @@ public class Initiative {
     }
 
     @EventSourcingHandler
-    void on(InitiativeCreatedEvent evt) {
-        this.id = evt.getInitiativeId();
-    }
-
-    @EventSourcingHandler
     void on(InitiativeJoinedEvent evt) {
         citizens.add(evt.getCitizenId());
     }
+    */
 }
 

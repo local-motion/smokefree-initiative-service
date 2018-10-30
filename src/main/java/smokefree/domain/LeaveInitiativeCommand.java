@@ -9,7 +9,7 @@ import org.axonframework.modelling.command.TargetAggregateIdentifier;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
-class JoinInitiativeCommand {
+class LeaveInitiativeCommand {
     @TargetAggregateIdentifier
     String initiativeId;
     String citizenId;

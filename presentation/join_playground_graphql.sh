@@ -37,11 +37,11 @@ esac; done
 if [[ -z "${INITIATIVE_ID}" ]]; then join::usage "Initiative ID is not set"; fi;
 
 
-# http://localhost:4002/?query=mutation%20JoinInitiative(%24input%3A%20JoinInitiativeInput!)%20%7B%0A%20%20joinInitiative(input%3A%20%24input)%20%7B%0A%20%20%20%20id%0A%20%20%7D%0A%7D&operationName=JoinInitiative&variables=%7B%0A%20%20%22input%22%3A%20%7B%0A%20%20%20%20%22initiativeId%22%3A%20%22initiative-101%22%2C%0A%20%20%20%20%22citizenId%22%3A%20%22citizen-2%22%0A%20%20%7D%0A%7D
 timestamp() {
   date +"%T"
 }
 
+# http://localhost:4002/?query=mutation%20JoinInitiative(%24input%3A%20JoinInitiativeInput!)%20%7B%0A%20%20joinInitiative(input%3A%20%24input)%20%7B%0A%20%20%20%20id%0A%20%20%7D%0A%7D&operationName=JoinInitiative&variables=%7B%0A%20%20%22input%22%3A%20%7B%0A%20%20%20%20%22initiativeId%22%3A%20%22initiative-101%22%2C%0A%20%20%20%20%22citizenId%22%3A%20%22citizen-2%22%0A%20%20%7D%0A%7D
 join_initiative() {
     local initiativeId=$1
     local citizenId="citizen-$(timestamp)"
@@ -50,5 +50,5 @@ join_initiative() {
         --data "{\"query\":\"mutation JoinInitiative(\$input: JoinInitiativeInput!) {\n  joinInitiative(input: \$input) {\n    id\n  }\n}\",\"variables\":{\"input\":{\"initiativeId\":\"${initiativeId}\",\"citizenId\":\"${citizenId}\"}},\"operationName\":\"JoinInitiative\"}" \
         localhost:18086/graphql
 }
-while sleep 2; do debug "Joining initiative ${INITIATIVE_ID}: HTTP $(join_initiative ${INITIATIVE_ID})"; done
-
+#while sleep 2; do debug "Joining initiative ${INITIATIVE_ID}: HTTP $(join_initiative ${INITIATIVE_ID})"; done
+debug "Joining initiative ${INITIATIVE_ID}: HTTP $(join_initiative ${INITIATIVE_ID})"
