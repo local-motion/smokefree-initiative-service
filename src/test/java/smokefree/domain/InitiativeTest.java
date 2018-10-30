@@ -5,6 +5,8 @@ import org.axonframework.test.aggregate.FixtureConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 class InitiativeTest {
     private FixtureConfiguration<Initiative> fixture;
 
@@ -20,6 +22,64 @@ class InitiativeTest {
                 .expectSuccessfulHandlerExecution()
                 .expectEvents(new InitiativeCreatedEvent("initiative-1", null, null, null, null, null));
     }
+
+    @Test
+    void should_allow_first_time_join() {
+        fail("Not yet implemented");
+    }
+
+
+    @Test
+    void should_ignore_multiple_joins_to_same_initiative() {
+        fail("Not yet implemented");
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 
     @Test
     void should_allow_first_time_join() {
@@ -40,4 +100,5 @@ class InitiativeTest {
                 .expectSuccessfulHandlerExecution()
                 .expectNoEvents();
     }
+    */
 }
