@@ -1,36 +1,38 @@
 schema {
     query: Query
-    mutation: Mutation
+    #mutation: Mutation
 }
 
 type Query {
+    playgrounds : [Playground]
 }
 
 type Mutation {
-    createInitiative(input: CreateInitiativeInput!): InputAcceptedResponse!
-    joinInitiative(input: JoinInitiativeInput!): InputAcceptedResponse!
+    #createArticle(input: CreateArticleInput!): ArticleId!
+    #joinInitiative(input: JoinInitiativeInput!): InputAcceptedResponse!
+}
+type ArticleId {
+    id : String!
 }
 type InputAcceptedResponse {
     id : String!
 }
-enum Status {
-    not_started
-    in_progress
-    finished
-}
-enum Type {
-    smokefree
-}
 
-input CreateInitiativeInput {
-    initiativeId: String!
-    type: Type!
-    status: Status!
-    name: String!
-    lat: Float!
-    lng: Float!
+input CreateArticleInput {
+    title: String!
+    text: String!
+    authorId: Int!
 }
 input JoinInitiativeInput {
-    initiativeId: String!
+    invitationId: String!
     citizenId: String!
+}
+type Playground {
+    id : String!
+    name : String
+    #status : Status
+    lng : Float
+    lat : Float
+    #committeeMember : CommitteeMember
+    #volunteers : [Volunteer]
 }
