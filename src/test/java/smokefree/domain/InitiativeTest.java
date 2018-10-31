@@ -16,14 +16,14 @@ class InitiativeTest {
     @Test
     void should_allow_create() {
         fixture.givenNoPriorActivity()
-                .when(new CreateInitiativeCommand("initiative-1", null, null, null, null, null))
+                .when(new CreateInitiativeCommand("initiative-1", null, null, null, new GeoLocation(null, null)))
                 .expectSuccessfulHandlerExecution()
-                .expectEvents(new InitiativeCreatedEvent("initiative-1", null, null, null, null, null));
+                .expectEvents(new InitiativeCreatedEvent("initiative-1", null, null, null, new GeoLocation(null, null)));
     }
 
     @Test
     void should_allow_first_time_join() {
-        fixture.given(new InitiativeCreatedEvent("initiative-1", null, null, null, null, null))
+        fixture.given(new InitiativeCreatedEvent("initiative-1", null, null, null, new GeoLocation(null, null)))
                 .when(new JoinInitiativeCommand("initiative-1", "citizen-1"))
                 .expectSuccessfulHandlerExecution()
                 .expectEvents(new InitiativeJoinedEvent("initiative-1", "citizen-1"));
@@ -34,7 +34,7 @@ class InitiativeTest {
     void should_ignore_multiple_joins_to_same_initiative() {
         fixture
                 .given(
-                        new InitiativeCreatedEvent("initiative-1", null, null, null, null, null),
+                        new InitiativeCreatedEvent("initiative-1", null, null, null, new GeoLocation(null, null)),
                         new InitiativeJoinedEvent("initiative-1", "citizen-1"))
                 .when(new JoinInitiativeCommand("initiative-1", "citizen-1")) // Attempt to join again!
                 .expectSuccessfulHandlerExecution()

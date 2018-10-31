@@ -1,19 +1,18 @@
 package smokefree.domain;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
-@Data
-@NoArgsConstructor
+@Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class CreateInitiativeCommand {
     @TargetAggregateIdentifier
     String initiativeId;
+    String name;
     Type type;
     Status status;
-    String name;
-    Double lat;
-    Double lng;
+    GeoLocation geoLocation;
 }

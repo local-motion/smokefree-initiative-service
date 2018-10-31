@@ -22,11 +22,11 @@ import java.io.InputStreamReader;
 public class GraphqlFactory {
     @Bean
     @Singleton
-    public GraphQL graphQL(Mutation mutation) throws IOException {
+    public GraphQL graphQL(Query query, Mutation mutation) throws IOException {
         InputStream input = GraphqlFactory.class.getResourceAsStream("/public/graphql.schema");
         final String schemaString = IOUtils.readText(new BufferedReader(new InputStreamReader(input)));
         final SchemaParserBuilder builder = SchemaParser.newParser()
-                .resolvers(new Query(), mutation)
+                .resolvers(query, mutation)
                 .schemaString(schemaString);
         GraphQLSchema graphQLSchema = builder.build().makeExecutableSchema();
         return GraphQL.newGraphQL(graphQLSchema).build();
