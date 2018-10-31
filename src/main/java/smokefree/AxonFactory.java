@@ -15,14 +15,14 @@ import org.axonframework.commandhandling.SimpleCommandBus;
 import org.axonframework.commandhandling.distributed.AnnotationRoutingStrategy;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.commandhandling.gateway.DefaultCommandGateway;
-import org.axonframework.config.Configuration;
-import org.axonframework.config.DefaultConfigurer;
+import org.axonframework.config.*;
 import org.axonframework.eventhandling.EventBus;
 import org.axonframework.queryhandling.*;
 import org.axonframework.serialization.Serializer;
 import org.axonframework.serialization.json.JacksonSerializer;
 import org.axonframework.serialization.upcasting.event.NoOpEventUpcaster;
 import smokefree.domain.Initiative;
+import smokefree.projection.InitiativeProjection;
 
 @Slf4j
 @Factory
@@ -32,14 +32,20 @@ public class AxonFactory {
     public Configuration configuration(EventBus eventBus,
                                        CommandBus commandBus,
                                        QueryBus queryBus,
-                                       Serializer serializer) {
-        Configuration configuration = DefaultConfigurer.defaultConfiguration()
+                                       Serializer serializer,
+                                       InitiativeProjection initiativeProjection) {
+        // TODO: How to avoid hard-coding aggregates, event- and query handlers?
+        Configurer configurer = DefaultConfigurer.defaultConfiguration()
                 .configureEventBus(c -> eventBus)
                 .configureCommandBus(c -> commandBus)
                 .configureQueryBus(c -> queryBus)
                 .configureSerializer(c -> serializer)
                 .configureAggregate(Initiative.class)
-                .buildConfiguration();
+                .registerQueryHandler(c -> initiativeProjection);
+        configurer.eventProcessing()
+                .registerEventHandler(c -> initiativeProjection);
+
+        Configuration configuration = configurer.buildConfiguration();
         configuration.start();
         return configuration;
     }

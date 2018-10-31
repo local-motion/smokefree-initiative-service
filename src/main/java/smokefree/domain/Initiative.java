@@ -22,7 +22,7 @@ public class Initiative {
 
     @CommandHandler
     public Initiative(CreateInitiativeCommand cmd) {
-        apply(new InitiativeCreatedEvent(cmd.initiativeId, cmd.type, cmd.status, cmd.name, cmd.lat, cmd.lng));
+        apply(new InitiativeCreatedEvent(cmd.initiativeId, cmd.type, cmd.status, cmd.name, cmd.geoLocation));
     }
 
     @EventSourcingHandler

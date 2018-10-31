@@ -3,8 +3,42 @@ schema {
     mutation: Mutation
 }
 
+#
+# Queries
+#
 type Query {
+    playgrounds: [Playground]
+    progress: Progress
 }
+
+type Playground {
+    id : String!
+    name : String
+    lng : Float
+    lat : Float
+    status: Status
+}
+
+enum Status {
+    not_started
+    in_progress
+    finished
+}
+
+type Progress {
+    smokeFree: Stat
+    workingOnIt: Stat
+    smoking: Stat
+}
+
+type Stat {
+    count : Int
+    percentage : Int
+}
+
+#
+# Mutations
+#
 
 type Mutation {
     createInitiative(input: CreateInitiativeInput!): InputAcceptedResponse!
@@ -32,5 +66,4 @@ input CreateInitiativeInput {
 }
 input JoinInitiativeInput {
     initiativeId: String!
-    citizenId: String!
 }

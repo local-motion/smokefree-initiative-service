@@ -8,6 +8,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class JoinInitiativeInput {
-    private String initiativeId;
-    private String citizenId;
+    String initiativeId;
 }

@@ -11,6 +11,7 @@ import smokefree.graphql.JoinInitiativeInput;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @Slf4j
@@ -24,18 +25,20 @@ public class Mutation implements GraphQLMutationResolver {
     public InputAcceptedResponse createInitiative(CreateInitiativeInput input) {
         final CreateInitiativeCommand command = new CreateInitiativeCommand(
                 input.getInitiativeId(),
+                input.getName(),
                 input.getType(),
                 input.getStatus(),
-                input.getName(),
-                input.getLat(),
-                input.getLng());
+                new GeoLocation(input.getLat(), input.getLng()));
         final CompletableFuture<String> result = gateway.send(command);
         return InputAcceptedResponse.fromFuture(result);
     }
 
     @SneakyThrows
     public InputAcceptedResponse joinInitiative(JoinInitiativeInput input) {
-        JoinInitiativeCommand cmd = new JoinInitiativeCommand(input.getInitiativeId(), input.getCitizenId());
+        // TODO: Currently hardcoded. Solved by local-motion/product#48
+        String citizenId = UUID.randomUUID().toString();
+
+        JoinInitiativeCommand cmd = new JoinInitiativeCommand(input.getInitiativeId(), citizenId);
         gateway.sendAndWait(cmd);
         return new InputAcceptedResponse(input.getInitiativeId());
     }

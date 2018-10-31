@@ -6,6 +6,7 @@ import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Post;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.config.Configuration;
+import org.axonframework.queryhandling.QueryGateway;
 import smokefree.domain.CreateInitiativeCommand;
 
 import javax.inject.Inject;
