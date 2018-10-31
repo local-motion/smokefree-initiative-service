@@ -20,9 +20,9 @@ jobs:
     - bash <(curl -s https://codecov.io/bash)
   - stage: production build
     script:
-    - docker login -u $DOCKER_USER -p $DOCKER_PASS    - export REPO=localmotion/smokefree-initiative-service
-    - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo
-      $TRAVIS_BRANCH | sed 's/\//_/g' ; fi`
+    - docker login -u $DOCKER_USER -p $DOCKER_PASS
+    - export REPO=localmotion/smokefree-initiative-service
+    - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH | sed 's/\//_/g' ; fi`
     - docker build -f Dockerfile -t $REPO:$COMMIT .
     - docker tag $REPO:$COMMIT $REPO:$TAG
     - docker tag $REPO:$COMMIT $REPO:travis-$TRAVIS_BUILD_NUMBER
