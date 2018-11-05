@@ -2,6 +2,7 @@ package smokefree;
 
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
+import io.micronaut.context.annotation.Value;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.axonserver.connector.AxonServerConfiguration;
@@ -28,6 +29,9 @@ import smokefree.projection.InitiativeProjection;
 @Factory
 @NoArgsConstructor
 public class AxonFactory {
+    @Value("${axon.servers}")
+    private String axonServers;
+
     @Bean
     public Configuration configuration(EventBus eventBus,
                                        CommandBus commandBus,
@@ -58,7 +62,9 @@ public class AxonFactory {
 
     @Bean
     public AxonServerConfiguration axonServerConfiguration() {
-        return AxonServerConfiguration.builder().build();
+        return AxonServerConfiguration.builder()
+                .servers(axonServers)
+                .build();
     }
 
     @Bean
