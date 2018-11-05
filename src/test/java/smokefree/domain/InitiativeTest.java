@@ -3,11 +3,14 @@ package smokefree.domain;
 import org.axonframework.messaging.interceptors.BeanValidationInterceptor;
 import org.axonframework.test.aggregate.AggregateTestFixture;
 import org.axonframework.test.aggregate.FixtureConfiguration;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.util.Map;
 
+import static java.time.LocalDate.now;
 import static java.util.Collections.singletonMap;
 import static smokefree.domain.Status.*;
 import static smokefree.domain.Type.smokefree;
@@ -56,7 +59,7 @@ class InitiativeTest {
         fixture.given(initiativeCreated("initiative-1", not_started))
                 .when(new ClaimManagerRoleCommand("initiative-1"), asManager1())
                 .expectSuccessfulHandlerExecution()
-                .expectEvents(new ManagerJoinedInitiativeEvent("initiative-1", MANAGER_1));
+                .expectEvents(managerJoined(MANAGER_1));
     }
 
     @Test
@@ -64,7 +67,7 @@ class InitiativeTest {
         fixture
                 .given(
                         initiativeCreated("initiative-1", not_started),
-                        new ManagerJoinedInitiativeEvent("initiative-1", MANAGER_1))
+                        managerJoined(MANAGER_1))
                 .when(new ClaimManagerRoleCommand("initiative-1"), asManager1())
                 .expectSuccessfulHandlerExecution()
                 .expectNoEvents();
@@ -75,7 +78,7 @@ class InitiativeTest {
         fixture
                 .given(
                         initiativeCreated("initiative-1", not_started),
-                        new ManagerJoinedInitiativeEvent("initiative-1", MANAGER_1))
+                        managerJoined(MANAGER_1))
                 .when(new DecideToBecomeSmokeFreeCommand("initiative-1"), asManager1())
                 .expectSuccessfulHandlerExecution()
                 .expectEvents(new InitiativeProgressedEvent("initiative-1", not_started, in_progress));
@@ -91,7 +94,7 @@ class InitiativeTest {
         fixture
                 .given(
                         initiativeCreated("initiative-1", status),
-                        new ManagerJoinedInitiativeEvent("initiative-1", MANAGER_1))
+                        managerJoined(MANAGER_1))
                 .when(new DecideToBecomeSmokeFreeCommand("initiative-1"), asManager1())
                 .expectSuccessfulHandlerExecution()
                 .expectNoEvents();
@@ -103,7 +106,7 @@ class InitiativeTest {
         fixture
                 .given(
                         initiativeCreated("initiative-1", not_started),
-                        new ManagerJoinedInitiativeEvent("initiative-1", MANAGER_1))
+                        managerJoined(MANAGER_1))
                 .when(new DecideToNotBecomeSmokeFreeCommand("initiative-1", reason), asManager1())
                 .expectSuccessfulHandlerExecution()
                 .expectEvents(new InitiativeStoppedEvent("initiative-1", not_started, stopped, reason));
@@ -115,10 +118,24 @@ class InitiativeTest {
         fixture
                 .given(
                         initiativeCreated("initiative-1", not_started),
-                        new CitizenJoinedInitiativeEvent("initiative-1", "manager-XYZ"))
+                        managerJoined("manager-XYZ"))
                 .when(new DecideToBecomeSmokeFreeCommand("initiative-1"), asManager1())
                 .expectException(IllegalArgumentException.class)
                 .expectNoEvents();
+    }
+
+    @Test
+    void should_progress_states_when_commit_to_smokefree_date() {
+        LocalDate tomorrow = now().plusDays(1);
+        fixture
+                .given(
+                        initiativeCreated("initiative-1", not_started),
+                        managerJoined(MANAGER_1))
+                .when(new CommitToSmokeFreeDateCommand("initiative-1", tomorrow), asManager1())
+                .expectSuccessfulHandlerExecution()
+                .expectEvents(
+                        new SmokeFreeDateCommittedEvent("initiative-1", null, tomorrow),
+                        new InitiativeProgressedEvent("initiative-1", not_started, finished));
     }
 
     private Map<String, ?> asManager1() {
@@ -127,6 +144,10 @@ class InitiativeTest {
 
     private InitiativeCreatedEvent initiativeCreated(String id, Status status) {
         return new InitiativeCreatedEvent(id, smokefree, status, "Test initiative", new GeoLocation(null, null));
+    }
+
+    private ManagerJoinedInitiativeEvent managerJoined(String managerId) {
+        return new ManagerJoinedInitiativeEvent("initiative-1", managerId);
     }
 
 }

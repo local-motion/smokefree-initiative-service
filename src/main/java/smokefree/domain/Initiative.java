@@ -9,13 +9,13 @@ import org.axonframework.messaging.MetaData;
 import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateRoot;
 
+import java.time.LocalDate;
 import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
+import static java.time.LocalDate.now;
 import static org.axonframework.modelling.command.AggregateLifecycle.apply;
-import static smokefree.domain.Status.in_progress;
-import static smokefree.domain.Status.not_started;
-import static smokefree.domain.Status.stopped;
+import static smokefree.domain.Status.*;
 
 @Slf4j
 @NoArgsConstructor
@@ -23,9 +23,12 @@ import static smokefree.domain.Status.stopped;
 public class Initiative {
     @AggregateIdentifier
     private String id;
+    // TODO: Specs mention Phase; Should we rename to Phase and use prepare, execute and sustain as values?
     private Status status;
     private Set<String> managers = newHashSet();
     private Set<String> citizens = newHashSet();
+
+    private LocalDate smokeFreeDate;
 
     @CommandHandler
     public Initiative(CreateInitiativeCommand cmd) {
@@ -53,8 +56,7 @@ public class Initiative {
 
     @CommandHandler
     public void decideToBecomeSmokeFree(DecideToBecomeSmokeFreeCommand cmd, MetaData metaData) {
-        String userId = (String) metaData.get("user_id");
-        Assert.isTrue(managers.contains(userId), () -> userId + " is not a manager");
+        assertCurrentUserIsManager(metaData);
 
         if (status != not_started && status != stopped) {
             log.warn("Status is already {}, cannot change to {}. Ignoring...", status, in_progress);
@@ -65,9 +67,17 @@ public class Initiative {
 
     @CommandHandler
     public void decideToNotBecomeSmokeFree(DecideToNotBecomeSmokeFreeCommand cmd, MetaData metaData) {
-        String userId = (String) metaData.get("user_id");
-        Assert.isTrue(managers.contains(userId), () -> userId + " is not a manager");
+        assertCurrentUserIsManager(metaData);
         apply(new InitiativeStoppedEvent(cmd.initiativeId, status, stopped, cmd.reason));
+    }
+
+    @CommandHandler
+    public void commitToSmokeFreeDate(CommitToSmokeFreeDateCommand cmd, MetaData metaData) {
+        Assert.isTrue(smokeFreeDate == null || cmd.smokeFreeDate.isBefore(now()),
+                () -> "Cannot commit to a new smoke-free date once an earlier committed date has passed");
+        assertCurrentUserIsManager(metaData);
+        apply(new SmokeFreeDateCommittedEvent(cmd.initiativeId, smokeFreeDate, cmd.smokeFreeDate));
+        apply(new InitiativeProgressedEvent(cmd.initiativeId, status, finished));
     }
 
     @EventSourcingHandler
@@ -94,6 +104,16 @@ public class Initiative {
     @EventSourcingHandler
     void on(InitiativeStoppedEvent evt) {
         status = evt.after;
+    }
+
+    @EventSourcingHandler
+    void on(SmokeFreeDateCommittedEvent evt) {
+        smokeFreeDate = evt.smokeFreeDate;
+    }
+
+    private void assertCurrentUserIsManager(MetaData metaData) {
+        String userId = (String) metaData.get("user_id");
+        Assert.isTrue(managers.contains(userId), () -> userId + " is not a manager");
     }
 }
 

@@ -1,3 +1,15 @@
+# java.util.Date implementation
+# scalar Date
+
+# java.time.LocalDate implementation
+scalar LocalDate
+
+# java.time.LocalDateTime implementation
+# scalar LocalDateTime
+
+# java.time.LocalTime implementation
+# scalar LocalTime
+
 schema {
     query: Query
     mutation: Mutation
@@ -48,6 +60,8 @@ type Mutation {
 
     decideToBecomeSmokeFree(input: DecideToBecomeSmokeFreeCommand!): InputAcceptedResponse!
     decideToNotBecomeSmokeFree(input: DecideToNotBecomeSmokeFreeCommand!): InputAcceptedResponse!
+
+    commitToSmokeFreeDate(input: CommitToSmokeFreeDateCommand!): InputAcceptedResponse!
 }
 type InputAcceptedResponse {
     id : String!
@@ -74,11 +88,15 @@ input JoinInitiativeInput {
 }
 input DecideToBecomeSmokeFreeCommand {
     initiativeId: String!
-    reason: String
 }
-input DecideToBecomeSmokeFreeCommand {
+input DecideToNotBecomeSmokeFreeCommand {
     initiativeId: String!
+    reason: String
 }
 input ClaimManagerRoleCommand {
     initiativeId: String!
+}
+input CommitToSmokeFreeDateCommand {
+    initiativeId: String!
+    smokeFreeDate: LocalDate!
 }

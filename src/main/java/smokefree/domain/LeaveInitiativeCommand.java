@@ -12,5 +12,4 @@ import org.axonframework.modelling.command.TargetAggregateIdentifier;
 class LeaveInitiativeCommand {
     @TargetAggregateIdentifier
     String initiativeId;
-    String citizenId;
 }
