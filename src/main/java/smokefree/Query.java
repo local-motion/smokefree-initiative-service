@@ -1,9 +1,8 @@
-package smokefree.domain;
+package smokefree;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.axonframework.queryhandling.QueryGateway;
 import smokefree.projection.InitiativeProjection;
 import smokefree.projection.Playground;
 import smokefree.projection.Progress;
@@ -11,7 +10,6 @@ import smokefree.projection.Progress;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Collection;
-import java.util.List;
 
 @Slf4j
 @Singleton

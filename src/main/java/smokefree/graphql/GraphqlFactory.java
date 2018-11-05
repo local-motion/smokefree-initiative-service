@@ -8,8 +8,8 @@ import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.core.io.IOUtils;
 import lombok.NoArgsConstructor;
-import smokefree.domain.Mutation;
-import smokefree.domain.Query;
+import smokefree.Mutation;
+import smokefree.Query;
 
 import javax.inject.Singleton;
 import java.io.BufferedReader;

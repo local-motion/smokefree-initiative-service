@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.common.Assert;
 import org.axonframework.eventsourcing.EventSourcingHandler;
+import org.axonframework.messaging.MetaData;
 import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateRoot;
 
@@ -36,12 +37,25 @@ public class Initiative {
         if (citizens.contains(cmd.getCitizenId())) {
             log.warn("{} already joined {}. Ignoring...", cmd.citizenId, cmd.initiativeId);
         } else {
-            apply(new InitiativeJoinedEvent(cmd.initiativeId, cmd.citizenId));
+            apply(new CitizenJoinedInitiativeEvent(cmd.initiativeId, cmd.citizenId));
         }
     }
 
     @CommandHandler
-    public void decideToBecomeSmokeFree(DecideToBecomeSmokeFreeCommand cmd) {
+    public void claimManagerRole(ClaimManagerRoleCommand cmd, MetaData metaData) {
+        String managerId = (String) metaData.get("user_id");
+        if (managers.contains(managerId)) {
+            log.warn("{} is already managing {}. Ignoring...", managerId, cmd.initiativeId);
+        } else {
+            apply(new ManagerJoinedInitiativeEvent(cmd.initiativeId, managerId));
+        }
+    }
+
+    @CommandHandler
+    public void decideToBecomeSmokeFree(DecideToBecomeSmokeFreeCommand cmd, MetaData metaData) {
+        String userId = (String) metaData.get("user_id");
+        Assert.isTrue(managers.contains(userId), () -> userId + " is not a manager");
+
         if (status != not_started && status != stopped) {
             log.warn("Status is already {}, cannot change to {}. Ignoring...", status, in_progress);
         } else {
@@ -50,29 +64,36 @@ public class Initiative {
     }
 
     @CommandHandler
-    public void decideToNotBecomeSmokeFree(DecideToNotBecomeSmokeFreeCommand cmd) {
+    public void decideToNotBecomeSmokeFree(DecideToNotBecomeSmokeFreeCommand cmd, MetaData metaData) {
+        String userId = (String) metaData.get("user_id");
+        Assert.isTrue(managers.contains(userId), () -> userId + " is not a manager");
         apply(new InitiativeStoppedEvent(cmd.initiativeId, status, stopped, cmd.reason));
     }
 
     @EventSourcingHandler
     void on(InitiativeCreatedEvent evt) {
-        this.id = evt.getInitiativeId();
-        this.status = evt.getStatus();
+        this.id = evt.initiativeId;
+        this.status = evt.status;
     }
 
     @EventSourcingHandler
-    void on(InitiativeJoinedEvent evt) {
-        citizens.add(evt.getCitizenId());
+    void on(CitizenJoinedInitiativeEvent evt) {
+        citizens.add(evt.citizenId);
+    }
+
+    @EventSourcingHandler
+    void on(ManagerJoinedInitiativeEvent evt) {
+        managers.add(evt.managerId);
     }
 
     @EventSourcingHandler
     void on(InitiativeProgressedEvent evt) {
-        status = evt.getAfter();
+        status = evt.after;
     }
 
     @EventSourcingHandler
     void on(InitiativeStoppedEvent evt) {
-        status = evt.getAfter();
+        status = evt.after;
     }
 }
 
