@@ -6,11 +6,15 @@ import org.axonframework.test.aggregate.FixtureConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
+
+import static java.util.Collections.singletonMap;
 import static smokefree.domain.Status.*;
 import static smokefree.domain.Type.smokefree;
 
 @SuppressWarnings("ConstantConditions")
 class InitiativeTest {
+    private static final String MANAGER_1 = "manager-1";
     private FixtureConfiguration<Initiative> fixture;
 
     @BeforeEach
@@ -20,7 +24,7 @@ class InitiativeTest {
     }
 
     @Test
-    void should_allow_create() {
+    void should_allow_create_initiative() {
         fixture.givenNoPriorActivity()
                 .when(new CreateInitiativeCommand("initiative-1", "Test initiative", smokefree, not_started, new GeoLocation(null, null)))
                 .expectSuccessfulHandlerExecution()
@@ -28,21 +32,40 @@ class InitiativeTest {
     }
 
     @Test
-    void should_allow_first_time_join() {
+    void should_allow_citizen_join_when_first_time() {
         fixture.given(initiativeCreated("initiative-1", not_started))
                 .when(new JoinInitiativeCommand("initiative-1", "citizen-1"))
                 .expectSuccessfulHandlerExecution()
-                .expectEvents(new InitiativeJoinedEvent("initiative-1", "citizen-1"));
+                .expectEvents(new CitizenJoinedInitiativeEvent("initiative-1", "citizen-1"));
     }
 
 
     @Test
-    void should_ignore_multiple_joins_to_same_initiative() {
+    void should_ignore_joins_to_same_initiative_when_same_citizen() {
         fixture
                 .given(
                         initiativeCreated("initiative-1", not_started),
-                        new InitiativeJoinedEvent("initiative-1", "citizen-1"))
+                        new CitizenJoinedInitiativeEvent("initiative-1", "citizen-1"))
                 .when(new JoinInitiativeCommand("initiative-1", "citizen-1")) // Attempt to join again!
+                .expectSuccessfulHandlerExecution()
+                .expectNoEvents();
+    }
+
+    @Test
+    void should_allow_manager_join_when_first_time() {
+        fixture.given(initiativeCreated("initiative-1", not_started))
+                .when(new ClaimManagerRoleCommand("initiative-1"), asManager1())
+                .expectSuccessfulHandlerExecution()
+                .expectEvents(new ManagerJoinedInitiativeEvent("initiative-1", MANAGER_1));
+    }
+
+    @Test
+    void should_ignore_joins_to_same_initiative_when_same_manager() {
+        fixture
+                .given(
+                        initiativeCreated("initiative-1", not_started),
+                        new ManagerJoinedInitiativeEvent("initiative-1", MANAGER_1))
+                .when(new ClaimManagerRoleCommand("initiative-1"), asManager1())
                 .expectSuccessfulHandlerExecution()
                 .expectNoEvents();
     }
@@ -52,11 +75,26 @@ class InitiativeTest {
         fixture
                 .given(
                         initiativeCreated("initiative-1", not_started),
-                        new InitiativeJoinedEvent("initiative-1", "citizen-1"),
-                        new InitiativeJoinedEvent("initiative-1", "manager-1"))
-                .when(new DecideToBecomeSmokeFreeCommand("initiative-1"))
+                        new ManagerJoinedInitiativeEvent("initiative-1", MANAGER_1))
+                .when(new DecideToBecomeSmokeFreeCommand("initiative-1"), asManager1())
                 .expectSuccessfulHandlerExecution()
                 .expectEvents(new InitiativeProgressedEvent("initiative-1", not_started, in_progress));
+    }
+
+    @Test
+    void should_ignore_decision_when_wrong_current_status() {
+        expectNoEventsForStatus(finished);
+        expectNoEventsForStatus(in_progress);
+    }
+
+    private void expectNoEventsForStatus(Status status) {
+        fixture
+                .given(
+                        initiativeCreated("initiative-1", status),
+                        new ManagerJoinedInitiativeEvent("initiative-1", MANAGER_1))
+                .when(new DecideToBecomeSmokeFreeCommand("initiative-1"), asManager1())
+                .expectSuccessfulHandlerExecution()
+                .expectNoEvents();
     }
 
     @Test
@@ -64,11 +102,27 @@ class InitiativeTest {
         String reason = "Obviously no good reason";
         fixture
                 .given(
-                        initiativeCreated("initiative-1", not_started))
-                .when(new DecideToNotBecomeSmokeFreeCommand("initiative-1", reason))
+                        initiativeCreated("initiative-1", not_started),
+                        new ManagerJoinedInitiativeEvent("initiative-1", MANAGER_1))
+                .when(new DecideToNotBecomeSmokeFreeCommand("initiative-1", reason), asManager1())
                 .expectSuccessfulHandlerExecution()
                 .expectEvents(new InitiativeStoppedEvent("initiative-1", not_started, stopped, reason));
 
+    }
+
+    @Test
+    void should_deny_status_change_when_not_manager() {
+        fixture
+                .given(
+                        initiativeCreated("initiative-1", not_started),
+                        new CitizenJoinedInitiativeEvent("initiative-1", "manager-XYZ"))
+                .when(new DecideToBecomeSmokeFreeCommand("initiative-1"), asManager1())
+                .expectException(IllegalArgumentException.class)
+                .expectNoEvents();
+    }
+
+    private Map<String, ?> asManager1() {
+        return singletonMap("user_id", MANAGER_1);
     }
 
     private InitiativeCreatedEvent initiativeCreated(String id, Status status) {

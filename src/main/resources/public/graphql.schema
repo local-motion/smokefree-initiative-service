@@ -44,6 +44,8 @@ type Mutation {
     createInitiative(input: CreateInitiativeInput!): InputAcceptedResponse!
     joinInitiative(input: JoinInitiativeInput!): InputAcceptedResponse!
 
+    claimManagerRole(input: ClaimManagerRoleCommand!): InputAcceptedResponse!
+
     decideToBecomeSmokeFree(input: DecideToBecomeSmokeFreeCommand!): InputAcceptedResponse!
     decideToNotBecomeSmokeFree(input: DecideToNotBecomeSmokeFreeCommand!): InputAcceptedResponse!
 }
@@ -75,5 +77,8 @@ input DecideToBecomeSmokeFreeCommand {
     reason: String
 }
 input DecideToBecomeSmokeFreeCommand {
+    initiativeId: String!
+}
+input ClaimManagerRoleCommand {
     initiativeId: String!
 }

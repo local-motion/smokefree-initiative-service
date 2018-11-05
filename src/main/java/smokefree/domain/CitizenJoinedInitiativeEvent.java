@@ -5,7 +5,7 @@ import lombok.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
-public class InitiativeJoinedEvent {
+public class CitizenJoinedInitiativeEvent {
     String initiativeId;
     String citizenId;
 }

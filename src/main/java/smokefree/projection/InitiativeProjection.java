@@ -2,22 +2,17 @@ package smokefree.projection;
 
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventhandling.EventHandler;
-import org.axonframework.eventhandling.EventMessage;
-import org.axonframework.messaging.annotation.MessageHandler;
 import smokefree.domain.GeoLocation;
 import smokefree.domain.InitiativeCreatedEvent;
-import smokefree.domain.InitiativeJoinedEvent;
+import smokefree.domain.CitizenJoinedInitiativeEvent;
 import smokefree.domain.Status;
 
 import javax.inject.Singleton;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static java.util.Collections.unmodifiableCollection;
-import static java.util.Collections.unmodifiableList;
 
 @Slf4j
 @Singleton
@@ -50,7 +45,7 @@ public class InitiativeProjection {
     }
 
     @EventHandler
-    public void on(InitiativeJoinedEvent evt) {
+    public void on(CitizenJoinedInitiativeEvent evt) {
         log.info("ON EVENT {}", evt);
     }
 
