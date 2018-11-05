@@ -74,4 +74,13 @@ public class Mutation implements GraphQLMutationResolver {
         gateway.sendAndWait(new GenericCommandMessage<>(cmd, metaData));
         return new InputAcceptedResponse(cmd.getInitiativeId());
     }
+
+    public InputAcceptedResponse commitToSmokeFreeDate(CommitToSmokeFreeDateCommand cmd) {
+        // TODO: Currently hardcoded. Solved by AWS Cognito
+        final HashMap<String, Object> metaData = newHashMap();
+        metaData.put("user_id", "manager-1");
+
+        gateway.sendAndWait(new GenericCommandMessage<>(cmd, metaData));
+        return new InputAcceptedResponse(cmd.getInitiativeId());
+    }
 }

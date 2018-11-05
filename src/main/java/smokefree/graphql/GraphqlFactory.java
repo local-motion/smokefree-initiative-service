@@ -2,6 +2,10 @@ package smokefree.graphql;
 
 import com.coxautodev.graphql.tools.SchemaParser;
 import com.coxautodev.graphql.tools.SchemaParserBuilder;
+import com.zhokhov.graphql.datetime.GraphQLDate;
+import com.zhokhov.graphql.datetime.GraphQLLocalDate;
+import com.zhokhov.graphql.datetime.GraphQLLocalDateTime;
+import com.zhokhov.graphql.datetime.GraphQLLocalTime;
 import graphql.GraphQL;
 import graphql.schema.GraphQLSchema;
 import io.micronaut.context.annotation.Bean;
@@ -27,7 +31,12 @@ public class GraphqlFactory {
         final String schemaString = IOUtils.readText(new BufferedReader(new InputStreamReader(input)));
         final SchemaParserBuilder builder = SchemaParser.newParser()
                 .resolvers(query, mutation)
-                .schemaString(schemaString);
+                .schemaString(schemaString)
+                .scalars(
+                        new GraphQLDate(),
+                        new GraphQLLocalDate(),
+                        new GraphQLLocalDateTime(),
+                        new GraphQLLocalTime());
         GraphQLSchema graphQLSchema = builder.build().makeExecutableSchema();
         return GraphQL.newGraphQL(graphQLSchema).build();
     }
