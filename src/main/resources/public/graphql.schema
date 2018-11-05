@@ -43,6 +43,9 @@ type Stat {
 type Mutation {
     createInitiative(input: CreateInitiativeInput!): InputAcceptedResponse!
     joinInitiative(input: JoinInitiativeInput!): InputAcceptedResponse!
+
+    decideToBecomeSmokeFree(input: DecideToBecomeSmokeFreeCommand!): InputAcceptedResponse!
+    decideToNotBecomeSmokeFree(input: DecideToNotBecomeSmokeFreeCommand!): InputAcceptedResponse!
 }
 type InputAcceptedResponse {
     id : String!
@@ -65,5 +68,12 @@ input CreateInitiativeInput {
     lng: Float!
 }
 input JoinInitiativeInput {
+    initiativeId: String!
+}
+input DecideToBecomeSmokeFreeCommand {
+    initiativeId: String!
+    reason: String
+}
+input DecideToBecomeSmokeFreeCommand {
     initiativeId: String!
 }

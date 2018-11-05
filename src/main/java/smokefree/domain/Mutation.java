@@ -43,36 +43,12 @@ public class Mutation implements GraphQLMutationResolver {
         return new InputAcceptedResponse(input.getInitiativeId());
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-    @SneakyThrows
-    public InputAcceptedResponse joinInitiative(JoinInitiativeInput input) {
-        gateway.sendAndWait(new JoinInitiativeCommand(input.getInitiativeId(), input.getCitizenId()));
-        return new InputAcceptedResponse(input.getInitiativeId());
+    public InputAcceptedResponse decideToBecomeSmokeFree(DecideToBecomeSmokeFreeCommand cmd) {
+        gateway.sendAndWait(cmd);
+        return new InputAcceptedResponse(cmd.getInitiativeId());
     }
-
-*/
-
+    public InputAcceptedResponse decideToNotBecomeSmokeFree(DecideToNotBecomeSmokeFreeCommand cmd) {
+        gateway.sendAndWait(cmd);
+        return new InputAcceptedResponse(cmd.getInitiativeId());
+    }
 }
