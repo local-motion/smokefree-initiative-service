@@ -1,15 +1,3 @@
-# java.util.Date implementation
-# scalar Date
-
-# java.time.LocalDate implementation
-scalar LocalDate
-
-# java.time.LocalDateTime implementation
-# scalar LocalDateTime
-
-# java.time.LocalTime implementation
-# scalar LocalTime
-
 schema {
     query: Query
     mutation: Mutation
