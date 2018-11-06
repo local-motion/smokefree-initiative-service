@@ -26,6 +26,8 @@ micronaut:
     endpoints:
       login:
         enabled: true
+      logout:
+        enabled: true
       oauth:
         enabled: true
     token:
@@ -34,7 +36,16 @@ micronaut:
         signatures:
           secret:
             generator:
-              secret: "${JWT_GENERATOR_SIGNATURE_SECRET:b04dc560-e955-49e8-9f74-e72a5d34b160}"
+              secret: pleaseChangeThisSecretForANewOne
+      # http://guides.micronaut.io/micronaut-token-propagation/guide/index.html
+      # https://docs.micronaut.io/snapshot/guide/index.html#tokenPropagation
+      writer:
+        header:
+          enabled: true
+        propagation:
+          enabled: true
+          service-id-regex: "userecho"
+
 ## SSL probably not necessary since it's transparently handled by Istio
 #  ssl:
 #    enabled: true
