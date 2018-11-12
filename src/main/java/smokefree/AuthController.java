@@ -7,11 +7,11 @@ import io.micronaut.security.annotation.Secured;
 import java.security.Principal;
 
 @Secured("isAuthenticated()") 
-@Controller("/")  
-public class HomeController {
+@Controller("/auth")
+public class AuthController {
 
-    @Get("/")  
-    String index(Principal principal) {  
+    @Get("/signin")
+    String signin(Principal principal) {
         return principal.getName();
     }
 }

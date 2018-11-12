@@ -7,11 +7,11 @@
     <version>0.1</version>
     <properties>
         <exec.mainClass>smokefree.Application</exec.mainClass>
-        <micronaut.version>1.0.0</micronaut.version>
         <jdk.version>10</jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <lombok.version>1.18.2</lombok.version>
         <axon.version>4.0</axon.version>
+        <micronaut.version>1.0.0</micronaut.version>
     </properties>
     <scm>
         <connection>scm:git:git@github.com:local-motion/${project.artifactId}.git</connection>

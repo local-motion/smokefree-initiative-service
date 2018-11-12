@@ -5,13 +5,18 @@
 Simply run `smokefree.Application`
 
 
-## Running Graphiql
+## Running Graphql Playground
 
 ```
-docker run --name graphiql -d -p 4001:4000 -e API_URL=http://localhost:18085/graphql npalm/graphiql
+brew cask install graphql-playground
 ```
 
-Go to Graphiql at http://localhost:4001 
+Open the installed "GraphQL Playground" OSX application
+```
+./request_token.sh
+```
+
+
 
 ### Mutation
 
@@ -43,3 +48,8 @@ Running above example results in:
   }
 }
 ```
+
+
+Other stuff:
+npm install -g @aws-amplify/cli
+amplify configure
