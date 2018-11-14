@@ -33,7 +33,9 @@ public class InitiativeProjection {
                 evt.getName(),
                 geoLocation.getLat(),
                 geoLocation.getLng(),
-                evt.getStatus()));
+                evt.getStatus(),
+                0,
+                0));
 
         if (Status.finished == evt.getStatus()) {
             progress.incrementSmokeFree();
@@ -47,6 +49,9 @@ public class InitiativeProjection {
     @EventHandler
     public void on(CitizenJoinedInitiativeEvent evt) {
         log.info("ON EVENT {}", evt);
+        final Playground playground = playgrounds.get(evt.getInitiativeId());
+        final Playground updatedPlayground = playground.withVolunteerCount(playground.getVolunteerCount() + 1);
+        playgrounds.put(evt.getInitiativeId(), updatedPlayground);
     }
 
     public Collection<Playground> playgrounds() {
