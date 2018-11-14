@@ -22,6 +22,8 @@ type Playground {
     lng : Float
     lat : Float
     status: Status
+    volunteerCount: Int
+    votes: Int
 }
 
 enum Status {
