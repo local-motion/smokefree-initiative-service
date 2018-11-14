@@ -37,6 +37,9 @@ class InitiativeProjectionTest {
         final Progress.Stat smoking = progress.getSmoking();
         assertEquals(2, smoking.getCount());
         assertEquals(25d, smoking.getPercentage());
+
+        assertEquals(8, progress.getTotal());
+        assertEquals(6, progress.getRemaining());
     }
 
     InitiativeCreatedEvent initiativeCreated(Status status) {
