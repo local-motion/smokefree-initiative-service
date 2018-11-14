@@ -31,6 +31,8 @@ enum Status {
 }
 
 type Progress {
+    total: Int
+    remaining: Int
     smokeFree: Stat
     workingOnIt: Stat
     smoking: Stat

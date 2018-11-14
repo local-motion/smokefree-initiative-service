@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Progress {
     int total;
+    int remaining;
     Stat smokeFree = new Stat();
     Stat workingOnIt = new Stat();
     Stat smoking = new Stat();
@@ -28,10 +29,12 @@ public class Progress {
 
     void incrementWorkingOnIt() {
         incrementStat(workingOnIt);
+        remaining++;
     }
 
     void incrementSmoking() {
         incrementStat(smoking);
+        remaining++;
     }
 
     @Getter

@@ -27,7 +27,7 @@ public class GraphqlFactory {
     @Bean
     @Singleton
     public GraphQL graphQL(Query query, Mutation mutation) throws IOException {
-        InputStream input = GraphqlFactory.class.getResourceAsStream("/public/graphql.schema");
+        InputStream input = GraphqlFactory.class.getResourceAsStream("/public/schema.graphql");
         final String schemaString = IOUtils.readText(new BufferedReader(new InputStreamReader(input)));
         final SchemaParserBuilder builder = SchemaParser.newParser()
                 .resolvers(query, mutation)
