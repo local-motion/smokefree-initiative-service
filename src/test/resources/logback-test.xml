@@ -1,0 +1,25 @@
+<configuration>
+
+    <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- encoders are assigned the type
+             ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <logger name="smokefree" level="trace" additivity="false">
+        <appender-ref ref="stdout" />
+    </logger>
+    <logger name="org.axonframework" level="info" additivity="false">
+        <appender-ref ref="stdout" />
+    </logger>
+    <logger name="io.micronaut" level="info" additivity="false">
+        <appender-ref ref="stdout" />
+    </logger>
+    <logger name="graphql" level="info" additivity="false">
+        <appender-ref ref="stdout" />
+    </logger>
+    <root level="info">
+        <appender-ref ref="stdout" />
+    </root>
+</configuration>
