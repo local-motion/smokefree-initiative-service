@@ -9,6 +9,7 @@ import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.rules.SecurityRule;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.config.Configuration;
 import smokefree.graphql.GraphqlQuery;
@@ -20,11 +21,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static io.micronaut.security.rules.SecurityRule.IS_AUTHENTICATED;
+
 @SuppressWarnings("Duplicates")
 @Slf4j
-@Secured("isAuthenticated()")
+@Secured(IS_AUTHENTICATED)
 @Controller("/graphql")
-public class InitiativeController {
+public class GraphqlController {
     @Inject
     private GraphQL graphQL;
     @Inject

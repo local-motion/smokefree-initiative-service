@@ -18,12 +18,15 @@ import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.commandhandling.gateway.DefaultCommandGateway;
 import org.axonframework.config.*;
 import org.axonframework.eventhandling.EventBus;
+import org.axonframework.messaging.interceptors.BeanValidationInterceptor;
 import org.axonframework.queryhandling.*;
 import org.axonframework.serialization.Serializer;
 import org.axonframework.serialization.json.JacksonSerializer;
 import org.axonframework.serialization.upcasting.event.NoOpEventUpcaster;
 import smokefree.domain.Initiative;
 import smokefree.projection.InitiativeProjection;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 @Slf4j
 @Factory
@@ -121,6 +124,7 @@ public class AxonFactory {
         return DefaultCommandGateway
                 .builder()
                 .commandBus(commandBus)
+                .dispatchInterceptors(newArrayList(new BeanValidationInterceptor<>()))
                 .build();
     }
 }

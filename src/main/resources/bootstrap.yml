@@ -11,11 +11,8 @@ micronaut:
   #      - ^http(|s)://www\.google\.com$
 
   router:
-    # IMPORTANT:
-    # When moving from Micronaut M4 to 1.0, this configuration will likely break
-    # See https://github.com/micronaut-projects/micronaut-core/commit/72cc492e317027189836933f02330bf9f65ed453#diff-81426fb3a435372472dd5e40424e69c2L44
-    static:
-      resources:
+    static-resources:
+      public:
         enabled: true
         paths: classpath:public
         mapping: /**
@@ -31,6 +28,17 @@ micronaut:
       oauth:
         # TODO: is oauth needed? we're not refreshing on the server when 'implicit grant' flow?
         enabled: true
+      beans:
+        enabled: true
+        sensitive: true
+      info:
+        enabled: true
+        sensitive: false
+    intercept-url-map:
+    - pattern: /schema.graphql
+      http-method: GET
+      access:
+      - isAnonymous()
     token:
       enabled: true
       jwt:
