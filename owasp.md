@@ -1,26 +1,80 @@
+## Owasp top 10 - 2017
+
+See https://www.owasp.org/index.php/Top_10-2017_Top_10
+
 - [x] A1:2017-Injection
 ```
 Local Motion is using event sourcing. The EventStore is managed by
-the Axon Framework. Axon uses prepared statements in case of a Jdbc 
-Event Store implementation. 
+the Axon Framework. Axon uses prepared statements in case of a Jdbc
+Event Store implementation.
 
 See also org.axonframework.eventsourcing.eventstore.jdbc.JdbcEventStorageEngine
 
-The projections / views are re-created on server startup and reside 
+The projections / views are re-created on server startup and reside
 in memory. No possibility for injections there.
 ```
-- [ ] A2:2017-Broken Authentication
+- [x] A2:2017-Broken Authentication
+```
+All endpoints are by default secured using Micronaut's `SecurityFilter`. Whitelisting endpoints to
+allow for anonymous access is a conscious and specific configuration change. Configuration
+changes are recorded through GitHub commits.
 
+During local development, the authentication mechanism works identical to test and production
+environments (incl. the use of AWS Cognito, access and refresh tokens).
 
-- [ ] A3:2017-Sensitive Data Exposure
+During each build, we have unit tests in place that start the application and test for `401` when no JWT token
+was provided.
+```
+- [x] A3:2017-Sensitive Data Exposure
+```
+Local Motion uses AWS Cognito to maintain a user pool. JWT tokens are used
+to communicate identity and claims. JWT tokens are verified using JWK (AWS
+public key).
+
+Local Motion does not store financial data.
+
+Local Motion does not store PII. It may store nickname and email in the future. Using
+CQRS, it is particularly easy to create 'projections' or 'view models' containing only
+a subset of properties of a typical 'user domain object'. In other words, we'd have
+a volunteer accessible projection that simply does not contain sensitive data, while
+a completely separate admin projection could contain PII (e.g. email). Accidental leakage
+of data is reduced this way.
+```
+
 - [x] A4:2017-XML External Entities (XXE)
 ```
 Local Motion does not use XML.
 ```
 
-- [ ] A5:2017-Broken Access Control
+- [x] A5:2017-Broken Access Control
+```
+Local Motion's data is all accessible to the public with the exception of a user's settings. A user's
+settings is retrieved through one's JWT token identity.
+
+In general, anything user specific is always fetched through one's JWT token identity.
+
+We currently only have one role: 'volunteer'. All is visible to this role.
+
+Roles are configured using scopes in AWS Cognito's User Pools. If we were to introduce
+additional roles, then Controllers/Endpoints would require @Secured({"ROLE_ADMIN", "ROLE_X"})
+annotations.
+
+See for example https://github.com/micronaut-projects/micronaut-core/blob/master/security/src/test/groovy/io/micronaut/docs/security/securityRule/secured/ExampleController.java
+```
 - [ ] A6:2017-Security Misconfiguration
-- [ ] A7:2017-Cross-Site Scripting (XSS)
+- [x] A7:2017-Cross-Site Scripting (XSS)
+
+Local Motion uses React which prevents XSS injection by default. One specifically
+has to enable HTML execution through providing the `dangerouslySetInnerHTML`
+attribute.
+
+When using above attribute, the rule is to use `@SafeHtml(whitelistType = SafeHtml.WhiteListType.BASIC)` on
+the respective command property. `@SafeHtml` is part of the Hibernate Validation (JSR-303) and uses `jsoup` to sanitize
+the incoming HTML contents using a WhiteList approach.
+
+The above handles incoming `Strings`; Java's type system (`enums`, `ints`, `doubles`, etc.)
+automatically removes XSS related input for the other types.
+
 - [ ] A8:2017-Insecure Deserialization
 - [x] A9:2017-Using Components with Known Vulnerabilities
 ```

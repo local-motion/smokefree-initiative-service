@@ -36,6 +36,7 @@ public class GraphqlController {
     @Post(value="/", consumes= MediaType.APPLICATION_JSON)
     public Map<String, Object> graphqlPost(Principal principal, @Size(max=4096) @Body GraphqlQuery query) {
         log.info("Principal: {}", principal.getName());
+        log.trace("Query: {}", query.getQuery());
 
         Assert.assertNotNull(query.getQuery());
 
