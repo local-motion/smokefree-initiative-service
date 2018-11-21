@@ -135,6 +135,11 @@
             <artifactId>json</artifactId>
             <version>20170516</version>
         </dependency>
+        <dependency>
+            <groupId>org.owasp</groupId>
+            <artifactId>security-logging-logback</artifactId>
+            <version>LATEST</version>
+        </dependency>
 
         <!-- Test -->
         <dependency>

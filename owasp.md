@@ -61,7 +61,10 @@ annotations.
 
 See for example https://github.com/micronaut-projects/micronaut-core/blob/master/security/src/test/groovy/io/micronaut/docs/security/securityRule/secured/ExampleController.java
 ```
-- [ ] A6:2017-Security Misconfiguration
+- [x] A6:2017-Security Misconfiguration
+```
+See A2 above.
+```
 - [x] A7:2017-Cross-Site Scripting (XSS)
 ```
 Local Motion uses React which prevents XSS injection by default. One specifically
@@ -75,7 +78,7 @@ the incoming HTML contents using a WhiteList approach.
 The above handles incoming `Strings`; Java's type system (`enums`, `ints`, `doubles`, etc.)
 automatically removes XSS related input for the other types.
 ```
-- [ ] A8:2017-Insecure Deserialization
+- [x] A8:2017-Insecure Deserialization
 ```
 Local Motion uses Jackson for deserialization of JSON payload. With regards to known
 vulnerabilities around 'Global default typing', Local Motion doesn't
@@ -91,7 +94,10 @@ Local-Motion uses the following tools to mitigate:
 
 ```
 - [ ] A10:2017-Insufficient Logging&Monitoring
-
+```
+Local Motion makes use of Event Sourcing. Our event store is our audit trail for every write
+in the system.
+```
 
 ---
 ## Secure Coding
@@ -119,4 +125,15 @@ Access-Control-Allow-Credentials: true
 Date: Wed, 21 Nov 2018 07:52:40 GMT
 connection: keep-alive
 transfer-encoding: chunked
+```
+
+
+### Sanitize logs
+
+`logback.xml` uses OWASP's conversion rule to strip newline characters from log messages:
+
+```
+<conversionRule
+    conversionWord="crlf"
+    converterClass="org.owasp.security.logging.mask.CRLFConverter"/>
 ```
