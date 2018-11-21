@@ -63,7 +63,7 @@ See for example https://github.com/micronaut-projects/micronaut-core/blob/master
 ```
 - [ ] A6:2017-Security Misconfiguration
 - [x] A7:2017-Cross-Site Scripting (XSS)
-
+```
 Local Motion uses React which prevents XSS injection by default. One specifically
 has to enable HTML execution through providing the `dangerouslySetInnerHTML`
 attribute.
@@ -74,8 +74,14 @@ the incoming HTML contents using a WhiteList approach.
 
 The above handles incoming `Strings`; Java's type system (`enums`, `ints`, `doubles`, etc.)
 automatically removes XSS related input for the other types.
-
+```
 - [ ] A8:2017-Insecure Deserialization
+```
+Local Motion uses Jackson for deserialization of JSON payload. With regards to known
+vulnerabilities around 'Global default typing', Local Motion doesn't
+
+https://github.com/FasterXML/jackson-docs/wiki/JacksonPolymorphicDeserialization#111-security-risks-using-global-default-typing
+```
 - [x] A9:2017-Using Components with Known Vulnerabilities
 ```
 Local-Motion uses the following tools to mitigate:
@@ -85,3 +91,32 @@ Local-Motion uses the following tools to mitigate:
 
 ```
 - [ ] A10:2017-Insufficient Logging&Monitoring
+
+
+---
+## Secure Coding
+
+### Stacktrace
+
+- Throwable is mapped to return a generic JSON response using Micronaut's `@Error(global = true)`.
+- GraphQL errors are stripped of any stacktraces using `GraphQLError.toSpecification()`
+
+
+### Headers
+
+Local Motion headers do not leak unnecessary or server related information.
+
+Headers are:
+```
+HTTP/1.1 200 OK
+Access-Control-Allow-Methods: POST
+Access-Control-Allow-Headers: authorization
+Access-Control-Allow-Headers: content-type
+Access-Control-Max-Age: 1800
+Access-Control-Allow-Origin: http://foo.com
+Vary: Origin
+Access-Control-Allow-Credentials: true
+Date: Wed, 21 Nov 2018 07:52:40 GMT
+connection: keep-alive
+transfer-encoding: chunked
+```
