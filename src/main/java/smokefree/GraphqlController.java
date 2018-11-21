@@ -1,9 +1,6 @@
 package smokefree;
 
-import graphql.Assert;
-import graphql.ExecutionInput;
-import graphql.ExecutionResult;
-import graphql.GraphQL;
+import graphql.*;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
@@ -23,7 +20,6 @@ import java.util.Map;
 
 import static io.micronaut.security.rules.SecurityRule.IS_AUTHENTICATED;
 
-@SuppressWarnings("Duplicates")
 @Slf4j
 @Secured(IS_AUTHENTICATED)
 @Controller("/graphql")
@@ -34,7 +30,7 @@ public class GraphqlController {
     private Configuration configuration; // TODO: Trick to trigger bean creation. Can be done differently?
 
     @Post(value="/", consumes= MediaType.APPLICATION_JSON)
-    public Map<String, Object> graphqlPost(Principal principal, @Size(max=4096) @Body GraphqlQuery query) {
+    public Map<String, Object> graphql(Principal principal, @Size(max=4096) @Body GraphqlQuery query) {
         log.info("Principal: {}", principal.getName());
         log.trace("Query: {}", query.getQuery());
 
@@ -49,17 +45,12 @@ public class GraphqlController {
         // build the resulting response
         Map<String, Object> result = new HashMap<>();
         result.put("data", executionResult.getData());
-
-        // append any errors that may have occurred
-        List<?> errors = executionResult.getErrors();
-        if (errors != null && !errors.isEmpty()) {
-            result.put("errors", errors);
-        }
-
-        // add any extension data
         result.put("extensions", executionResult.getExtensions());
 
-        // return the resulting data
+        // append any errors that may have occurred
+        executionResult
+                .getErrors()
+                .forEach(error -> result.putAll(error.toSpecification()));
         return result;
     }
 }

@@ -3,12 +3,15 @@ micronaut:
     port: 18086
     cors:
       enabled: true
-  #      configurations:
-  #        web:
-  #          allowedOrigins:
-  #          - *
-  #      - http://foo.com
-  #      - ^http(|s)://www\.google\.com$
+      configurations:
+        web:
+          allowedOrigins:
+          - http://localhost:3000
+          - http://foo.com
+          - ^http(|s)://www\.google\.com$
+          allowedMethods:
+          - GET
+          - POST
 
   router:
     static-resources:
