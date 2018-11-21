@@ -2,7 +2,11 @@
 
 ## Running in Intellij
 
-Simply run `smokefree.Application`
+Simply run `smokefree.Application` with following environment variables
+
+```
+EVENTSTORE_URL=http://localhost:3306/smokefree
+```
 
 
 ## Running Graphql Playground
