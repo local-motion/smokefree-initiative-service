@@ -1,6 +1,6 @@
 package smokefree;
 
-import io.micronaut.context.annotation.Bean;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micronaut.context.annotation.Factory;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +15,6 @@ import org.axonframework.config.Configurer;
 import org.axonframework.config.DefaultConfigurer;
 import org.axonframework.eventhandling.EventBus;
 import org.axonframework.eventsourcing.eventstore.EmbeddedEventStore;
-import org.axonframework.eventsourcing.eventstore.EventStorageEngine;
 import org.axonframework.eventsourcing.eventstore.jdbc.JdbcEventStorageEngine;
 import org.axonframework.eventsourcing.eventstore.jdbc.MySqlEventTableFactory;
 import org.axonframework.messaging.interceptors.BeanValidationInterceptor;
@@ -59,8 +58,10 @@ public class AxonFactory {
 
 
     @Singleton
-    public Serializer jsonSerializer() {
-        return JacksonSerializer.builder().build();
+    public Serializer jsonSerializer(ObjectMapper objectMapper) {
+        return JacksonSerializer.builder()
+                .objectMapper(objectMapper)
+                .build();
     }
 
     @Singleton
