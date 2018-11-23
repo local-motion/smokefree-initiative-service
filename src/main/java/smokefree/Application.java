@@ -1,5 +1,6 @@
 package smokefree;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
@@ -15,6 +16,11 @@ import smokefree.projection.InitiativeProjection;
 public class Application {
     public static void main(String[] args) {
         Micronaut.run(Application.class);
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
     }
 
     @Bean
