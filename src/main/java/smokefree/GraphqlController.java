@@ -11,17 +11,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.axonframework.config.Configuration;
 import smokefree.graphql.GraphqlQuery;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import static io.micronaut.security.rules.SecurityRule.IS_ANONYMOUS;
 import static io.micronaut.security.rules.SecurityRule.IS_AUTHENTICATED;
 
 @Slf4j
-@Secured(IS_AUTHENTICATED)
+@Secured(IS_ANONYMOUS)
 @Controller("/graphql")
 public class GraphqlController {
     @Inject
@@ -30,7 +33,7 @@ public class GraphqlController {
     private Configuration configuration; // TODO: Trick to trigger bean creation. Can be done differently?
 
     @Post(value="/", consumes= MediaType.APPLICATION_JSON)
-    public Map<String, Object> graphql(Principal principal, @Size(max=4096) @Body GraphqlQuery query) {
+    public Map<String, Object> graphql(@Nullable Principal principal, @Size(max=4096) @Body GraphqlQuery query) {
         log.trace("Query: {}", query.getQuery());
 
         Assert.assertNotNull(query.getQuery());
@@ -39,6 +42,7 @@ public class GraphqlController {
         ExecutionInput.Builder builder = new ExecutionInput.Builder()
                 .query(query.getQuery())
                 .variables(query.getVariables());
+        builder.context(new Context(principal));
         ExecutionResult executionResult = graphQL.execute(builder);
 
         // build the resulting response
@@ -51,5 +55,17 @@ public class GraphqlController {
                 .getErrors()
                 .forEach(error -> result.putAll(error.toSpecification()));
         return result;
+    }
+
+    private class Context extends HashMap<String, Object> {
+        public Context(Principal principal) {
+            if (principal != null) {
+                put("principal", principal);
+            }
+        }
+
+        public Principal principal() {
+            return (Principal) get("principal");
+        }
     }
 }
