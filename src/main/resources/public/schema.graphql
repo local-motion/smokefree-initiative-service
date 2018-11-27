@@ -25,7 +25,7 @@ type Playground {
     lng : Float
     lat : Float
     status: Status
-    volunteerCount: Int @auth(role : "manager")
+    volunteerCount: Int #@auth(role : "manager")
     votes: Int
 }
 
