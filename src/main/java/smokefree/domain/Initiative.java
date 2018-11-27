@@ -14,6 +14,7 @@ import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static java.time.LocalDate.now;
+import static org.axonframework.common.Assert.assertNonNull;
 import static org.axonframework.modelling.command.AggregateLifecycle.apply;
 import static smokefree.domain.Status.*;
 
@@ -31,8 +32,9 @@ public class Initiative {
     private LocalDate smokeFreeDate;
 
     @CommandHandler
-    public Initiative(CreateInitiativeCommand cmd) {
+    public Initiative(CreateInitiativeCommand cmd, MetaData metaData) {
         apply(new InitiativeCreatedEvent(cmd.initiativeId, cmd.type, cmd.status, cmd.name, cmd.geoLocation));
+        apply(new CitizenJoinedInitiativeEvent(cmd.initiativeId, requireUserId(metaData)));
     }
 
     @CommandHandler
@@ -46,7 +48,7 @@ public class Initiative {
 
     @CommandHandler
     public void claimManagerRole(ClaimManagerRoleCommand cmd, MetaData metaData) {
-        String managerId = (String) metaData.get("user_id");
+        String managerId = requireUserId(metaData);
         if (managers.contains(managerId)) {
             log.warn("{} is already managing {}. Ignoring...", managerId, cmd.initiativeId);
         } else {
@@ -111,8 +113,14 @@ public class Initiative {
         smokeFreeDate = evt.smokeFreeDate;
     }
 
+    private String requireUserId(MetaData metaData) {
+        final String userId = (String) metaData.get("user_id");
+        assertNonNull(userId, () -> new IllegalStateException("User ID must be set"));
+        return userId;
+    }
+
     private void assertCurrentUserIsManager(MetaData metaData) {
-        String userId = (String) metaData.get("user_id");
+        String userId = requireUserId(metaData);
         Assert.isTrue(managers.contains(userId), () -> userId + " is not a manager");
     }
 }
