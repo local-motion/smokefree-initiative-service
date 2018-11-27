@@ -1,3 +1,5 @@
+directive @auth(role : String!) on FIELD_DEFINITION
+
 scalar Date
 scalar LocalDate
 scalar LocalDateTime
@@ -7,6 +9,7 @@ schema {
     query: Query
     mutation: Mutation
 }
+
 
 #
 # Queries
@@ -22,7 +25,7 @@ type Playground {
     lng : Float
     lat : Float
     status: Status
-    volunteerCount: Int
+    volunteerCount: Int @auth(role : "manager")
     votes: Int
 }
 
