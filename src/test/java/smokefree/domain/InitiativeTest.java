@@ -26,12 +26,18 @@ class InitiativeTest {
         fixture.registerCommandDispatchInterceptor(new BeanValidationInterceptor<>());
     }
 
+    private Map<String, Object> metadataWithUser() {
+        return singletonMap("user_id", "citizen-1");
+    }
+
     @Test
     void should_allow_create_initiative() {
         fixture.givenNoPriorActivity()
-                .when(new CreateInitiativeCommand("initiative-1", "Test initiative", smokefree, not_started, new GeoLocation(null, null)))
+                .when(new CreateInitiativeCommand("initiative-1", "Test initiative", smokefree, not_started, new GeoLocation(null, null)), metadataWithUser())
                 .expectSuccessfulHandlerExecution()
-                .expectEvents(initiativeCreated("initiative-1", not_started));
+                .expectEvents(
+                        initiativeCreated("initiative-1", not_started),
+                        new CitizenJoinedInitiativeEvent("initiative-1", "citizen-1"));
     }
 
     @Test
