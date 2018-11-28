@@ -2,7 +2,7 @@ micronaut:
   server:
     port: 18086
     cors:
-      enabled: true
+      enabled: false
       configurations:
         web:
           allowedOrigins:
@@ -17,13 +17,13 @@ micronaut:
   router:
     static-resources:
       public:
-        enabled: true
+        enabled: false
         paths: classpath:public
         mapping: /**
   application:
     name: smokefree-initiative-service
   security:
-    enabled: true
+    enabled: fasle
     endpoints:
       login:
         enabled: true
@@ -44,7 +44,7 @@ micronaut:
       access:
       - isAnonymous()
     token:
-      enabled: true
+      enabled: false
       jwt:
         enabled: true
         algorithm: HS256
@@ -68,9 +68,13 @@ jackson:
     useBigIntegerForInts: true
     failOnUnknownProperties: false
 
-datasources:
-  default:
-    url: jdbc:mysql://localhost:3306/smokefree
-    username: root
-    password: root
-    driverClassName: com.mysql.jdbc.Driver
+# AWS secret Manager holds RDS details securly, that's because we do not need below database details here anymore
+aws:
+  rds:
+    jdbcdriverclass: com.mysql.jdbc.Driver
+
+# AWS Secret Manager instance id and region
+secret:
+  name: dev/smokefree/red-secret-1559
+  region: eu-west-1
+

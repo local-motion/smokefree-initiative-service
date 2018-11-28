@@ -1,9 +1,12 @@
 package smokefree;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.micronaut.context.annotation.Factory;
-import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import static com.google.common.collect.Lists.newArrayList;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+import javax.sql.DataSource;
+
 import org.axonframework.commandhandling.CommandBus;
 import org.axonframework.commandhandling.SimpleCommandBus;
 import org.axonframework.commandhandling.gateway.CommandGateway;
@@ -18,17 +21,25 @@ import org.axonframework.eventsourcing.eventstore.EmbeddedEventStore;
 import org.axonframework.eventsourcing.eventstore.jdbc.JdbcEventStorageEngine;
 import org.axonframework.eventsourcing.eventstore.jdbc.MySqlEventTableFactory;
 import org.axonframework.messaging.interceptors.BeanValidationInterceptor;
-import org.axonframework.queryhandling.*;
+import org.axonframework.queryhandling.DefaultQueryGateway;
+import org.axonframework.queryhandling.QueryBus;
+import org.axonframework.queryhandling.QueryGateway;
+import org.axonframework.queryhandling.SimpleQueryBus;
+import org.axonframework.queryhandling.SimpleQueryUpdateEmitter;
 import org.axonframework.serialization.Serializer;
 import org.axonframework.serialization.json.JacksonSerializer;
 import org.axonframework.serialization.upcasting.event.NoOpEventUpcaster;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
+import io.micronaut.context.annotation.Factory;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import smokefree.aws.rds.secretmanager.RDSSecretManager;
 import smokefree.domain.Initiative;
 import smokefree.projection.InitiativeProjection;
-
-import javax.inject.Singleton;
-import javax.sql.DataSource;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 @Slf4j
 @Factory
@@ -65,7 +76,7 @@ public class AxonFactory {
     }
 
     @Singleton
-    public EventBus eventBus(DataSource dataSource, Serializer serializer) {
+    public EventBus eventBus(@Named("DataSource") DataSource dataSource, Serializer serializer) {
         JdbcEventStorageEngine engine = JdbcEventStorageEngine.builder()
                 .connectionProvider(new DataSourceConnectionProvider(dataSource))
                 .transactionManager(NoTransactionManager.instance())
@@ -106,5 +117,20 @@ public class AxonFactory {
                 .commandBus(commandBus)
                 .dispatchInterceptors(newArrayList(new BeanValidationInterceptor<>()))
                 .build();
+    }
+
+
+    @Singleton
+    @Named("DataSource")
+    public DataSource dataSource(@Named("SecretManager") RDSSecretManager rDSSecretManager) {
+	log.info("Data Source is being Intialized...");
+	HikariConfig cofig = new HikariConfig();
+	cofig.setJdbcUrl(rDSSecretManager.getJDBCurl());
+	cofig.setUsername(rDSSecretManager.getUsername());
+	cofig.setPassword(rDSSecretManager.getPassword());
+	cofig.setDriverClassName(rDSSecretManager.getJDBCDriverClass());
+	HikariDataSource dataSource = new HikariDataSource(cofig);
+	log.info("Data Source is Intialized Successfully");
+	return dataSource;
     }
 }
