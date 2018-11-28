@@ -27,22 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 @Named("SecretManager")
 public class RDSSecretManager {
 
-	private static final String DBNAME = "dbname";
 
-	private static final String DB_PORT = "port";
-
-	private static final String DB_HOST = "host";
-
-	private static final String DB_ENGINE = "engine";
-
-	private static final String DB_PASSWORD = "password";
-
-	private static final String DB_USERNAME = "username";
-
-	private static final Object COLON = ":";
-
-	private static final Object DOUBLE_SLASH = "//";
-	private static final Object SINGLE_SLASH = "/";
 
 	@Value("${secret.name}")
 	private String secretName;
@@ -70,28 +55,18 @@ public class RDSSecretManager {
 		        getSecretValueResult = secretManagerClient.getSecretValue(getSecretValueRequest);
 		        log.info("Application fetched secrets successfully");
 		    } catch (DecryptionFailureException e) {
-		        // Secrets Manager can't decrypt the protected secret text using the provided KMS key.
-		        // Deal with the exception here, and/or rethrow at your discretion.
 				log.error("Secrets Manager can't decrypt the protected secret text using the provided KMS key", e);
 		        throw new SecretManagerException(e.getMessage(), e);
 		    } catch (InternalServiceErrorException e) {
-		        // An error occurred on the server side.
-		        // Deal with the exception here, and/or rethrow at your discretion.
 				log.error("An error occurred on the secret manager server side");
 				throw new SecretManagerException(e.getMessage(), e);
 		    } catch (InvalidParameterException e) {
-		        // You provided an invalid value for a parameter.
-		        // Deal with the exception here, and/or rethrow at your discretion.
 				log.error("You provided an invalid value for a parameter", e);
 				throw new SecretManagerException(e.getMessage(), e);
 		    } catch (InvalidRequestException e) {
-		        // You provided a parameter value that is not valid for the current state of the resource.
-		        // Deal with the exception here, and/or rethrow at your discretion.
 				log.error("You provided a parameter value that is not valid for the current state of the resource", e);
 				throw new SecretManagerException(e.getMessage(), e);
 		    } catch (ResourceNotFoundException e) {
-		        // We can't find the resource that you asked for.
-		        // Deal with the exception here, and/or rethrow at your discretion.
 				log.error("Can't find the resource that you asked for");
 				throw new SecretManagerException(e.getMessage(), e);
 		    }
@@ -123,7 +98,6 @@ public class RDSSecretManager {
 		return this.secretMap;
 	}
 
-	//jdbc:mysql://localhost:3306/localmotion
 
 	public String getJDBCurl() {
 		String completeJDBCUrl = null;
@@ -131,11 +105,11 @@ public class RDSSecretManager {
 			this.getRDSDetails();
 		}
 		StringBuilder jdbcUrl = new StringBuilder("jdbc");
-		jdbcUrl.append(COLON);
-		jdbcUrl.append(secretMap.get(DB_ENGINE)).append(COLON).append(DOUBLE_SLASH);
-		jdbcUrl.append(secretMap.get(DB_HOST)).append(COLON);
-		jdbcUrl.append(secretMap.get(secretMap.get(DB_PORT))).append(SINGLE_SLASH);
-		jdbcUrl.append(secretMap.get(DBNAME));
+		jdbcUrl.append(SmokefreeConstants.COLON);
+		jdbcUrl.append(secretMap.get(SmokefreeConstants.DB_ENGINE)).append(SmokefreeConstants.COLON).append(SmokefreeConstants.DOUBLE_SLASH);
+		jdbcUrl.append(secretMap.get(SmokefreeConstants.DB_HOST)).append(SmokefreeConstants.COLON);
+		jdbcUrl.append(secretMap.get(SmokefreeConstants.DB_PORT)).append(SmokefreeConstants.SINGLE_SLASH);
+		jdbcUrl.append(secretMap.get(SmokefreeConstants.DBNAME));
 		completeJDBCUrl =  jdbcUrl.toString();
 		log.info("Formatted JDBC URL is {}", completeJDBCUrl);
 		return completeJDBCUrl;
@@ -143,11 +117,11 @@ public class RDSSecretManager {
 
 	public String getUsername() {
 
-		return didSecretFetch()? secretMap.get(DB_USERNAME) : getRDSDetails().get(DB_USERNAME);
+		return didSecretFetch()? secretMap.get(SmokefreeConstants.DB_USERNAME) : getRDSDetails().get(SmokefreeConstants.DB_USERNAME);
 	}
 
 	public String getPassword() {
-		return didSecretFetch() ? secretMap.get(DB_PASSWORD) : getRDSDetails().get(DB_PASSWORD);
+		return didSecretFetch() ? secretMap.get(SmokefreeConstants.DB_PASSWORD) : getRDSDetails().get(SmokefreeConstants.DB_PASSWORD);
 	}
 	public String getJDBCDriverClass() {
 		return driverClass;
@@ -156,5 +130,7 @@ public class RDSSecretManager {
 	private boolean didSecretFetch() {
 		return this.secretMap != null;
 	}
+
+
 
 }
