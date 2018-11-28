@@ -2,7 +2,7 @@ micronaut:
   server:
     port: 18086
     cors:
-      enabled: false
+      enabled: true
       configurations:
         web:
           allowedOrigins:
