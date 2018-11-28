@@ -75,6 +75,11 @@ public class AxonFactory {
                 .build();
     }
 
+    /**
+     * @param dataSource
+     * @param serializer
+     * @return
+     */
     @Singleton
     public EventBus eventBus(@Named("DataSource") DataSource dataSource, Serializer serializer) {
         JdbcEventStorageEngine engine = JdbcEventStorageEngine.builder()
@@ -120,6 +125,12 @@ public class AxonFactory {
     }
 
 
+    /**
+     * It returns a {@code javax.sql.DataSource} by fetching data source details from AWS Secret Manager.
+     * Sooner or later, If we change AWS Secret Manager and RDS instance, corresponding details must go in {@code bootstrap/application YAML file}
+     * @param rDSSecretManager
+     * @return
+     */
     @Singleton
     @Named("DataSource")
     public DataSource dataSource(@Named("SecretManager") RDSSecretManager rDSSecretManager) {
