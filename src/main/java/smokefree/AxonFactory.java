@@ -3,7 +3,7 @@ package smokefree;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import io.micronaut.context.annotation.Factory;
+import io.micronaut.context.annotation.*;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandBus;
@@ -69,7 +69,7 @@ public class AxonFactory {
     }
 
     @Singleton
-    public EventBus eventBus(/*@Named("DataSource") */DataSource dataSource, Serializer serializer) {
+    public EventBus eventBus(@Named("axon") DataSource dataSource, Serializer serializer) {
         JdbcEventStorageEngine engine = JdbcEventStorageEngine.builder()
                 .connectionProvider(new DataSourceConnectionProvider(dataSource))
                 .transactionManager(NoTransactionManager.instance())
@@ -112,27 +112,54 @@ public class AxonFactory {
                 .build();
     }
 
+    @Singleton
+    @Requires(env = "local")
+    @Named("axon")
+    public DataSource dataSourceLocal() {
+        log.info("Local datasource is being initialized...");
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl("jdbc:mysql://localhost:3306/smokefree");
+        config.setUsername("root");
+        config.setPassword("root");
+        config.setDriverClassName("com.mysql.jdbc.Driver");
+        HikariDataSource dataSource = new HikariDataSource(config);
+        log.info("Local datasource initialized successfully");
+        return dataSource;
+    }
+
+    @Singleton
+    @Requires(env = "local-docker")
+    @Named("axon")
+    public DataSource dataSourceLocalDocker() {
+        log.info("Local datasource is being initialized...");
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl("jdbc:mysql://mysql:3306/smokefree");
+        config.setUsername("root");
+        config.setPassword("root");
+        config.setDriverClassName("com.mysql.jdbc.Driver");
+        HikariDataSource dataSource = new HikariDataSource(config);
+        log.info("Local datasource initialized successfully");
+        return dataSource;
+    }
+
 
     /**
      * It returns a {@code javax.sql.DataSource} by fetching data source details from AWS Secret Manager.
      * Sooner or later, If we change AWS Secret Manager and RDS instance, corresponding details must go in {@code bootstrap/application YAML file}
-     *
-     * @param rDSSecretManager
-     * @return
      */
-/*
     @Singleton
-    @Named("DataSource")
-    public DataSource dataSource(@Named("SecretManager") RDSSecretManager rDSSecretManager) {
-        log.info("Data Source is being Intialized...");
-        HikariConfig cofig = new HikariConfig();
-        cofig.setJdbcUrl(rDSSecretManager.getJDBCurl());
-        cofig.setUsername(rDSSecretManager.getUsername());
-        cofig.setPassword(rDSSecretManager.getPassword());
-        cofig.setDriverClassName(rDSSecretManager.getJDBCDriverClass());
-        HikariDataSource dataSource = new HikariDataSource(cofig);
-        log.info("Data Source is Intialized Successfully");
+    @Named("axon")
+    @Requires(env = "aws")
+    @Requires(beans = RDSSecretManager.class)
+    public DataSource awsDataSource(RDSSecretManager rdsSecretManager) {
+        log.info("RDS datasource is being initialized...");
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl(rdsSecretManager.getJDBCurl());
+        config.setUsername(rdsSecretManager.getUsername());
+        config.setPassword(rdsSecretManager.getPassword());
+        config.setDriverClassName(rdsSecretManager.getJDBCDriverClass());
+        HikariDataSource dataSource = new HikariDataSource(config);
+        log.info("RDS datasource initialized successfully");
         return dataSource;
     }
-*/
 }
