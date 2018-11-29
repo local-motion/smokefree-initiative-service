@@ -184,13 +184,6 @@
             <version>1.0.0.RC2</version>
             <scope>test</scope>
         </dependency>
-
-        <!--  AWS SDK for Secret Manager -->
-        <dependency>
-		<groupId>com.amazonaws</groupId>
-		<artifactId>aws-java-sdk-secretsmanager</artifactId>
-		<version>1.11.344</version>
-		</dependency>
     </dependencies>
     <build>
         <plugins>

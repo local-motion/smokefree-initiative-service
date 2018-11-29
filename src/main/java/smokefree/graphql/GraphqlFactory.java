@@ -9,10 +9,8 @@ import com.zhokhov.graphql.datetime.GraphQLLocalDateTime;
 import com.zhokhov.graphql.datetime.GraphQLLocalTime;
 import graphql.GraphQL;
 import graphql.schema.DataFetcher;
-import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLSchema;
-import graphql.schema.idl.RuntimeWiring;
 import graphql.schema.idl.SchemaDirectiveWiring;
 import graphql.schema.idl.SchemaDirectiveWiringEnvironment;
 import io.micronaut.context.annotation.Bean;
@@ -28,9 +26,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.security.Principal;
 import java.util.Map;
-import java.util.Optional;
 
 @Factory
 @NoArgsConstructor
