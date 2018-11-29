@@ -44,7 +44,7 @@ public class Mutation implements GraphQLMutationResolver {
                 input.getType(),
                 input.getStatus(),
                 new GeoLocation(input.getLat(), input.getLng()));
-        final CompletableFuture<String> result = gateway.send(command);
+        final CompletableFuture<String> result = gateway.send(decorateWithUserId(command));
         return InputAcceptedResponse.fromFuture(result);
     }
 
