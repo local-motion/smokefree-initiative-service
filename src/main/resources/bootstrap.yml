@@ -80,7 +80,7 @@ secret:
 
 datasources:
   default:
-    url: jdbc:mysql://localhost:3306/smokefree
+    url: jdbc:mysql://mysql:3306/smokefree
     username: root
     password: root
     driverClassName: com.mysql.jdbc.Driver
