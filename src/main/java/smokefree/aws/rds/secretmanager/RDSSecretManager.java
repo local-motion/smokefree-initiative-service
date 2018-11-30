@@ -43,7 +43,7 @@ public class RDSSecretManager {
             try {
                 log.info("Connecting AWS Secret Manager " + getSecretValueRequest.getSecretId());
                 getSecretValueResult = secretManagerClient.getSecretValue(getSecretValueRequest);
-                log.info("Application fetched secrets successfully");
+                log.info("Application fetched secrets successfully" + getSecretValueResult);
             } catch (DecryptionFailureException e) {
                 log.error("Secrets Manager can't decrypt the protected secret text using the provided KMS key", e);
                 throw new SecretManagerException(e.getMessage(), e);
@@ -67,6 +67,7 @@ public class RDSSecretManager {
                 secret = getSecretValueResult.getSecretString();
                 try {
                     this.secretMap = objectMapper.readValue(secret, HashMap.class);
+                    log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>> this.secretMap: " + this.secretMap);
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     log.error("Error while Parsing the {}  JSON", secret);
@@ -76,6 +77,7 @@ public class RDSSecretManager {
                 decodedBinarySecret = new String(Base64.getDecoder().decode(getSecretValueResult.getSecretBinary()).array());
                 try {
                     this.secretMap = objectMapper.readValue(decodedBinarySecret, HashMap.class);
+                    log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>> this.secretMap: " + this.secretMap);
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     log.error("Error while Parsing the {}  JSON", decodedBinarySecret);
