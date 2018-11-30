@@ -5,7 +5,12 @@
 Simply run `smokefree.Application` with following environment variables
 
 ```
-EVENTSTORE_URL=http://localhost:3306/smokefree
+MICRONAUT_SERVER_PORT	8086
+MICRONAUT_ENVIRONMENTS	local
+MYSQL_JDBC_URL	        jdbc:mysql://localhost:3306/smokefree
+MYSQL_USERNAME	        root
+MYSQL_PASSWORD	        root
+MYSQL_DRIVER_CLASS_NAME	com.mysql.jdbc.Driver
 ```
 
 
