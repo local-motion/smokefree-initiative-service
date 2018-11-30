@@ -58,6 +58,10 @@ public class InitiativeProjection {
         return unmodifiableCollection(playgrounds.values());
     }
 
+    public Playground playground(String id) {
+        return playgrounds.get(id);
+    }
+
     public Progress progress() {
         return progress;
     }
