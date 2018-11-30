@@ -17,6 +17,7 @@ schema {
 type Query {
     playgrounds: [Playground]
     progress: Progress
+    playground(id: String!): Playground
 }
 
 type Playground {

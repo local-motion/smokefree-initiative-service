@@ -25,14 +25,11 @@ class InitiativeProjectionTest {
         projection.on(initiativeCreated(Status.finished));
         projection.on(new CitizenJoinedInitiativeEvent(initiative1.getInitiativeId(), "citizen-1"));
         projection.on(new CitizenJoinedInitiativeEvent(initiative1.getInitiativeId(), "citizen-2"));
+        assertEquals(4, projection.playgrounds().size());
 
-
-        final Playground playground = projection
-                .playgrounds()
-                .stream()
-                .filter(p -> p.getId().equals(initiative1.getInitiativeId()))
-                .findFirst()
-                .orElseThrow();
+        final Playground playground = projection.playground(initiative1.getInitiativeId());
+        assertNotNull(playground);
+        assertEquals(Status.in_progress, playground.getStatus());
         assertEquals(2, playground.getVolunteerCount());
     }
 

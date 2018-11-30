@@ -22,11 +22,11 @@ public class Query implements GraphQLQueryResolver {
         return projection.playgrounds();
     }
 
+    public Playground playground(String id) {
+        return projection.playground(id);
+    }
+
     public Progress progress() {
         return projection.progress();
     }
-
-//    public int add(AdditionInput input) {
-//        return input.getFirst() + input.getSecond();
-//    }
 }
