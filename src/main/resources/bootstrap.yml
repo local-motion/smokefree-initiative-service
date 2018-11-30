@@ -76,5 +76,5 @@ aws:
 
 # AWS Secret Manager instance id and region
 secret:
-  name: dev/smokefree/rds-secret-1504
+  name: MyRDSSecret-zP9lcPsgYobR
   region: eu-west-1
