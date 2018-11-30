@@ -40,7 +40,7 @@ public class RDSSecretManager {
             try {
                 log.info("Connecting AWS Secret Manager " + getSecretValueRequest.getSecretId());
                 getSecretValueResult = secretManagerClient.getSecretValue(getSecretValueRequest);
-                log.info("Application fetched secrets successfully");
+                log.info("Application fetched secrets successfully" + getSecretValueResult);
             } catch (DecryptionFailureException e) {
                 log.error("Secrets Manager can't decrypt the protected secret text using the provided KMS key", e);
                 throw new SecretManagerException(e.getMessage(), e);
@@ -94,7 +94,7 @@ public class RDSSecretManager {
         jdbcUrl.append(SmokefreeConstants.COLON);
         jdbcUrl.append(secretMap.get(SmokefreeConstants.DB_ENGINE)).append(SmokefreeConstants.COLON).append(SmokefreeConstants.DOUBLE_SLASH);
         jdbcUrl.append(secretMap.get(SmokefreeConstants.DB_HOST)).append(SmokefreeConstants.COLON);
-        jdbcUrl.append(secretMap.get(SmokefreeConstants.DB_PORT)).append(SmokefreeConstants.SINGLE_SLASH);
+        jdbcUrl.append("3306").append(SmokefreeConstants.SINGLE_SLASH);
         jdbcUrl.append(secretMap.get(SmokefreeConstants.DBNAME));
         completeJDBCUrl = jdbcUrl.toString();
         log.info("Formatted JDBC URL is {}", completeJDBCUrl);
