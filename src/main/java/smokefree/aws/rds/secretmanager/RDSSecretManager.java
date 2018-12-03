@@ -28,9 +28,9 @@ public class RDSSecretManager {
     @Inject
     AWSSecretsManager secretManagerClient;
 
-    private Map<String, String> secretMap;
+    private Map<String, Object> secretMap;
 
-    private Map<String, String> getRDSDetails() {
+    private Map<String, Object> getRDSDetails() {
         if (secretMap == null) {
             String secret, decodedBinarySecret;
             GetSecretValueRequest getSecretValueRequest = new GetSecretValueRequest()
@@ -93,25 +93,10 @@ public class RDSSecretManager {
             this.getRDSDetails();
         }
         StringBuilder jdbcUrl = new StringBuilder("jdbc");
-        try {
-        	 log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + secretMap.get(SmokefreeConstants.DB_PORT).toString());
-        	 String s= secretMap.get(SmokefreeConstants.DB_PORT).toString();
-        	 if(secretMap.get(SmokefreeConstants.DB_PORT) instanceof String) {
-        		 log.info(" YEs>>>>>>instance of String");
-        	 } else log.info("Instannce of " + secretMap.get(SmokefreeConstants.DB_PORT).getClass());
-        	 log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + secretMap.get(SmokefreeConstants.DB_PORT));
-             
-             
-        }catch(Exception e) {
-        	log.error("Error  occured>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-        	e.printStackTrace();
-        }
-        //log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + secretMap.get(SmokefreeConstants.DB_PORT));
-        //log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + secretMap.get(SmokefreeConstants.DB_PORT).toString());
         jdbcUrl.append(SmokefreeConstants.COLON);
         jdbcUrl.append(secretMap.get(SmokefreeConstants.DB_ENGINE)).append(SmokefreeConstants.COLON).append(SmokefreeConstants.DOUBLE_SLASH);
         jdbcUrl.append(secretMap.get(SmokefreeConstants.DB_HOST)).append(SmokefreeConstants.COLON);
-        jdbcUrl.append("3306").append(SmokefreeConstants.SINGLE_SLASH);
+        jdbcUrl.append(secretMap.get(SmokefreeConstants.DB_PORT)).append(SmokefreeConstants.SINGLE_SLASH);
         jdbcUrl.append(secretMap.get(SmokefreeConstants.DBNAME));
         completeJDBCUrl = jdbcUrl.toString();
         log.info("Formatted JDBC URL is {}", completeJDBCUrl);
@@ -120,11 +105,11 @@ public class RDSSecretManager {
 
     public String getUsername() {
 
-        return didSecretFetch() ? secretMap.get(SmokefreeConstants.DB_USERNAME) : getRDSDetails().get(SmokefreeConstants.DB_USERNAME);
+        return didSecretFetch() ? secretMap.get(SmokefreeConstants.DB_USERNAME).toString() : getRDSDetails().get(SmokefreeConstants.DB_USERNAME).toString();
     }
 
     public String getPassword() {
-        return didSecretFetch() ? secretMap.get(SmokefreeConstants.DB_PASSWORD) : getRDSDetails().get(SmokefreeConstants.DB_PASSWORD);
+        return didSecretFetch() ? secretMap.get(SmokefreeConstants.DB_PASSWORD).toString() : getRDSDetails().get(SmokefreeConstants.DB_PASSWORD).toString();
     }
 
     public String getJDBCDriverClass() {
