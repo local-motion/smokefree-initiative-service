@@ -71,6 +71,7 @@ jackson:
 # AWS secret Manager holds RDS details securely, that's because we do not need below database details here anymore
 aws:
   rds:
+    enableSsl: false
     jdbcdriverclass: com.mysql.jdbc.Driver
 
 # AWS Secret Manager instance id and region

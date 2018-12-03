@@ -22,6 +22,9 @@ public class RDSSecretManager {
     @Value("${aws.rds.jdbcdriverclass}")
     private String driverClass;
 
+    @Value("${aws.rds.enableSsl:true}")
+    private boolean isSslEnabled;
+
     @Inject
     ObjectMapper objectMapper;
 
@@ -86,7 +89,6 @@ public class RDSSecretManager {
 
 
     public String getJDBCurl() {
-        String completeJDBCUrl = null;
         if (!didSecretFetch()) {
             this.getRDSDetails();
         }
@@ -96,9 +98,12 @@ public class RDSSecretManager {
         jdbcUrl.append(secretMap.get(SmokefreeConstants.DB_HOST)).append(SmokefreeConstants.COLON);
         jdbcUrl.append(secretMap.get(SmokefreeConstants.DB_PORT)).append(SmokefreeConstants.SINGLE_SLASH);
         jdbcUrl.append(secretMap.get(SmokefreeConstants.DBNAME));
-        completeJDBCUrl = jdbcUrl.toString();
-        log.info("Formatted JDBC URL is {}", completeJDBCUrl);
-        return completeJDBCUrl;
+        if (isSslEnabled) {
+            jdbcUrl.append("?verifyServerCertificate=true&useSSL=true");
+        }
+        String completeJdbcUrl = jdbcUrl.toString();
+        log.info("Formatted JDBC URL is {}", completeJdbcUrl);
+        return completeJdbcUrl;
     }
 
     public String getUsername() {
