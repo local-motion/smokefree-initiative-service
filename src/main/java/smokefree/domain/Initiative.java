@@ -34,7 +34,6 @@ public class Initiative {
     @CommandHandler
     public Initiative(CreateInitiativeCommand cmd, MetaData metaData) {
         apply(new InitiativeCreatedEvent(cmd.initiativeId, cmd.type, cmd.status, cmd.name, cmd.geoLocation));
-        apply(new CitizenJoinedInitiativeEvent(cmd.initiativeId, requireUserId(metaData)));
     }
 
     @CommandHandler
