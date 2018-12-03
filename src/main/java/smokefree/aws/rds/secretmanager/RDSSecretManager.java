@@ -96,13 +96,19 @@ public class RDSSecretManager {
         }
         StringBuilder jdbcUrl = new StringBuilder("jdbc");
         try {
+        	 log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + secretMap.get(SmokefreeConstants.DB_PORT).toString());
+        	 String s= secretMap.get(SmokefreeConstants.DB_PORT).toString();
+        	 if(secretMap.get(SmokefreeConstants.DB_PORT) instanceof String) {
+        		 log.info(" YEs>>>>>>instance of String");
+        	 } else log.info("Instannce of " + secretMap.get(SmokefreeConstants.DB_PORT).getClass());
         	 log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + secretMap.get(SmokefreeConstants.DB_PORT));
-             log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + secretMap.get(SmokefreeConstants.DB_PORT).toString());
+             
              
         }catch(Exception e) {
         	log.error("Error  occured>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        	e.printStackTrace();
         }
-        log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + secretMap.get(SmokefreeConstants.DB_PORT));
+        //log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + secretMap.get(SmokefreeConstants.DB_PORT));
         log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + secretMap.get(SmokefreeConstants.DB_PORT).toString());
         jdbcUrl.append(SmokefreeConstants.COLON);
         jdbcUrl.append(secretMap.get(SmokefreeConstants.DB_ENGINE)).append(SmokefreeConstants.COLON).append(SmokefreeConstants.DOUBLE_SLASH);
