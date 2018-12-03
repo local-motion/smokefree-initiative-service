@@ -95,10 +95,19 @@ public class RDSSecretManager {
             this.getRDSDetails();
         }
         StringBuilder jdbcUrl = new StringBuilder("jdbc");
+        try {
+        	 log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + secretMap.get(SmokefreeConstants.DB_PORT));
+             log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + secretMap.get(SmokefreeConstants.DB_PORT).toString());
+             
+        }catch(Exception e) {
+        	log.error("Error  occured>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        }
+        log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + secretMap.get(SmokefreeConstants.DB_PORT));
+        log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + secretMap.get(SmokefreeConstants.DB_PORT).toString());
         jdbcUrl.append(SmokefreeConstants.COLON);
         jdbcUrl.append(secretMap.get(SmokefreeConstants.DB_ENGINE)).append(SmokefreeConstants.COLON).append(SmokefreeConstants.DOUBLE_SLASH);
         jdbcUrl.append(secretMap.get(SmokefreeConstants.DB_HOST)).append(SmokefreeConstants.COLON);
-        jdbcUrl.append(secretMap.get(SmokefreeConstants.DB_PORT)).append(SmokefreeConstants.SINGLE_SLASH);
+        jdbcUrl.append("3306").append(SmokefreeConstants.SINGLE_SLASH);
         jdbcUrl.append(secretMap.get(SmokefreeConstants.DBNAME));
         if (isSslEnabled) {
             jdbcUrl.append("?verifyServerCertificate=true&useSSL=true");
