@@ -107,7 +107,7 @@ public class RDSSecretManager {
         	e.printStackTrace();
         }
         //log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + secretMap.get(SmokefreeConstants.DB_PORT));
-        log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + secretMap.get(SmokefreeConstants.DB_PORT).toString());
+        //log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + secretMap.get(SmokefreeConstants.DB_PORT).toString());
         jdbcUrl.append(SmokefreeConstants.COLON);
         jdbcUrl.append(secretMap.get(SmokefreeConstants.DB_ENGINE)).append(SmokefreeConstants.COLON).append(SmokefreeConstants.DOUBLE_SLASH);
         jdbcUrl.append(secretMap.get(SmokefreeConstants.DB_HOST)).append(SmokefreeConstants.COLON);
