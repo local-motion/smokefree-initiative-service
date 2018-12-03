@@ -12,10 +12,36 @@
         <lombok.version>1.18.2</lombok.version>
         <axon.version>4.0</axon.version>
         <micronaut.version>1.0.1</micronaut.version>
+        <aws.version>1.11.461</aws.version>
+        <jackson.version>2.9.7</jackson.version>
     </properties>
     <scm>
         <connection>scm:git:git@github.com:local-motion/${project.artifactId}.git</connection>
     </scm>
+    <dependencyManagement>
+        <dependencies>
+            <!--
+            Force specific Jackson, AWS SDK is using vulnerable version.
+
+            https://snyk.io/vuln/SNYK-JAVA-COMFASTERXMLJACKSONCORE-72445
+            -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.module</groupId>
+                <artifactId>jackson-module-kotlin</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-cbor</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -128,7 +154,7 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-cognitoidentity</artifactId>
-            <version>1.11.455</version>
+            <version>${aws.version}</version>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
@@ -155,7 +181,7 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-secretsmanager</artifactId>
-            <version>1.11.455</version>
+            <version>${aws.version}</version>
         </dependency>
 
 
