@@ -35,9 +35,7 @@ class InitiativeTest {
         fixture.givenNoPriorActivity()
                 .when(new CreateInitiativeCommand("initiative-1", "Test initiative", smokefree, not_started, new GeoLocation(null, null)), metadataWithUser())
                 .expectSuccessfulHandlerExecution()
-                .expectEvents(
-                        initiativeCreated("initiative-1", not_started),
-                        new CitizenJoinedInitiativeEvent("initiative-1", "citizen-1"));
+                .expectEvents(initiativeCreated("initiative-1", not_started));
     }
 
     @Test
