@@ -25,7 +25,7 @@ import static io.micronaut.security.rules.SecurityRule.IS_AUTHENTICATED;
 
 @Slf4j
 @Secured(IS_ANONYMOUS)
-@Controller("/graphql")
+@Controller("${micronaut.context.path:}/graphql")
 public class GraphqlController {
     @Inject
     private GraphQL graphQL;

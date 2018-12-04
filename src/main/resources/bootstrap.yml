@@ -22,6 +22,8 @@ micronaut:
         mapping: /**
   application:
     name: smokefree-initiative-service
+  context:
+    path: /api
   security:
     enabled: true
     endpoints:
