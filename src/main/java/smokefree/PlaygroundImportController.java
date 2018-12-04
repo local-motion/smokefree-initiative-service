@@ -22,7 +22,7 @@ import static io.micronaut.security.rules.SecurityRule.IS_AUTHENTICATED;
 import static java.util.Collections.singletonMap;
 
 @Secured(IS_AUTHENTICATED)
-@Controller("/playgrounds")
+@Controller("${micronaut.context.path:}/playgrounds")
 public class PlaygroundImportController {
     @Inject
     Configuration configuration; // TODO: Hack for triggering Axon bootstrap
