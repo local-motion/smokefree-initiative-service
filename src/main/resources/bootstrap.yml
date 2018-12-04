@@ -72,6 +72,9 @@ jackson:
 
 # AWS secret Manager holds RDS details securely, that's because we do not need below database details here anymore
 aws:
+  cognito:
+    region: eu-west-1
+    userpoolid: eu-west-1_qWMNA59fh
   rds:
     enableSsl: false
     jdbcdriverclass: com.mysql.jdbc.Driver

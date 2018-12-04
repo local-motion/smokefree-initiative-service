@@ -5,6 +5,7 @@ import com.nimbusds.jose.util.IOUtils;
 import com.nimbusds.jose.util.JSONObjectUtils;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
+import io.micronaut.context.annotation.Value;
 import io.micronaut.security.token.jwt.signature.SignatureConfiguration;
 import io.micronaut.security.token.jwt.signature.rsa.RSASignature;
 import io.micronaut.security.token.jwt.signature.rsa.RSASignatureConfiguration;
@@ -23,7 +24,13 @@ import java.security.interfaces.RSAPublicKey;
 @NoArgsConstructor
 public class RsaSignatureConfigurationFactory {
 	//	@Value("") // TODO: Read from config.
-	private String jwkUrl = "https://cognito-idp.eu-west-1.amazonaws.com/eu-west-1_WsTxYUHyC/.well-known/jwks.json";
+	//private String jwkUrl = "https://cognito-idp.eu-west-1.amazonaws.com/eu-west-1_WsTxYUHyC/.well-known/jwks.json";
+	
+	@Value("${aws.cognito.region}")
+	private String region;
+	
+	@Value("${aws.cognito.userpoolid}")
+	private String userPoolId;
 
 	@Bean
 	public SignatureConfiguration awsCognitoSignatureConfiguration() {
@@ -32,13 +39,21 @@ public class RsaSignatureConfigurationFactory {
 			@SneakyThrows
 			@Override
 			public RSAPublicKey getPublicKey() {
-				final URL url = new URL(jwkUrl);
+				final URL url = new URL(this.getJwkUrl());
 				String json = IOUtils.readInputStreamToString(url.openStream(), Charset.forName("UTF-8"));
 				final JSONObject jwkWithMultipleKeys = JSONObjectUtils.parse(json);
 				final JSONArray keys = JSONObjectUtils.getJSONArray(jwkWithMultipleKeys, "keys");
 				final JSONObject singleJsonKey = (JSONObject)keys.get(0);
 				return new RSAKey.Builder(RSAKey.parse(singleJsonKey)).build().toRSAPublicKey();
 			}
+			
+			private String getJwkUrl() {
+				String jwk = "https://cognito-idp." + region + ".amazonaws.com/" + userPoolId + "/.well-known/jwks.json";
+				log.info("JWK: " + jwk);
+				return jwk;
+			}
 		});
 	}
+	
+	
 }
