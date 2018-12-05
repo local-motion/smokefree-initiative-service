@@ -23,9 +23,6 @@ import java.security.interfaces.RSAPublicKey;
 @Factory
 @NoArgsConstructor
 public class RsaSignatureConfigurationFactory {
-	//	@Value("") // TODO: Read from config.
-	//private String jwkUrl = "https://cognito-idp.eu-west-1.amazonaws.com/eu-west-1_WsTxYUHyC/.well-known/jwks.json";
-	
 	@Value("${aws.cognito.region}")
 	private String region;
 	
@@ -49,7 +46,7 @@ public class RsaSignatureConfigurationFactory {
 			
 			private String getJwkUrl() {
 				String jwk = "https://cognito-idp." + region + ".amazonaws.com/" + userPoolId + "/.well-known/jwks.json";
-				log.info("JWK: " + jwk);
+				log.info("Using region [{}] and userpool [{}] to read JWK from {}", region, userPoolId, jwk);
 				return jwk;
 			}
 		});
