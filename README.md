@@ -11,7 +11,7 @@ MYSQL_JDBC_URL	        jdbc:mysql://localhost:3306/smokefree
 MYSQL_USERNAME	        root
 MYSQL_PASSWORD	        root
 MYSQL_DRIVER_CLASS_NAME	com.mysql.jdbc.Driver
-AWS_COGNITO_USERPOOLID  eu-west-1_64ShtC2tS
+AWS_COGNITO_USERPOOLID  eu-west-1_WsTxYUHyC
 ```
 
 
