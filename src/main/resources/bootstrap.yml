@@ -74,7 +74,7 @@ jackson:
 aws:
   cognito:
     region: eu-west-1
-    userpoolid: eu-west-1_qWMNA59fh
+    userpoolid: eu-west-1_64ShtC2tS
   rds:
     enableSsl: false
     jdbcdriverclass: com.mysql.jdbc.Driver
