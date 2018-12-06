@@ -80,6 +80,3 @@ aws:
     jdbcdriverclass: com.mysql.jdbc.Driver
 
 # AWS Secret Manager instance id and region
-secret:
-  name: MyRDSSecret-zP9lcPsgYobR
-  region: eu-west-1
