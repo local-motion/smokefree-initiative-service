@@ -1,10 +1,7 @@
 package smokefree;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
 import io.micronaut.context.annotation.Bean;
-import io.micronaut.context.annotation.Primary;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -14,9 +11,6 @@ import io.micronaut.http.hateos.Link;
 import io.micronaut.runtime.Micronaut;
 import lombok.extern.slf4j.Slf4j;
 import smokefree.projection.InitiativeProjection;
-
-import javax.inject.Singleton;
-import javax.sql.DataSource;
 
 @Slf4j
 public class Application {

@@ -9,6 +9,7 @@ import org.axonframework.messaging.MetaData;
 import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateRoot;
 
+import javax.validation.ValidationException;
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -74,11 +75,19 @@ public class Initiative {
 
     @CommandHandler
     public void commitToSmokeFreeDate(CommitToSmokeFreeDateCommand cmd, MetaData metaData) {
-        Assert.isTrue(smokeFreeDate == null || cmd.smokeFreeDate.isBefore(now()),
-                () -> "Cannot commit to a new smoke-free date once an earlier committed date has passed");
+        assertEarlierCommittedDateNotInPast();
         assertCurrentUserIsManager(metaData);
         apply(new SmokeFreeDateCommittedEvent(cmd.initiativeId, smokeFreeDate, cmd.smokeFreeDate));
         apply(new InitiativeProgressedEvent(cmd.initiativeId, status, finished));
+    }
+
+    private void assertEarlierCommittedDateNotInPast() {
+        if (this.smokeFreeDate == null) {
+            return;
+        }
+        if (this.smokeFreeDate.isBefore(now())) {
+            throw new ValidationException("Cannot commit to a new smoke-free date once an earlier committed date has passed");
+        }
     }
 
     @EventSourcingHandler

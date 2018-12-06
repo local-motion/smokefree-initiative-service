@@ -1,9 +1,7 @@
 package smokefree;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import io.micronaut.context.annotation.*;
+import io.micronaut.context.annotation.Factory;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandBus;
@@ -24,7 +22,6 @@ import org.axonframework.queryhandling.*;
 import org.axonframework.serialization.Serializer;
 import org.axonframework.serialization.json.JacksonSerializer;
 import org.axonframework.serialization.upcasting.event.NoOpEventUpcaster;
-import smokefree.aws.rds.secretmanager.RDSSecretManager;
 import smokefree.domain.Initiative;
 import smokefree.projection.InitiativeProjection;
 

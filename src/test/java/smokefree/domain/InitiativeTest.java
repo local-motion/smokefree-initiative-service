@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.validation.ValidationException;
 import java.time.LocalDate;
 import java.util.Map;
 
@@ -140,6 +141,20 @@ class InitiativeTest {
                 .expectEvents(
                         new SmokeFreeDateCommittedEvent("initiative-1", null, tomorrow),
                         new InitiativeProgressedEvent("initiative-1", not_started, finished));
+    }
+
+    @Test
+    void should_not_accept_updated_smokefree_date_when_original_date_in_past() {
+        LocalDate yesterday = now().minusDays(1);
+        LocalDate today = now();
+
+        fixture
+                .given(
+                        initiativeCreated("initiative-1", not_started),
+                        managerJoined(MANAGER_1),
+                        new SmokeFreeDateCommittedEvent("initiative-1", null, yesterday))
+                .when(new CommitToSmokeFreeDateCommand("initiative-1", today), asManager1())
+                .expectException(ValidationException.class);
     }
 
     private Map<String, ?> asManager1() {

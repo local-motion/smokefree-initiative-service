@@ -3,6 +3,7 @@ package smokefree.graphql;
 import com.coxautodev.graphql.tools.SchemaParser;
 import com.coxautodev.graphql.tools.SchemaParserBuilder;
 import com.coxautodev.graphql.tools.SchemaParserOptions;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zhokhov.graphql.datetime.GraphQLDate;
 import com.zhokhov.graphql.datetime.GraphQLLocalDate;
 import com.zhokhov.graphql.datetime.GraphQLLocalDateTime;
@@ -33,11 +34,11 @@ import java.util.Map;
 public class GraphqlFactory {
     @Bean
     @Singleton
-    public GraphQL graphQL(Query query, Mutation mutation, SecurityService securityService) throws IOException {
+    public GraphQL graphQL(Query query, Mutation mutation, SecurityService securityService, ObjectMapper objectMapper) throws IOException {
         InputStream input = GraphqlFactory.class.getResourceAsStream("/public/schema.graphql");
         final String schemaString = IOUtils.readText(new BufferedReader(new InputStreamReader(input)));
         final SchemaParserBuilder builder = SchemaParser.newParser()
-                .options(SchemaParserOptions.defaultOptions())
+                .options(SchemaParserOptions.newOptions().objectMapperProvider(fieldDefinition -> objectMapper).build())
                 .resolvers(query, mutation)
                 .schemaString(schemaString)
                 .directive("auth", new AuthorisationDirective(securityService))
