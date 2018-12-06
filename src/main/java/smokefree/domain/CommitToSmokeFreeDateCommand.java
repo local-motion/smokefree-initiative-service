@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
+import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
@@ -17,5 +18,6 @@ public class CommitToSmokeFreeDateCommand {
     String initiativeId;
 
     @NotNull
+    @FutureOrPresent
     LocalDate smokeFreeDate;
 }
