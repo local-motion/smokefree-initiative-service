@@ -4,6 +4,8 @@ import lombok.Value;
 import lombok.experimental.Wither;
 import smokefree.domain.Status;
 
+import java.time.LocalDate;
+
 @Value
 @Wither
 public class Playground {
@@ -12,6 +14,7 @@ public class Playground {
     Double lat;
     Double lng;
     Status status;
+    LocalDate smokeFreeDate;
     int volunteerCount;
     int votes;
 }

@@ -26,6 +26,7 @@ type Playground {
     lng : Float
     lat : Float
     status: Status
+    smokeFreeDate: LocalDate
     volunteerCount: Int #@auth(role : "manager")
     votes: Int
 }
