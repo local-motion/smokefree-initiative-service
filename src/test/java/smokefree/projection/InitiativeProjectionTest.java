@@ -33,31 +33,35 @@ class InitiativeProjectionTest {
     @Test
     void should_calculate_percentage_and_absolute_numbers_based_on_status() {
         InitiativeProjection projection = new InitiativeProjection();
+        projection.on(initiativeCreated("initiative-1", in_progress));
         projection.on(initiativeCreated(in_progress));
         projection.on(initiativeCreated(in_progress));
         projection.on(initiativeCreated(in_progress));
-        projection.on(initiativeCreated(in_progress));
-        projection.on(initiativeCreated(not_started));
+        projection.on(initiativeCreated("initiative-2", not_started));
         projection.on(initiativeCreated(not_started));
         projection.on(initiativeCreated(finished));
         projection.on(initiativeCreated(finished));
+
+        // Transition status and trigger progress recalculations
+        projection.on(new InitiativeProgressedEvent("initiative-1", in_progress, finished));
+        projection.on(new InitiativeProgressedEvent("initiative-2", not_started, in_progress));
 
         Progress progress = projection.progress();
 
         final Progress.Stat workingOnIt = progress.getWorkingOnIt();
         assertEquals(4, workingOnIt.getCount());
-        assertEquals(50d, workingOnIt.getPercentage());
+        assertEquals(50, workingOnIt.getPercentage());
 
         final Progress.Stat smokeFree = progress.getSmokeFree();
-        assertEquals(2, smokeFree.getCount());
-        assertEquals(25d, smokeFree.getPercentage());
+        assertEquals(3, smokeFree.getCount());
+        assertEquals(37, smokeFree.getPercentage());
 
         final Progress.Stat smoking = progress.getSmoking();
-        assertEquals(2, smoking.getCount());
-        assertEquals(25d, smoking.getPercentage());
+        assertEquals(1, smoking.getCount());
+        assertEquals(12, smoking.getPercentage());
 
         assertEquals(8, progress.getTotal());
-        assertEquals(6, progress.getRemaining());
+        assertEquals(5, progress.getRemaining());
     }
 
     @Test

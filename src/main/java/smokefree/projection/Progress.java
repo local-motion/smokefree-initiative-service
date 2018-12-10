@@ -2,6 +2,10 @@ package smokefree.projection;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import smokefree.domain.Status;
+
+import static smokefree.domain.Status.finished;
+import static smokefree.domain.Status.in_progress;
 
 @Getter
 @NoArgsConstructor
@@ -18,23 +22,30 @@ public class Progress {
         smoking.recalculatePercentage();
     }
 
-    private void incrementStat(Stat stat) {
-        stat.inc();
+    void increment(Status status) {
+        if (status == finished) {
+            smokeFree.inc();
+        } else if (status == in_progress) {
+            workingOnIt.inc();
+            remaining++;
+        } else {
+            smoking.inc();
+            remaining++;
+        }
         recalculatePercentages();
     }
 
-    void incrementSmokeFree() {
-        incrementStat(smokeFree);
-    }
-
-    void incrementWorkingOnIt() {
-        incrementStat(workingOnIt);
-        remaining++;
-    }
-
-    void incrementSmoking() {
-        incrementStat(smoking);
-        remaining++;
+    void change(Status before, Status after) {
+        if (before == finished) {
+            smokeFree.dec();
+        } else if (before == in_progress) {
+            workingOnIt.dec();
+            remaining--;
+        } else {
+            smoking.dec();
+            remaining--;
+        }
+        increment(after);
     }
 
     @Getter
@@ -45,6 +56,11 @@ public class Progress {
         void inc() {
             total++;
             count++;
+        }
+
+        void dec() {
+            total--;
+            count--;
         }
 
         void recalculatePercentage() {

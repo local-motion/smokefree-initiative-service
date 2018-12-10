@@ -34,13 +34,7 @@ public class InitiativeProjection {
                 0,
                 0));
 
-        if (Status.finished == evt.getStatus()) {
-            progress.incrementSmokeFree();
-        } else if (Status.in_progress == evt.getStatus()) {
-            progress.incrementWorkingOnIt();
-        } else {
-            progress.incrementSmoking();
-        }
+        progress.increment(evt.getStatus());
     }
 
     @EventHandler
@@ -57,6 +51,8 @@ public class InitiativeProjection {
         final Playground playground = playgrounds.get(evt.getInitiativeId());
         final Playground updatedPlayground = playground.withStatus(evt.getAfter());
         playgrounds.put(evt.getInitiativeId(), updatedPlayground);
+
+        progress.change(evt.getBefore(), evt.getAfter());
     }
 
     public Collection<Playground> playgrounds() {
