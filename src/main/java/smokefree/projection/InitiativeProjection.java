@@ -2,10 +2,7 @@ package smokefree.projection;
 
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventhandling.EventHandler;
-import smokefree.domain.GeoLocation;
-import smokefree.domain.InitiativeCreatedEvent;
-import smokefree.domain.CitizenJoinedInitiativeEvent;
-import smokefree.domain.Status;
+import smokefree.domain.*;
 
 import javax.inject.Singleton;
 import java.util.Collection;
@@ -54,6 +51,14 @@ public class InitiativeProjection {
         playgrounds.put(evt.getInitiativeId(), updatedPlayground);
     }
 
+    @EventHandler
+    public void on(InitiativeProgressedEvent evt) {
+        log.info("ON EVENT {}", evt);
+        final Playground playground = playgrounds.get(evt.getInitiativeId());
+        final Playground updatedPlayground = playground.withStatus(evt.getAfter());
+        playgrounds.put(evt.getInitiativeId(), updatedPlayground);
+    }
+
     public Collection<Playground> playgrounds() {
         return unmodifiableCollection(playgrounds.values());
     }
@@ -65,4 +70,5 @@ public class InitiativeProjection {
     public Progress progress() {
         return progress;
     }
+
 }
