@@ -7,6 +7,7 @@ import smokefree.domain.*;
 import javax.inject.Singleton;
 import java.util.Collection;
 import java.util.Map;
+import java.util.function.Function;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static java.util.Collections.unmodifiableCollection;
@@ -31,6 +32,7 @@ public class InitiativeProjection {
                 geoLocation.getLat(),
                 geoLocation.getLng(),
                 evt.getStatus(),
+                null,
                 0,
                 0));
 
@@ -40,19 +42,20 @@ public class InitiativeProjection {
     @EventHandler
     public void on(CitizenJoinedInitiativeEvent evt) {
         log.info("ON EVENT {}", evt);
-        final Playground playground = playgrounds.get(evt.getInitiativeId());
-        final Playground updatedPlayground = playground.withVolunteerCount(playground.getVolunteerCount() + 1);
-        playgrounds.put(evt.getInitiativeId(), updatedPlayground);
+        update(evt.getInitiativeId(), playground -> playground.withVolunteerCount(playground.getVolunteerCount() + 1));
     }
 
     @EventHandler
     public void on(InitiativeProgressedEvent evt) {
         log.info("ON EVENT {}", evt);
-        final Playground playground = playgrounds.get(evt.getInitiativeId());
-        final Playground updatedPlayground = playground.withStatus(evt.getAfter());
-        playgrounds.put(evt.getInitiativeId(), updatedPlayground);
-
+        update(evt.getInitiativeId(), playground -> playground.withStatus(evt.getAfter()));
         progress.change(evt.getBefore(), evt.getAfter());
+    }
+
+    @EventHandler
+    public void on(SmokeFreeDateCommittedEvent evt) {
+        log.info("ON EVENT {}", evt);
+        update(evt.getInitiativeId(), playground -> playground.withSmokeFreeDate(evt.getSmokeFreeDate()));
     }
 
     public Collection<Playground> playgrounds() {
@@ -67,4 +70,10 @@ public class InitiativeProjection {
         return progress;
     }
 
+    private Playground update(String initiativeId, Function<Playground, Playground> transform) {
+        final Playground playground = playgrounds.get(initiativeId);
+        final Playground updatedPlayground = transform.apply(playground);
+        playgrounds.put(initiativeId, updatedPlayground);
+        return updatedPlayground;
+    }
 }

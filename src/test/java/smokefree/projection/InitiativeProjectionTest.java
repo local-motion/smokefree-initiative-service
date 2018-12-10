@@ -3,10 +3,13 @@ package smokefree.projection;
 import org.junit.jupiter.api.Test;
 import smokefree.domain.*;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
+import static java.time.LocalDate.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static smokefree.domain.Status.*;
 
 class InitiativeProjectionTest {
@@ -73,6 +76,28 @@ class InitiativeProjectionTest {
 
         projection.on(new InitiativeProgressedEvent("initiative-1", in_progress, finished));
         assertEquals(finished, projection.playground("initiative-1").getStatus());
+    }
+
+    @Test
+    void should_expose_smokefree_date_when_committed() {
+        InitiativeProjection projection = new InitiativeProjection();
+        projection.on(initiativeCreated("initiative-1", in_progress));
+        assertEquals(in_progress, projection.playground("initiative-1").getStatus());
+
+        projection.on(new InitiativeProgressedEvent("initiative-1", in_progress, finished));
+        assertEquals(finished, projection.playground("initiative-1").getStatus());
+
+        Playground playground = projection.playground("initiative-1");
+        assertNotNull(playground);
+        assertNull(playground.getSmokeFreeDate());
+
+        LocalDate today = now();
+        LocalDate tomorrow = now().plusDays(1);
+        projection.on(new SmokeFreeDateCommittedEvent("initiative-1", today, tomorrow));
+
+        playground = projection.playground("initiative-1");
+        assertEquals(finished, playground.getStatus());
+        assertEquals(tomorrow, playground.getSmokeFreeDate());
     }
 
     InitiativeCreatedEvent initiativeCreated(Status status) {
