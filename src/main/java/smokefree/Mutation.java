@@ -1,6 +1,8 @@
 package smokefree;
 
 import com.coxautodev.graphql.tools.GraphQLMutationResolver;
+import io.micronaut.core.util.StringUtils;
+import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.authentication.AuthenticationException;
 import io.micronaut.security.utils.SecurityService;
 import lombok.NoArgsConstructor;
@@ -15,12 +17,10 @@ import smokefree.graphql.JoinInitiativeInput;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static com.google.common.collect.Maps.newHashMap;
-import static java.util.Collections.singletonMap;
 
 @Slf4j
 @Singleton
@@ -33,8 +33,20 @@ public class Mutation implements GraphQLMutationResolver {
     @Inject
     SecurityService securityService;
 
+    /**
+     * In JWT / Cognito, the 'sub' ID is considered the unique 'username'.
+     */
     private String requireUserId() {
-        return securityService.username().orElseThrow(() -> new AuthenticationException("Username required"));
+        return securityService.username().orElseThrow(() -> new AuthenticationException("Not logged in"));
+    }
+
+    private String requireUserName() {
+        Authentication authentication = securityService.getAuthentication().orElseThrow(() -> new AuthenticationException("Not logged in"));
+        String userName = (String) authentication.getAttributes().get("cognito:username");
+        if (StringUtils.isEmpty(userName)) {
+            throw new AuthenticationException("No username");
+        }
+        return userName;
     }
 
     public InputAcceptedResponse createInitiative(CreateInitiativeInput input) {
@@ -44,7 +56,7 @@ public class Mutation implements GraphQLMutationResolver {
                 input.getType(),
                 input.getStatus(),
                 new GeoLocation(input.getLat(), input.getLng()));
-        final CompletableFuture<String> result = gateway.send(decorateWithUserId(command));
+        final CompletableFuture<String> result = gateway.send(decorateWithMetaData(command));
         final InputAcceptedResponse response = InputAcceptedResponse.fromFuture(result);
 
         return joinInitiative(new JoinInitiativeInput(response.getId()));
@@ -55,7 +67,7 @@ public class Mutation implements GraphQLMutationResolver {
         String citizenId = requireUserId();
 
         JoinInitiativeCommand cmd = new JoinInitiativeCommand(input.getInitiativeId(), citizenId);
-        gateway.sendAndWait(cmd);
+        gateway.sendAndWait(decorateWithMetaData(cmd));
         return new InputAcceptedResponse(input.getInitiativeId());
     }
 
@@ -64,26 +76,30 @@ public class Mutation implements GraphQLMutationResolver {
      ************/
 
     public InputAcceptedResponse claimManagerRole(ClaimManagerRoleCommand cmd) {
-        gateway.sendAndWait(decorateWithUserId(cmd));
+        gateway.sendAndWait(decorateWithMetaData(cmd));
         return new InputAcceptedResponse(cmd.getInitiativeId());
     }
 
     public InputAcceptedResponse decideToBecomeSmokeFree(DecideToBecomeSmokeFreeCommand cmd) {
-        gateway.sendAndWait(decorateWithUserId(cmd));
+        gateway.sendAndWait(decorateWithMetaData(cmd));
         return new InputAcceptedResponse(cmd.getInitiativeId());
     }
 
     public InputAcceptedResponse decideToNotBecomeSmokeFree(DecideToNotBecomeSmokeFreeCommand cmd) {
-        gateway.sendAndWait(decorateWithUserId(cmd));
+        gateway.sendAndWait(decorateWithMetaData(cmd));
         return new InputAcceptedResponse(cmd.getInitiativeId());
     }
 
     public InputAcceptedResponse commitToSmokeFreeDate(CommitToSmokeFreeDateCommand cmd) {
-        gateway.sendAndWait(decorateWithUserId(cmd));
+        gateway.sendAndWait(decorateWithMetaData(cmd));
         return new InputAcceptedResponse(cmd.getInitiativeId());
     }
 
-    private GenericCommandMessage<?> decorateWithUserId(Object cmd) {
-        return new GenericCommandMessage<>(cmd, singletonMap("user_id", requireUserId()));
+    private GenericCommandMessage<?> decorateWithMetaData(Object cmd) {
+        final Map<String, String> metaData = newHashMap();
+        metaData.put("user_id", requireUserId());
+        metaData.put("user_name", requireUserName());
+
+        return new GenericCommandMessage<>(cmd, metaData);
     }
 }

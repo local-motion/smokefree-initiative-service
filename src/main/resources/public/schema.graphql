@@ -15,9 +15,15 @@ schema {
 # Queries
 #
 type Query {
+    profile: Profile
     playgrounds: [Playground]
     progress: Progress
     playground(id: String!): Playground
+}
+
+type Profile {
+    id : String!
+    username : String!
 }
 
 type Playground {
@@ -29,6 +35,7 @@ type Playground {
     smokeFreeDate: LocalDate
     volunteerCount: Int #@auth(role : "manager")
     votes: Int
+    managers: [Manager!]
 }
 
 enum Status {
@@ -43,6 +50,11 @@ type Progress {
     smokeFree: Stat
     workingOnIt: Stat
     smoking: Stat
+}
+
+type Manager {
+    id : String!
+    username : String!
 }
 
 type Stat {

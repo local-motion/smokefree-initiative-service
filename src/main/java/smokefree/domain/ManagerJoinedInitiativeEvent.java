@@ -1,13 +1,11 @@
 package smokefree.domain;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
+@ToString
 public class ManagerJoinedInitiativeEvent {
     String initiativeId;
     String managerId;

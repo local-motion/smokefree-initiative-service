@@ -11,6 +11,7 @@ import io.micronaut.http.hateos.Link;
 import io.micronaut.runtime.Micronaut;
 import lombok.extern.slf4j.Slf4j;
 import smokefree.projection.InitiativeProjection;
+import smokefree.projection.ProfileProjection;
 
 @Slf4j
 public class Application {
@@ -26,6 +27,11 @@ public class Application {
     @Bean
     public InitiativeProjection initiativeProjection() {
         return new InitiativeProjection();
+    }
+
+    @Bean
+    public ProfileProjection profileProjection() {
+        return new ProfileProjection();
     }
 
     @Error(global = true)

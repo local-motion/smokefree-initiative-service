@@ -1,5 +1,6 @@
 package smokefree.projection;
 
+import org.axonframework.messaging.MetaData;
 import org.junit.jupiter.api.Test;
 import smokefree.domain.*;
 
@@ -7,9 +8,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 import static java.time.LocalDate.now;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static smokefree.domain.Status.*;
 
 class InitiativeProjectionTest {
@@ -98,6 +97,19 @@ class InitiativeProjectionTest {
         playground = projection.playground("initiative-1");
         assertEquals(finished, playground.getStatus());
         assertEquals(tomorrow, playground.getSmokeFreeDate());
+    }
+    @Test
+    void should_store_managers_per_playground() {
+        InitiativeProjection projection = new InitiativeProjection();
+        projection.on(initiativeCreated("initiative-1", in_progress));
+
+        projection.on(new ManagerJoinedInitiativeEvent("initiative-1", "citizen-1"), MetaData
+                .with("user_id", "manager-1")
+                .and("user_name", "Jack Ma"));
+
+        Playground playground = projection.playground("initiative-1");
+        assertEquals(1, playground.getManagers().size());
+        assertEquals(new Playground.Manager("manager-1", "Jack Ma"), playground.getManagers().get(0));
     }
 
     InitiativeCreatedEvent initiativeCreated(Status status) {

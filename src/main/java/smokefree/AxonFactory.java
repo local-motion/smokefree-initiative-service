@@ -24,6 +24,7 @@ import org.axonframework.serialization.json.JacksonSerializer;
 import org.axonframework.serialization.upcasting.event.NoOpEventUpcaster;
 import smokefree.domain.Initiative;
 import smokefree.projection.InitiativeProjection;
+import smokefree.projection.ProfileProjection;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -40,7 +41,8 @@ public class AxonFactory {
                                        CommandBus commandBus,
                                        QueryBus queryBus,
                                        Serializer serializer,
-                                       InitiativeProjection initiativeProjection) {
+                                       InitiativeProjection initiativeProjection,
+                                       ProfileProjection profileProjection) {
         // TODO: How to avoid hard-coding aggregates, event- and query handlers?
         Configurer configurer = DefaultConfigurer.defaultConfiguration()
                 .configureEventBus(c -> eventBus)
@@ -48,9 +50,11 @@ public class AxonFactory {
                 .configureQueryBus(c -> queryBus)
                 .configureSerializer(c -> serializer)
                 .configureAggregate(Initiative.class)
-                .registerQueryHandler(c -> initiativeProjection);
+                .registerQueryHandler(c -> initiativeProjection)
+                .registerQueryHandler(c -> profileProjection);
         configurer.eventProcessing()
-                .registerEventHandler(c -> initiativeProjection);
+                .registerEventHandler(c -> initiativeProjection)
+                .registerEventHandler(c -> profileProjection);
 
         Configuration configuration = configurer.buildConfiguration();
         configuration.start();

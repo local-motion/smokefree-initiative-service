@@ -34,15 +34,15 @@ public class Initiative {
 
     @CommandHandler
     public Initiative(CreateInitiativeCommand cmd, MetaData metaData) {
-        apply(new InitiativeCreatedEvent(cmd.initiativeId, cmd.type, cmd.status, cmd.name, cmd.geoLocation));
+        apply(new InitiativeCreatedEvent(cmd.initiativeId, cmd.type, cmd.status, cmd.name, cmd.geoLocation), metaData);
     }
 
     @CommandHandler
-    public void joinInitiative(JoinInitiativeCommand cmd) {
+    public void joinInitiative(JoinInitiativeCommand cmd, MetaData metaData) {
         if (citizens.contains(cmd.getCitizenId())) {
             log.warn("{} already joined {}. Ignoring...", cmd.citizenId, cmd.initiativeId);
         } else {
-            apply(new CitizenJoinedInitiativeEvent(cmd.initiativeId, cmd.citizenId));
+            apply(new CitizenJoinedInitiativeEvent(cmd.initiativeId, cmd.citizenId), metaData);
         }
     }
 
@@ -52,7 +52,7 @@ public class Initiative {
         if (managers.contains(managerId)) {
             log.warn("{} is already managing {}. Ignoring...", managerId, cmd.initiativeId);
         } else {
-            apply(new ManagerJoinedInitiativeEvent(cmd.initiativeId, managerId));
+            apply(new ManagerJoinedInitiativeEvent(cmd.initiativeId, managerId), metaData);
         }
     }
 
@@ -63,14 +63,14 @@ public class Initiative {
         if (status != not_started && status != stopped) {
             log.warn("Status is already {}, cannot change to {}. Ignoring...", status, in_progress);
         } else {
-            apply(new InitiativeProgressedEvent(cmd.initiativeId, status, in_progress));
+            apply(new InitiativeProgressedEvent(cmd.initiativeId, status, in_progress), metaData);
         }
     }
 
     @CommandHandler
     public void decideToNotBecomeSmokeFree(DecideToNotBecomeSmokeFreeCommand cmd, MetaData metaData) {
         assertCurrentUserIsManager(metaData);
-        apply(new InitiativeStoppedEvent(cmd.initiativeId, status, stopped, cmd.reason));
+        apply(new InitiativeStoppedEvent(cmd.initiativeId, status, stopped, cmd.reason), metaData);
     }
 
     @CommandHandler
@@ -78,10 +78,10 @@ public class Initiative {
         assertEarlierCommittedDateNotInPast();
         assertCurrentUserIsManager(metaData);
         if (smokeFreeDate == null || !cmd.smokeFreeDate.isEqual(smokeFreeDate)) {
-            apply(new SmokeFreeDateCommittedEvent(cmd.initiativeId, smokeFreeDate, cmd.smokeFreeDate));
+            apply(new SmokeFreeDateCommittedEvent(cmd.initiativeId, smokeFreeDate, cmd.smokeFreeDate), metaData);
         }
         if (status != finished) {
-            apply(new InitiativeProgressedEvent(cmd.initiativeId, status, finished));
+            apply(new InitiativeProgressedEvent(cmd.initiativeId, status, finished), metaData);
         }
     }
 
