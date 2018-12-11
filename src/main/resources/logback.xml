@@ -14,7 +14,7 @@
     <logger name="io.micronaut" level="trace" additivity="false">
         <appender-ref ref="stdout" />
     </logger>
-    <logger name="graphql" level="info" additivity="false">
+    <logger name="graphql" level="trace" additivity="false">
         <appender-ref ref="stdout" />
     </logger>
     <root level="info">

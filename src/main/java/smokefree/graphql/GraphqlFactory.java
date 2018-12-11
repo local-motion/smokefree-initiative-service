@@ -27,7 +27,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Map;
 
 @Factory
 @NoArgsConstructor
@@ -41,7 +40,7 @@ public class GraphqlFactory {
                 .options(SchemaParserOptions.newOptions().objectMapperProvider(fieldDefinition -> objectMapper).build())
                 .resolvers(query, mutation)
                 .schemaString(schemaString)
-                .directive("auth", new AuthorisationDirective(securityService))
+                .directive("auth", new AuthenticationDirective(securityService))
                 .scalars(
                         new GraphQLDate(),
                         new GraphQLLocalDate(),
@@ -52,35 +51,33 @@ public class GraphqlFactory {
         return GraphQL.newGraphQL(graphQLSchema).build();
     }
 
-    class AuthorisationDirective implements SchemaDirectiveWiring {
+    /**
+     * Simply checks if the user is authenticated.
+     *
+     * Local-Motion does not have the notion of roles (yet). This could be the
+     * hook where role based checks for GraphQL would happen.
+     */
+    class AuthenticationDirective implements SchemaDirectiveWiring {
         private SecurityService securityService;
 
-        AuthorisationDirective(SecurityService securityService) {
+        AuthenticationDirective(SecurityService securityService) {
             this.securityService = securityService;
         }
 
         @Override
         public GraphQLFieldDefinition onField(SchemaDirectiveWiringEnvironment<GraphQLFieldDefinition> schemaDirectiveWiringEnv) {
-            String targetAuthRole = (String) schemaDirectiveWiringEnv.getDirective().getArgument("role").getValue();
+//            String targetAuthRole = (String) schemaDirectiveWiringEnv.getDirective().getArgument("role").getValue();
 
-            GraphQLFieldDefinition field = schemaDirectiveWiringEnv.getElement();
             //
             // build a data fetcher that first checks authorisation roles before then calling the original data fetcher
             //
+            GraphQLFieldDefinition field = schemaDirectiveWiringEnv.getElement();
             DataFetcher originalDataFetcher = field.getDataFetcher();
             DataFetcher authDataFetcher = dataFetchingEnvironment -> {
-                Map<String, Object> contextMap = dataFetchingEnvironment.getContext();
-//                AuthorisationCtx authContext = (AuthorisationCtx) contextMap.get("authContext");
                 if (!securityService.getAuthentication().isPresent()) {
                     return null;
                 }
-
-//                if (authContext.hasRole(targetAuthRole)) {
-                if (1 == 1) {
-                    return originalDataFetcher.get(dataFetchingEnvironment);
-                } else {
-                    return null;
-                }
+                return originalDataFetcher.get(dataFetchingEnvironment);
             };
             //
             // now change the field definition to have the new authorising data fetcher
