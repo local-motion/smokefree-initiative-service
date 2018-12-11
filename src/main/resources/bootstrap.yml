@@ -63,6 +63,7 @@ micronaut:
 ---
 # https://docs.micronaut.io/latest/guide/index.html#jsonBinding
 jackson:
+  serializationInclusion: ALWAYS
   serialization:
     indentOutput: true
     writeDatesAsTimestamps: false

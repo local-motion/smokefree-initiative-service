@@ -1,5 +1,7 @@
 package smokefree;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import graphql.*;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Body;
