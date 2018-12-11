@@ -1,12 +1,12 @@
 package smokefree;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
+import io.micronaut.security.utils.SecurityService;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import smokefree.projection.InitiativeProjection;
-import smokefree.projection.Playground;
-import smokefree.projection.Progress;
+import smokefree.projection.*;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Collection;
@@ -14,19 +14,33 @@ import java.util.Collection;
 @Slf4j
 @Singleton
 @NoArgsConstructor
+@SuppressWarnings("unused")
 public class Query implements GraphQLQueryResolver {
-    @Inject
-    InitiativeProjection projection;
+    @Inject SecurityService securityService;
+    @Inject InitiativeProjection initiatives;
+    @Inject ProfileProjection profiles;
+
+    private @Nullable String userId() {
+        return securityService.username().orElse(null);
+    }
 
     public Collection<Playground> playgrounds() {
-        return projection.playgrounds();
+        return initiatives.playgrounds();
     }
 
     public Playground playground(String id) {
-        return projection.playground(id);
+        return initiatives.playground(id);
     }
 
     public Progress progress() {
-        return projection.progress();
+        return initiatives.progress();
+    }
+
+    public Profile profile() {
+        String userId = userId();
+        if (userId == null) {
+            return null;
+        }
+        return profiles.profile(userId);
     }
 }

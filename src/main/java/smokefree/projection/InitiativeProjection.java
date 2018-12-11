@@ -2,20 +2,20 @@ package smokefree.projection;
 
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventhandling.EventHandler;
+import org.axonframework.messaging.MetaData;
 import smokefree.domain.*;
 
 import javax.inject.Singleton;
 import java.util.Collection;
 import java.util.Map;
-import java.util.function.Function;
 
-import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Maps.newConcurrentMap;
 import static java.util.Collections.unmodifiableCollection;
 
 @Slf4j
 @Singleton
 public class InitiativeProjection {
-    private final Map<String, Playground> playgrounds = newHashMap();
+    private final Map<String, Playground> playgrounds = newConcurrentMap();
     private final Progress progress = new Progress();
 
     @EventHandler
@@ -42,20 +42,35 @@ public class InitiativeProjection {
     @EventHandler
     public void on(CitizenJoinedInitiativeEvent evt) {
         log.info("ON EVENT {}", evt);
-        update(evt.getInitiativeId(), playground -> playground.withVolunteerCount(playground.getVolunteerCount() + 1));
+        Playground playground = playgrounds.get(evt.getInitiativeId());
+        playground.setVolunteerCount(playground.getVolunteerCount() + 1);
     }
 
     @EventHandler
     public void on(InitiativeProgressedEvent evt) {
         log.info("ON EVENT {}", evt);
-        update(evt.getInitiativeId(), playground -> playground.withStatus(evt.getAfter()));
+        Playground playground = playgrounds.get(evt.getInitiativeId());
+        playground.setStatus(evt.getAfter());
+
         progress.change(evt.getBefore(), evt.getAfter());
     }
 
     @EventHandler
     public void on(SmokeFreeDateCommittedEvent evt) {
         log.info("ON EVENT {}", evt);
-        update(evt.getInitiativeId(), playground -> playground.withSmokeFreeDate(evt.getSmokeFreeDate()));
+        Playground playground = playgrounds.get(evt.getInitiativeId());
+        playground.setSmokeFreeDate(evt.getSmokeFreeDate());
+    }
+
+    @EventHandler
+    public void on(ManagerJoinedInitiativeEvent evt, MetaData metaData) {
+        log.info("ON EVENT {}", evt);
+        final String userId = (String) metaData.get("user_id");
+        final String userName = (String) metaData.get("user_name");
+
+        Playground playground = playgrounds.get(evt.getInitiativeId());
+        Playground.Manager manager = new Playground.Manager(userId, userName);
+        playground.addManager(manager);
     }
 
     public Collection<Playground> playgrounds() {
@@ -68,12 +83,5 @@ public class InitiativeProjection {
 
     public Progress progress() {
         return progress;
-    }
-
-    private Playground update(String initiativeId, Function<Playground, Playground> transform) {
-        final Playground playground = playgrounds.get(initiativeId);
-        final Playground updatedPlayground = transform.apply(playground);
-        playgrounds.put(initiativeId, updatedPlayground);
-        return updatedPlayground;
     }
 }
