@@ -77,8 +77,12 @@ public class Initiative {
     public void commitToSmokeFreeDate(CommitToSmokeFreeDateCommand cmd, MetaData metaData) {
         assertEarlierCommittedDateNotInPast();
         assertCurrentUserIsManager(metaData);
-        apply(new SmokeFreeDateCommittedEvent(cmd.initiativeId, smokeFreeDate, cmd.smokeFreeDate));
-        apply(new InitiativeProgressedEvent(cmd.initiativeId, status, finished));
+        if (smokeFreeDate == null || !cmd.smokeFreeDate.isEqual(smokeFreeDate)) {
+            apply(new SmokeFreeDateCommittedEvent(cmd.initiativeId, smokeFreeDate, cmd.smokeFreeDate));
+        }
+        if (status != finished) {
+            apply(new InitiativeProgressedEvent(cmd.initiativeId, status, finished));
+        }
     }
 
     private void assertEarlierCommittedDateNotInPast() {
