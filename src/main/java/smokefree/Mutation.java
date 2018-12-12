@@ -1,15 +1,13 @@
 package smokefree;
 
 import com.coxautodev.graphql.tools.GraphQLMutationResolver;
-import io.micronaut.core.util.StringUtils;
-import io.micronaut.security.authentication.Authentication;
-import io.micronaut.security.authentication.AuthenticationException;
-import io.micronaut.security.utils.SecurityService;
+import graphql.schema.DataFetchingEnvironment;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.GenericCommandMessage;
 import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.messaging.MetaData;
 import smokefree.domain.*;
 import smokefree.graphql.CreateInitiativeInput;
 import smokefree.graphql.InputAcceptedResponse;
@@ -17,10 +15,7 @@ import smokefree.graphql.JoinInitiativeInput;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-
-import static com.google.common.collect.Maps.newHashMap;
 
 @Slf4j
 @Singleton
@@ -30,44 +25,29 @@ public class Mutation implements GraphQLMutationResolver {
     @Inject
     CommandGateway gateway;
 
-    @Inject
-    SecurityService securityService;
-
-    /**
-     * In JWT / Cognito, the 'sub' ID is considered the unique 'username'.
-     */
-    private String requireUserId() {
-        return securityService.username().orElseThrow(() -> new AuthenticationException("Not logged in"));
+    private SecurityContext toContext(DataFetchingEnvironment environment) {
+        return environment.getContext();
     }
 
-    private String requireUserName() {
-        Authentication authentication = securityService.getAuthentication().orElseThrow(() -> new AuthenticationException("Not logged in"));
-        String userName = (String) authentication.getAttributes().get("cognito:username");
-        if (StringUtils.isEmpty(userName)) {
-            throw new AuthenticationException("No username");
-        }
-        return userName;
-    }
-
-    public InputAcceptedResponse createInitiative(CreateInitiativeInput input) {
+    public InputAcceptedResponse createInitiative(CreateInitiativeInput input, DataFetchingEnvironment env) {
         final CreateInitiativeCommand command = new CreateInitiativeCommand(
                 input.getInitiativeId(),
                 input.getName(),
                 input.getType(),
                 input.getStatus(),
                 new GeoLocation(input.getLat(), input.getLng()));
-        final CompletableFuture<String> result = gateway.send(decorateWithMetaData(command));
+        final CompletableFuture<String> result = gateway.send(decorateWithMetaData(command, env));
         final InputAcceptedResponse response = InputAcceptedResponse.fromFuture(result);
 
-        return joinInitiative(new JoinInitiativeInput(response.getId()));
+        return joinInitiative(new JoinInitiativeInput(response.getId()), env);
     }
 
     @SneakyThrows
-    public InputAcceptedResponse joinInitiative(JoinInitiativeInput input) {
-        String citizenId = requireUserId();
+    public InputAcceptedResponse joinInitiative(JoinInitiativeInput input, DataFetchingEnvironment env) {
+        String citizenId = toContext(env).requireUserId();
 
         JoinInitiativeCommand cmd = new JoinInitiativeCommand(input.getInitiativeId(), citizenId);
-        gateway.sendAndWait(decorateWithMetaData(cmd));
+        gateway.sendAndWait(decorateWithMetaData(cmd, env));
         return new InputAcceptedResponse(input.getInitiativeId());
     }
 
@@ -75,31 +55,29 @@ public class Mutation implements GraphQLMutationResolver {
      * Playground Manager related functionality
      ************/
 
-    public InputAcceptedResponse claimManagerRole(ClaimManagerRoleCommand cmd) {
-        gateway.sendAndWait(decorateWithMetaData(cmd));
+    public InputAcceptedResponse claimManagerRole(ClaimManagerRoleCommand cmd, DataFetchingEnvironment env) {
+        gateway.sendAndWait(decorateWithMetaData(cmd, env));
         return new InputAcceptedResponse(cmd.getInitiativeId());
     }
 
-    public InputAcceptedResponse decideToBecomeSmokeFree(DecideToBecomeSmokeFreeCommand cmd) {
-        gateway.sendAndWait(decorateWithMetaData(cmd));
+    public InputAcceptedResponse decideToBecomeSmokeFree(DecideToBecomeSmokeFreeCommand cmd, DataFetchingEnvironment env) {
+        gateway.sendAndWait(decorateWithMetaData(cmd, env));
         return new InputAcceptedResponse(cmd.getInitiativeId());
     }
 
-    public InputAcceptedResponse decideToNotBecomeSmokeFree(DecideToNotBecomeSmokeFreeCommand cmd) {
-        gateway.sendAndWait(decorateWithMetaData(cmd));
+    public InputAcceptedResponse decideToNotBecomeSmokeFree(DecideToNotBecomeSmokeFreeCommand cmd, DataFetchingEnvironment env) {
+        gateway.sendAndWait(decorateWithMetaData(cmd, env));
         return new InputAcceptedResponse(cmd.getInitiativeId());
     }
 
-    public InputAcceptedResponse commitToSmokeFreeDate(CommitToSmokeFreeDateCommand cmd) {
-        gateway.sendAndWait(decorateWithMetaData(cmd));
+    public InputAcceptedResponse commitToSmokeFreeDate(CommitToSmokeFreeDateCommand cmd, DataFetchingEnvironment env) {
+        gateway.sendAndWait(decorateWithMetaData(cmd, env));
         return new InputAcceptedResponse(cmd.getInitiativeId());
     }
 
-    private GenericCommandMessage<?> decorateWithMetaData(Object cmd) {
-        final Map<String, String> metaData = newHashMap();
-        metaData.put("user_id", requireUserId());
-        metaData.put("user_name", requireUserName());
-
-        return new GenericCommandMessage<>(cmd, metaData);
+    private GenericCommandMessage<?> decorateWithMetaData(Object cmd, DataFetchingEnvironment env) {
+        return new GenericCommandMessage<>(cmd, MetaData
+                .with("user_id", toContext(env).requireUserId())
+                .and("user_name", toContext(env).requireUserName()));
     }
 }

@@ -1,12 +1,11 @@
 package smokefree;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
-import io.micronaut.security.utils.SecurityService;
+import graphql.schema.DataFetchingEnvironment;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import smokefree.projection.*;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Collection;
@@ -16,12 +15,11 @@ import java.util.Collection;
 @NoArgsConstructor
 @SuppressWarnings("unused")
 public class Query implements GraphQLQueryResolver {
-    @Inject SecurityService securityService;
     @Inject InitiativeProjection initiatives;
     @Inject ProfileProjection profiles;
 
-    private @Nullable String userId() {
-        return securityService.username().orElse(null);
+    private SecurityContext toContext(DataFetchingEnvironment environment) {
+        return environment.getContext();
     }
 
     public Collection<Playground> playgrounds() {
@@ -36,8 +34,8 @@ public class Query implements GraphQLQueryResolver {
         return initiatives.progress();
     }
 
-    public Profile profile() {
-        String userId = userId();
+    public Profile profile(DataFetchingEnvironment env) {
+        String userId = toContext(env).userId();
         if (userId == null) {
             return null;
         }
