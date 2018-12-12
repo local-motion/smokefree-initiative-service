@@ -34,6 +34,9 @@ public class GraphqlFactory {
     @Bean
     @Singleton
     public GraphQL graphQL(Query query, Mutation mutation, SecurityService securityService, ObjectMapper objectMapper) throws IOException {
+        /*
+         * More information can be found at https://www.graphql-java-kickstart.com/tools/schema-definition/
+         */
         InputStream input = GraphqlFactory.class.getResourceAsStream("/public/schema.graphql");
         final String schemaString = IOUtils.readText(new BufferedReader(new InputStreamReader(input)));
         final SchemaParserBuilder builder = SchemaParser.newParser()

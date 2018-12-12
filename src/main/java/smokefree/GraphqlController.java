@@ -1,14 +1,16 @@
 package smokefree;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import graphql.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import graphql.Assert;
+import graphql.ExecutionInput;
+import graphql.ExecutionResult;
+import graphql.GraphQL;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.security.annotation.Secured;
-import io.micronaut.security.rules.SecurityRule;
+import io.micronaut.security.authentication.Authentication;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.config.Configuration;
 import smokefree.graphql.GraphqlQuery;
@@ -16,14 +18,10 @@ import smokefree.graphql.GraphqlQuery;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
-import java.security.Principal;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static io.micronaut.security.rules.SecurityRule.IS_ANONYMOUS;
-import static io.micronaut.security.rules.SecurityRule.IS_AUTHENTICATED;
 
 @Slf4j
 @Secured(IS_ANONYMOUS)
@@ -33,10 +31,13 @@ public class GraphqlController {
     private GraphQL graphQL;
     @Inject
     private Configuration configuration; // TODO: Trick to trigger bean creation. Can be done differently?
+    @Inject
+    private ObjectMapper objectMapper;
 
-    @Post(value="/", consumes= MediaType.APPLICATION_JSON)
-    public Map<String, Object> graphql(@Nullable Principal principal, @Size(max=4096) @Body GraphqlQuery query) {
+    @Post(consumes = MediaType.APPLICATION_JSON)
+    public Map<String, Object> graphql(@Nullable Authentication authentication, @Size(max=4096) @Body GraphqlQuery query) throws Exception {
         log.trace("Query: {}", query.getQuery());
+        log.info("Authentication: {}", objectMapper.writeValueAsString(authentication)); // TODO: Remove this line.
 
         Assert.assertNotNull(query.getQuery());
 
@@ -44,7 +45,7 @@ public class GraphqlController {
         ExecutionInput.Builder builder = new ExecutionInput.Builder()
                 .query(query.getQuery())
                 .variables(query.getVariables());
-        builder.context(new Context(principal));
+        builder.context(new SecurityContext(authentication));
         ExecutionResult executionResult = graphQL.execute(builder);
 
         // build the resulting response
@@ -59,15 +60,4 @@ public class GraphqlController {
         return result;
     }
 
-    private class Context extends HashMap<String, Object> {
-        public Context(Principal principal) {
-            if (principal != null) {
-                put("principal", principal);
-            }
-        }
-
-        public Principal principal() {
-            return (Principal) get("principal");
-        }
-    }
 }
