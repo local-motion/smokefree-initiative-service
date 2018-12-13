@@ -1,7 +1,6 @@
 package smokefree.domain;
 
 import lombok.*;
-import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)

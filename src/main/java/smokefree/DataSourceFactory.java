@@ -6,6 +6,7 @@ import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Value;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.sql.DataSource;
