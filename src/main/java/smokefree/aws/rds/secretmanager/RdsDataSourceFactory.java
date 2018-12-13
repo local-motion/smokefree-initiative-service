@@ -7,7 +7,6 @@ import io.micronaut.context.annotation.Replaces;
 import io.micronaut.context.annotation.Requires;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import smokefree.AxonFactory;
 import smokefree.DataSourceFactory;
 
 import javax.inject.Named;

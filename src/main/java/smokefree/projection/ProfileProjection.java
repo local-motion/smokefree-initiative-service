@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.messaging.MetaData;
 import smokefree.domain.CitizenJoinedInitiativeEvent;
-import smokefree.domain.ManagerJoinedInitiativeEvent;
 
 import javax.inject.Singleton;
 import java.util.Map;

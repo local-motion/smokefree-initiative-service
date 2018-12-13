@@ -1,7 +1,9 @@
 package smokefree.domain;
 
-import lombok.*;
-import org.axonframework.modelling.command.TargetAggregateIdentifier;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Getter
 @NoArgsConstructor
