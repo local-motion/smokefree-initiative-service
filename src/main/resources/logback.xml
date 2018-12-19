@@ -11,7 +11,7 @@
     <logger name="org.axonframework" level="info" additivity="false">
         <appender-ref ref="stdout" />
     </logger>
-    <logger name="io.micronaut" level="trace" additivity="false">
+    <logger name="io.micronaut" level="info" additivity="false">
         <appender-ref ref="stdout" />
     </logger>
     <logger name="graphql" level="info" additivity="false">

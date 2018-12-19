@@ -1,6 +1,5 @@
 package smokefree;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.Assert;
 import graphql.ExecutionInput;
 import graphql.ExecutionResult;
@@ -31,13 +30,10 @@ public class GraphqlController {
     private GraphQL graphQL;
     @Inject
     private Configuration configuration; // TODO: Trick to trigger bean creation. Can be done differently?
-    @Inject
-    private ObjectMapper objectMapper;
 
     @Post(consumes = MediaType.APPLICATION_JSON)
     public Map<String, Object> graphql(@Nullable Authentication authentication, @Size(max=4096) @Body GraphqlQuery query) throws Exception {
         log.trace("Query: {}", query.getQuery());
-        log.info("Authentication: {}", objectMapper.writeValueAsString(authentication)); // TODO: Remove this line.
 
         Assert.assertNotNull(query.getQuery());
 
