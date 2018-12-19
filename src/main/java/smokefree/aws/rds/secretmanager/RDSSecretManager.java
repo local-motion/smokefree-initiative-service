@@ -13,6 +13,8 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
+import static smokefree.aws.rds.secretmanager.SmokefreeConstants.*;
+
 @Slf4j
 @Singleton
 public class RDSSecretManager {
@@ -35,15 +37,14 @@ public class RDSSecretManager {
 
     private Map<String, Object> getRDSDetails() {
         if (secretMap == null) {
-            String secret, decodedBinarySecret;
+            GetSecretValueResult getSecretValueResult;
             GetSecretValueRequest getSecretValueRequest = new GetSecretValueRequest()
                     .withSecretId(secretName);
-            GetSecretValueResult getSecretValueResult = null;
 
             try {
-                log.info("Connecting AWS Secret Manager " + getSecretValueRequest.getSecretId());
+                log.info("Connecting AWS Secret Manager {}", getSecretValueRequest.getSecretId());
                 getSecretValueResult = secretManagerClient.getSecretValue(getSecretValueRequest);
-                log.info("Application fetched secrets successfully" + getSecretValueResult);
+                log.trace("Application fetched secrets successfully: {}", getSecretValueResult);
             } catch (DecryptionFailureException e) {
                 log.error("Secrets Manager can't decrypt the protected secret text using the provided KMS key", e);
                 throw new SecretManagerException(e.getMessage(), e);
@@ -63,30 +64,25 @@ public class RDSSecretManager {
 
             // Decrypts secret using the associated KMS CMK.
             // Depending on whether the secret is a string or binary, one of these fields will be populated.
-            if (getSecretValueResult.getSecretString() != null) {
-                secret = getSecretValueResult.getSecretString();
-                try {
-                    this.secretMap = objectMapper.readValue(secret, HashMap.class);
-                    log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>> this.secretMap: " + this.secretMap);
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    log.error("Error while Parsing the {}  JSON", secret);
-                    throw new SecretManagerException(e.getMessage(), e);
-                }
-            } else {
-                decodedBinarySecret = new String(Base64.getDecoder().decode(getSecretValueResult.getSecretBinary()).array());
-                try {
-                    this.secretMap = objectMapper.readValue(decodedBinarySecret, HashMap.class);
-                    log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>> this.secretMap: " + this.secretMap);
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    log.error("Error while Parsing the {}  JSON", decodedBinarySecret);
-                    throw new SecretManagerException(e.getMessage(), e);
-                }
-            }
+            String secret = getSecretValueResult.getSecretString() != null
+                    ? getSecretValueResult.getSecretString()
+                    : new String(Base64.getDecoder().decode(getSecretValueResult.getSecretBinary()).array());
+            this.secretMap = readSecretMap(secret);
         }
 
         return this.secretMap;
+    }
+
+    private Map<String, Object> readSecretMap(String secret) {
+        try {
+            //noinspection unchecked
+            Map<String, Object> secretMap = objectMapper.readValue(secret, HashMap.class);
+            log.trace("Parsed secrets from: {}", secretMap);
+            return secretMap;
+        } catch (IOException e) {
+            log.error("Error while parsing JSON {}", secret);
+            throw new SecretManagerException(e.getMessage(), e);
+        }
     }
 
 
@@ -95,11 +91,11 @@ public class RDSSecretManager {
             this.getRDSDetails();
         }
         StringBuilder jdbcUrl = new StringBuilder("jdbc");
-        jdbcUrl.append(SmokefreeConstants.COLON);
-        jdbcUrl.append(secretMap.get(SmokefreeConstants.DB_ENGINE)).append(SmokefreeConstants.COLON).append(SmokefreeConstants.DOUBLE_SLASH);
-        jdbcUrl.append(secretMap.get(SmokefreeConstants.DB_HOST)).append(SmokefreeConstants.COLON);
-        jdbcUrl.append(secretMap.get(SmokefreeConstants.DB_PORT)).append(SmokefreeConstants.SINGLE_SLASH);
-        jdbcUrl.append(secretMap.get(SmokefreeConstants.DBNAME));
+        jdbcUrl.append(COLON);
+        jdbcUrl.append(secretMap.get(DB_ENGINE)).append(COLON).append(DOUBLE_SLASH);
+        jdbcUrl.append(secretMap.get(DB_HOST)).append(COLON);
+        jdbcUrl.append(secretMap.get(DB_PORT)).append(SINGLE_SLASH);
+        jdbcUrl.append(secretMap.get(DBNAME));
         if (isSslEnabled) {
             jdbcUrl.append("?verifyServerCertificate=true&useSSL=true");
         }
