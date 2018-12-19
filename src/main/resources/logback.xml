@@ -8,6 +8,9 @@
     <logger name="smokefree" level="trace" additivity="false">
         <appender-ref ref="stdout" />
     </logger>
+    <logger name="smokefree.aws.rds.secretmanager.RDSSecretManager" level="info" additivity="false">
+        <appender-ref ref="stdout" />
+    </logger>
     <logger name="org.axonframework" level="info" additivity="false">
         <appender-ref ref="stdout" />
     </logger>
