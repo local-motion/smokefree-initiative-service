@@ -1,9 +1,6 @@
 package smokefree;
 
-import graphql.Assert;
-import graphql.ExecutionInput;
-import graphql.ExecutionResult;
-import graphql.GraphQL;
+import graphql.*;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
@@ -21,6 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static io.micronaut.security.rules.SecurityRule.IS_ANONYMOUS;
+import static java.util.stream.Collectors.toList;
 
 @Slf4j
 @Secured(IS_ANONYMOUS)
@@ -50,9 +48,11 @@ public class GraphqlController {
         result.put("extensions", executionResult.getExtensions());
 
         // append any errors that may have occurred
-        executionResult
+        result.put("errors", executionResult
                 .getErrors()
-                .forEach(error -> result.putAll(error.toSpecification()));
+                .stream()
+                .map(GraphQLError::toSpecification)
+                .collect(toList()));
         return result;
     }
 
