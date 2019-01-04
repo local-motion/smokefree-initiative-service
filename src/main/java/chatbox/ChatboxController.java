@@ -28,15 +28,18 @@ public class ChatboxController {
 
     private static final Map<String, List<ChatMessage>> chatboxMessages = new HashMap<>();
 
-    private final EntityManagerFactory entityManagerFactory;
-    private final EntityManager entityManager;
+//    private final EntityManagerFactory entityManagerFactory;
+//    private final EntityManager entityManager;
+
+    private final ChatboxRepository chatboxRepository;
 
     @Inject
     InitiativeProjection initiativeProjection;
 
-    public ChatboxController() {
-        entityManagerFactory = Persistence.createEntityManagerFactory(MESSAGE_STORE_NAME);
-        entityManager = entityManagerFactory.createEntityManager();
+    public ChatboxController(ChatboxRepository chatboxRepository) {
+        this.chatboxRepository = chatboxRepository;
+//        entityManagerFactory = Persistence.createEntityManagerFactory(MESSAGE_STORE_NAME);
+//        entityManager = entityManagerFactory.createEntityManager();
     }
 
     @Post("/{chatboxId}")
@@ -56,10 +59,11 @@ public class ChatboxController {
         messages.add(chatMessage);
         chatboxMessages.put(chatboxId, messages);
 
-        entityManager.getTransaction().begin();
-        entityManager.persist(chatMessage);
-        entityManager.getTransaction().commit();
+//        entityManager.getTransaction().begin();
+//        entityManager.persist(chatMessage);
+//        entityManager.getTransaction().commit();
 
+        chatboxRepository.storeMessage(chatboxId, chatMessage);
 
         return "Thank you";
     }
@@ -69,10 +73,11 @@ public class ChatboxController {
         log.info("fetching for: " + chatboxId);
         List<ChatMessage> messages = chatboxMessages.containsKey(chatboxId) ? chatboxMessages.get(chatboxId) : new ArrayList<>();
 
-        Query query = entityManager.createQuery("SELECT m from ChatMessage m WHERE m.chatboxId = :chatboxId");
-        query.setParameter("chatboxId", chatboxId);
-        List<ChatMessage> messages2 = query.getResultList();
+//        Query query = entityManager.createQuery("SELECT m from ChatMessage m WHERE m.chatboxId = :chatboxId");
+//        query.setParameter("chatboxId", chatboxId);
+//        List<ChatMessage> messages2 = query.getResultList();
 
+        Collection<ChatMessage> messages2 = chatboxRepository.getMessages(chatboxId);
         return messages2;
     }
 
