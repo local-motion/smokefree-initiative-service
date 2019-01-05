@@ -18,7 +18,7 @@ import java.util.List;
 @Singleton
 public class ChatboxRepository {
 
-    @PersistenceContext
+//    @PersistenceContext
     private EntityManager entityManager;
 
     public ChatboxRepository(@CurrentSession EntityManager entityManager) {

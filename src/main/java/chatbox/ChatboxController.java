@@ -1,5 +1,7 @@
 package chatbox;
 
+import io.micronaut.context.annotation.Property;
+import io.micronaut.context.annotation.Value;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
@@ -42,9 +44,14 @@ public class ChatboxController {
 //        entityManager = entityManagerFactory.createEntityManager();
     }
 
+//    @Value("${micronaut.context.path:}/chatbox")
+    @Value("${datasources.default.url}")
+    String prop;
+
     @Post("/{chatboxId}")
     public String postMessage(Authentication authentication, String chatboxId, @Size(max=4096) @Body ChatMessage chatMessage) {
         log.info("chat message for"  + chatboxId + ": " + chatMessage + " from: " + authentication.getAttributes().get("cognito:username"));
+        log.info("value of prop: " + prop);
 
         if (!isValidChatboxId(chatboxId))
             return "error: invalid chatbox";

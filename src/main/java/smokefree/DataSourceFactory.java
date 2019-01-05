@@ -2,6 +2,7 @@ package smokefree;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import io.micronaut.context.annotation.ConfigurationProperties;
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Value;
 import lombok.NoArgsConstructor;
@@ -29,7 +30,7 @@ public class DataSourceFactory {
 
     @Singleton
     @Named("axon")
-    public DataSource dataSource() {
+    public HikariDataSource dataSource() {
         log.info("Local datasource is being initialized...");
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(jdbcUrl);

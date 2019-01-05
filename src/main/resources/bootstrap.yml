@@ -61,12 +61,13 @@ micronaut:
             algorithm: HS256
 
 # Database and JPA
-datasources:
-  default:
-    url: ${JDBC_URL:`jdbc:mysql://localhost:3306/smokefree`}
-    username: ${JDBC_USER:root}
-    password: ${JDBC_PASSWORD:root}
-    driverClassName: ${JDBC_DRIVER:com.mysql.jdbc.Driver}
+#datasources:
+#  default:
+#    url: ${JDBC_URL:`jdbc:mysql://localhost:3306/smokefree`}
+#    username: ${JDBC_USER:root}
+#    password: ${JDBC_PASSWORD:root}
+#    driverClassName: ${JDBC_DRIVER:com.mysql.jdbc.Driver}
+
 #  other:
 #    url: ${JDBC_URL:`jdbc:h2:mem:default;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE`}
 #    username: ${JDBC_USER:sa}
@@ -76,7 +77,8 @@ datasources:
 jpa:
   default:
     packages-to-scan:
-      - 'chatbox'
+      - chatbox
+      - smokefree
     properties:
       hibernate:
         hbm2ddl:

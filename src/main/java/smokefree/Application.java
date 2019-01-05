@@ -1,7 +1,10 @@
 package smokefree;
 
+import chatbox.ChatDataSourceFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zaxxer.hikari.HikariDataSource;
 import io.micronaut.context.annotation.Bean;
+import io.micronaut.core.util.CollectionUtils;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -14,9 +17,39 @@ import smokefree.projection.InitiativeProjection;
 import smokefree.projection.ProfileProjection;
 
 @Slf4j
-public class Application {
+//public class Application implements AutoCloseable{
+    public class Application {
+
+//    @Inject
+//    static DatasourceConfiguration datasourceConfiguration;
+
     public static void main(String[] args) {
-        Micronaut.run(Application.class);
+
+//        log.info("Local chat datasource is being initialized...");
+//        HikariConfig config = new HikariConfig();
+//        config.setJdbcUrl("jdbc:mysql://localhost:3306/smokefree");
+//        config.setUsername("root");
+//        config.setPassword("root");
+//        config.setDriverClassName("com.mysql.jdbc.Driver");
+//        HikariDataSource dataSource = new HikariDataSource(config);
+//        log.info("Local chat datasource initialized successfully");
+
+
+        HikariDataSource dataSource = new ChatDataSourceFactory().dataSource();
+
+//        Micronaut.run(Application.class);
+
+        Micronaut.build(new String[] {}).mainClass(Application.class)
+                .properties(
+                        CollectionUtils.mapOf(
+                                "datasources.default.data-source", dataSource,
+                                "datasources.default.url", dataSource.getJdbcUrl()
+                        )
+
+
+                )
+                .start();
+
     }
 
     @Bean
@@ -51,5 +84,10 @@ public class Application {
         log.warn("Page not found [{}]", request.getUri());
         return HttpResponse.<JsonError>notFound()
                 .body(error);
+    }
+
+//    @Override
+    public void close() throws Exception {
+
     }
 }
