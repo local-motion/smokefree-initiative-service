@@ -32,8 +32,25 @@ public class ChatboxRepository {
 
     @Transactional(readOnly = true)
     public Collection<ChatMessage> getMessages(String chatboxId) {
-        Query query = entityManager.createQuery("SELECT m from ChatMessage m WHERE m.chatboxId = :chatboxId");
+        Query query = entityManager.createQuery(
+                "SELECT m from ChatMessage m " +
+                        "WHERE m.chatboxId = :chatboxId " +
+                        "ORDER BY m.creationTime ASC"
+        );
         query.setParameter("chatboxId", chatboxId);
+        return query.getResultList();
+    }
+
+    @Transactional(readOnly = true)
+    public Collection<ChatMessage> getMessagesSince(String chatboxId, String messageId) {
+        Query query = entityManager.createQuery(
+                "SELECT m from ChatMessage m " +
+                        "WHERE m.chatboxId = :chatboxId " +
+                        "AND m.creationTime > (SELECT n.creationTime FROM ChatMessage n WHERE n.messageId = :messageId) " +
+                        "ORDER BY m.creationTime ASC"
+        );
+        query.setParameter("chatboxId", chatboxId);
+        query.setParameter("messageId", messageId);
         return query.getResultList();
     }
 

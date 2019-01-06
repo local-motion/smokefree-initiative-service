@@ -1,7 +1,5 @@
 package chatbox;
 
-import io.micronaut.context.annotation.Property;
-import io.micronaut.context.annotation.Value;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
@@ -12,13 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 import smokefree.projection.InitiativeProjection;
 import smokefree.projection.Playground;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.Query;
 import javax.validation.constraints.Size;
-import java.util.*;
+import java.util.Collection;
 
 import static io.micronaut.security.rules.SecurityRule.IS_AUTHENTICATED;
 
@@ -26,32 +21,18 @@ import static io.micronaut.security.rules.SecurityRule.IS_AUTHENTICATED;
 @Secured(IS_AUTHENTICATED)
 @Controller("${micronaut.context.path:}/chatbox")
 public class ChatboxController {
-    private static final String MESSAGE_STORE_NAME = "chatbox";
-
-    private static final Map<String, List<ChatMessage>> chatboxMessages = new HashMap<>();
-
-//    private final EntityManagerFactory entityManagerFactory;
-//    private final EntityManager entityManager;
-
-    private final ChatboxRepository chatboxRepository;
 
     @Inject
-    InitiativeProjection initiativeProjection;
+    private ChatboxRepository chatboxRepository;
 
-    public ChatboxController(ChatboxRepository chatboxRepository) {
-        this.chatboxRepository = chatboxRepository;
-//        entityManagerFactory = Persistence.createEntityManagerFactory(MESSAGE_STORE_NAME);
-//        entityManager = entityManagerFactory.createEntityManager();
-    }
+    @Inject
+    private InitiativeProjection initiativeProjection;
 
-//    @Value("${micronaut.context.path:}/chatbox")
-    @Value("${datasources.default.url}")
-    String prop;
 
     @Post("/{chatboxId}")
     public String postMessage(Authentication authentication, String chatboxId, @Size(max=4096) @Body ChatMessage chatMessage) {
-        log.info("chat message for"  + chatboxId + ": " + chatMessage + " from: " + authentication.getAttributes().get("cognito:username"));
-        log.info("value of prop: " + prop);
+        final String userName = authentication.getAttributes().get("cognito:username").toString();
+        log.info("chat message for"  + chatboxId + ": " + chatMessage + " from: " + userName);
 
         if (!isValidChatboxId(chatboxId))
             return "error: invalid chatbox";
@@ -59,34 +40,37 @@ public class ChatboxController {
         if (!isUserAuthorisedForChatbox(authentication.getName(), chatboxId))
             return "error: user not authorised for chatbox";
 
-        chatMessage.setAuthor((String) authentication.getAttributes().get("cognito:username"));
+        chatMessage.setAuthor(userName);
         chatMessage.setChatboxId(chatboxId);
-
-        List<ChatMessage> messages = chatboxMessages.containsKey(chatboxId) ? chatboxMessages.get(chatboxId) : new ArrayList<>();
-        messages.add(chatMessage);
-        chatboxMessages.put(chatboxId, messages);
-
-//        entityManager.getTransaction().begin();
-//        entityManager.persist(chatMessage);
-//        entityManager.getTransaction().commit();
 
         chatboxRepository.storeMessage(chatboxId, chatMessage);
 
         return "Thank you";
     }
 
-    @Get("/{chatboxId}")
-    public Collection<ChatMessage> getMessages(String chatboxId) {
-        log.info("fetching for: " + chatboxId);
-        List<ChatMessage> messages = chatboxMessages.containsKey(chatboxId) ? chatboxMessages.get(chatboxId) : new ArrayList<>();
+    @Get("/{chatboxId}{?since}")
+    public Collection<ChatMessage> getMessages(String chatboxId, @Nullable String since) {
+        log.info("fetching for: " + chatboxId + ", since: " + since);
 
-//        Query query = entityManager.createQuery("SELECT m from ChatMessage m WHERE m.chatboxId = :chatboxId");
-//        query.setParameter("chatboxId", chatboxId);
-//        List<ChatMessage> messages2 = query.getResultList();
-
-        Collection<ChatMessage> messages2 = chatboxRepository.getMessages(chatboxId);
-        return messages2;
+        if (since == null)
+            return chatboxRepository.getMessages(chatboxId);
+        else
+            return chatboxRepository.getMessagesSince(chatboxId, since);
     }
+
+//    @Get("/{chatboxId}")
+//    public Collection<ChatMessage> getMessages(String chatboxId) {
+//        log.info("fetching for: " + chatboxId);
+//
+//        return chatboxRepository.getMessages(chatboxId);
+//    }
+//
+//    @Get("/{chatboxId}{?since}")
+//    public Collection<ChatMessage> getMessages(String chatboxId, String since) {
+//        log.info("fetching for: " + chatboxId + ", since: " + since);
+//
+//        return chatboxRepository.getMessagesSince(chatboxId, since);
+//    }
 
     private boolean isValidChatboxId(String chatboxId) {
         return getPlayground(chatboxId) != null;
