@@ -2,6 +2,7 @@ package chatbox;
 
 import com.amazonaws.services.secretsmanager.AWSSecretsManager;
 import com.amazonaws.services.secretsmanager.AWSSecretsManagerClient;
+import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder;
 import com.amazonaws.services.secretsmanager.model.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micronaut.context.annotation.Value;
@@ -34,9 +35,14 @@ public class ChatAWSSecretManager {
     private final String driverClass = System.getenv("AWS_RDS_JDBCDRIVERCLASS");
     private final boolean isSslEnabled = !"false".equals(System.getenv("AWS_RDS_ENABLESSL"));
 
+    private final String region = "eu-west-1";
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private final AWSSecretsManager secretManagerClient = AWSSecretsManagerClient.builder().defaultClient();
+//    private final AWSSecretsManager secretManagerClient = AWSSecretsManagerClient.builder().defaultClient();
+    private final AWSSecretsManager secretManagerClient   = AWSSecretsManagerClientBuilder.standard()
+            .withRegion(region)
+            .build();
 
     private Map<String, Object> secretMap = null;
 
