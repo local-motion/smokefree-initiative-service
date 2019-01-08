@@ -31,17 +31,19 @@ public class ChatAWSSecretManager {
 //    @Value("${aws.rds.enableSsl:true}")
 //    private boolean isSslEnabled;
 
+
+
     private final String secretName = System.getenv("SECRET_NAME");
-    private final String driverClass = System.getenv("AWS_RDS_JDBCDRIVERCLASS");
+    private final String secretRegion = System.getenv("SECRET_REGION");
+    private final String driverClass = System.getenv("MYSQL_DRIVER_CLASS_NAME");
     private final boolean isSslEnabled = !"false".equals(System.getenv("AWS_RDS_ENABLESSL"));
 
-    private final String region = "eu-west-1";
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
 //    private final AWSSecretsManager secretManagerClient = AWSSecretsManagerClient.builder().defaultClient();
     private final AWSSecretsManager secretManagerClient   = AWSSecretsManagerClientBuilder.standard()
-            .withRegion(region)
+            .withRegion(secretRegion)
             .build();
 
     private Map<String, Object> secretMap = null;
