@@ -7,6 +7,7 @@ import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
+import io.micronaut.validation.Validated;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.config.Configuration;
 import smokefree.graphql.GraphqlQuery;
@@ -21,6 +22,7 @@ import static io.micronaut.security.rules.SecurityRule.IS_ANONYMOUS;
 import static java.util.stream.Collectors.toList;
 
 @Slf4j
+//@Validated
 @Secured(IS_ANONYMOUS)
 @Controller("${micronaut.context.path:}/graphql")
 public class GraphqlController {
@@ -30,10 +32,13 @@ public class GraphqlController {
     private Configuration configuration; // TODO: Trick to trigger bean creation. Can be done differently?
 
     @Post(consumes = MediaType.APPLICATION_JSON)
-    public Map<String, Object> graphql(@Nullable Authentication authentication, @Size(max=4096) @Body GraphqlQuery query) throws Exception {
+    public Map<String, Object> graphql(@Nullable Authentication authentication, @Size(max=4096) /* TODO Validation not yet enabled */  @Body GraphqlQuery query) throws Exception {
         log.trace("Query: {}", query.getQuery());
 
         Assert.assertNotNull(query.getQuery());
+
+        // All mutations require an authenticated user
+        Assert.assertTrue(authentication != null || !query.getQuery().trim().startsWith("mutation"), "User must be authenticated");
 
         // execute the query
         ExecutionInput.Builder builder = new ExecutionInput.Builder()
@@ -51,9 +56,21 @@ public class GraphqlController {
         result.put("errors", executionResult
                 .getErrors()
                 .stream()
-                .map(GraphQLError::toSpecification)
+                .map(error -> determineErrorAttributes(error))
                 .collect(toList()));
+
         return result;
     }
 
+    private Map<String, Object> determineErrorAttributes(GraphQLError error) {
+        // Only show the extension to avoid exposing too much internal information
+        if (error.getExtensions() != null)
+            return error.getExtensions();
+        else {
+            Map<String, Object> result = new HashMap<>();
+            result.put("code", "9-" + error.hashCode()%1000);
+            result.put("niceMessage", "Technische fout");
+            return result;
+        }
+    }
 }

@@ -50,6 +50,7 @@ public class Initiative {
     @CommandHandler
     public void claimManagerRole(ClaimManagerRoleCommand cmd, MetaData metaData) {
         String managerId = requireUserId(metaData);
+
         if (managers.contains(managerId)) {
             log.warn("{} is already managing {}. Ignoring...", managerId, cmd.initiativeId);
         } else {
