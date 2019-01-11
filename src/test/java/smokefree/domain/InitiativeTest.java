@@ -6,6 +6,7 @@ import org.axonframework.test.aggregate.FixtureConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import smokefree.DomainException;
 
 import javax.validation.ValidationException;
 import java.time.LocalDate;
@@ -125,7 +126,7 @@ class InitiativeTest {
                         initiativeCreated("initiative-1", not_started),
                         managerJoined("manager-XYZ"))
                 .when(new DecideToBecomeSmokeFreeCommand("initiative-1"), asManager1())
-                .expectException(IllegalArgumentException.class)
+                .expectException(DomainException.class)
                 .expectNoEvents();
     }
 

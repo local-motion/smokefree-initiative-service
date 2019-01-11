@@ -9,6 +9,10 @@ import com.zhokhov.graphql.datetime.GraphQLLocalDate;
 import com.zhokhov.graphql.datetime.GraphQLLocalDateTime;
 import com.zhokhov.graphql.datetime.GraphQLLocalTime;
 import graphql.GraphQL;
+import graphql.execution.AsyncExecutionStrategy;
+import graphql.execution.AsyncSerialExecutionStrategy;
+import graphql.execution.DataFetcherExceptionHandler;
+import graphql.execution.SubscriptionExecutionStrategy;
 import graphql.schema.DataFetcher;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLSchema;
@@ -17,23 +21,47 @@ import graphql.schema.idl.SchemaDirectiveWiringEnvironment;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.core.io.IOUtils;
+import io.micronaut.security.authentication.AuthenticationException;
 import io.micronaut.security.utils.SecurityService;
 import lombok.NoArgsConstructor;
 import smokefree.Mutation;
 import smokefree.Query;
+import smokefree.graphql.error.ConfigurableDataFetcherExceptionHandler;
+import smokefree.graphql.error.ErrorCode;
+import smokefree.graphql.error.ErrorExtensions;
+import smokefree.graphql.error.ErrorExtensionsMapper;
 
 import javax.inject.Singleton;
+import javax.validation.ValidationException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.List;
+
+import static smokefree.graphql.error.ErrorExtensionsMapper.exceptionToErrorExtensionsMapper;
 
 @Factory
 @NoArgsConstructor
 public class GraphqlFactory {
     @Bean
+    public ErrorExtensionsMapper<AuthenticationException> mapAuthenticationExceptionToErrorExtension() {
+        return exceptionToErrorExtensionsMapper(AuthenticationException.class, e -> new ErrorExtensions(ErrorCode.UNAUTHENTICATED, "Please login"));
+    }
+
+    @Bean
+    public ErrorExtensionsMapper<ValidationException> mapValidationExceptionToErrorExtension() {
+        return exceptionToErrorExtensionsMapper(ValidationException.class, e -> new ErrorExtensions(ErrorCode.VALIDATION, "Invalid data"));
+    }
+
+    @Bean
+    public DataFetcherExceptionHandler dataFetcherExceptionHandler(List<ErrorExtensionsMapper> errorExtensionsMappers) {
+        return new ConfigurableDataFetcherExceptionHandler(errorExtensionsMappers);
+    }
+
+    @Bean
     @Singleton
-    public GraphQL graphQL(Query query, Mutation mutation, SecurityService securityService, ObjectMapper objectMapper) throws IOException {
+    public GraphQL graphQL(Query query, Mutation mutation, SecurityService securityService, ObjectMapper objectMapper, DataFetcherExceptionHandler exceptionHandler) throws IOException {
         /*
          * More information can be found at https://www.graphql-java-kickstart.com/tools/schema-definition/
          */
@@ -51,12 +79,17 @@ public class GraphqlFactory {
                         new GraphQLLocalTime());
 
         GraphQLSchema graphQLSchema = builder.build().makeExecutableSchema();
-        return GraphQL.newGraphQL(graphQLSchema).build();
+        return GraphQL
+                .newGraphQL(graphQLSchema)
+                .mutationExecutionStrategy(new AsyncSerialExecutionStrategy(exceptionHandler))
+                .queryExecutionStrategy(new AsyncExecutionStrategy(exceptionHandler))
+                .subscriptionExecutionStrategy(new SubscriptionExecutionStrategy(exceptionHandler))
+                .build();
     }
 
     /**
      * Simply checks if the user is authenticated.
-     *
+     * <p>
      * Local-Motion does not have the notion of roles (yet). This could be the
      * hook where role based checks for GraphQL would happen.
      */

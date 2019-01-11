@@ -8,6 +8,7 @@ import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.messaging.MetaData;
 import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateRoot;
+import smokefree.DomainException;
 
 import javax.validation.ValidationException;
 import java.time.LocalDate;
@@ -49,6 +50,7 @@ public class Initiative {
     @CommandHandler
     public void claimManagerRole(ClaimManagerRoleCommand cmd, MetaData metaData) {
         String managerId = requireUserId(metaData);
+
         if (managers.contains(managerId)) {
             log.warn("{} is already managing {}. Ignoring...", managerId, cmd.initiativeId);
         } else {
@@ -127,13 +129,19 @@ public class Initiative {
 
     private String requireUserId(MetaData metaData) {
         final String userId = (String) metaData.get("user_id");
-        assertNonNull(userId, () -> new IllegalStateException("User ID must be set"));
+        assertNonNull(userId, () -> new DomainException(
+                "UNAUTHENTICATED",
+                "User ID must be set",
+                "You are not logged in"));
         return userId;
     }
 
     private void assertCurrentUserIsManager(MetaData metaData) {
         String userId = requireUserId(metaData);
-        Assert.isTrue(managers.contains(userId), () -> userId + " is not a manager");
+        Assert.assertThat(userId, id -> managers.contains(id), () -> new DomainException(
+                "UNAUTHORIZED",
+                userId + " is not a manager",
+                "You are not a manager of this playground"));
     }
 }
 
