@@ -2,13 +2,18 @@ package chatbox;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
-import io.micronaut.context.annotation.Value;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
+import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
+import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
 
-import javax.inject.Named;
 import javax.inject.Singleton;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
 
 @Slf4j
 @Factory
@@ -57,4 +62,18 @@ public class ChatDataSourceFactory {
         else
             throw new IllegalArgumentException("The MICRONAUT_ENVIRONMENTS environment variable need to be set to either 'local' or 'aws' instead of '" + environments + "'");
     }
+
+//    @Singleton
+//    public EntityManagerFactory ChatEntityManagerFactory(
+//            EntityManagerFactoryBuilder builder, DataSource dataSource) {
+//        new EntityManagerFactoryBuilderImpl(new PersistenceUnitDescriptor() {
+//        })
+//        return builder.withDataSource(dataSource).build();
+//    }
+//
+//    @Bean
+//    public EntityManager chatEntityManager(EntityManagerFactory entityManagerFactory) {
+//        return entityManagerFactory.createEntityManager();
+//    }
+
 }

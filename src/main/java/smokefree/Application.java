@@ -2,6 +2,7 @@ package smokefree;
 
 import chatbox.ChatDataSourceFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.core.util.CollectionUtils;
@@ -25,20 +26,7 @@ import smokefree.projection.ProfileProjection;
 
     public static void main(String[] args) {
 
-//        log.info("Local chat datasource is being initialized...");
-//        HikariConfig config = new HikariConfig();
-//        config.setJdbcUrl("jdbc:mysql://localhost:3306/smokefree");
-//        config.setUsername("root");
-//        config.setPassword("root");
-//        config.setDriverClassName("com.mysql.jdbc.Driver");
-//        HikariDataSource dataSource = new HikariDataSource(config);
-//        log.info("Local chat datasource initialized successfully");
-
-
         HikariDataSource dataSource = new ChatDataSourceFactory().dataSource();
-
-//        Micronaut.run(Application.class);
-
         Micronaut.build(new String[] {}).mainClass(Application.class)
                 .properties(
                         CollectionUtils.mapOf(
@@ -49,6 +37,8 @@ import smokefree.projection.ProfileProjection;
 
                 )
                 .start();
+
+//        Micronaut.run(Application.class);
 
     }
 
