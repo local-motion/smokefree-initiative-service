@@ -65,8 +65,8 @@ public class InitiativeProjection {
     @EventHandler
     public void on(ManagerJoinedInitiativeEvent evt, MetaData metaData) {
         log.info("ON EVENT {}", evt);
-        final String userId = (String) metaData.get("user_id");
-        final String userName = (String) metaData.get("user_name");
+        final String userId = (String) metaData.get("user_id");                 // TODO should this data not be extracted from the event itself?
+        final String userName = (String) metaData.get("user_name");             // TODO should this data not be extracted from the event itself?
 
         Playground playground = playgrounds.get(evt.getInitiativeId());
         Playground.Manager manager = new Playground.Manager(userId, userName);
