@@ -70,6 +70,7 @@ public class GraphqlController {
             Map<String, Object> result = new HashMap<>();
             result.put("code", "9-" + error.hashCode()%1000);
             result.put("niceMessage", "Technische fout");
+            log.info("GraphQL error: " + error);
             return result;
         }
     }

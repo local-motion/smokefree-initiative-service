@@ -67,7 +67,8 @@ type Stat {
 #
 
 type Mutation {
-    createInitiative(input: CreateInitiativeInput!): InputAcceptedResponse!
+    #createInitiative(input: CreateInitiativeInput!): InputAcceptedResponse!
+    createInitiative(input: CreateInitiativeInput!): Playground!
     joinInitiative(input: JoinInitiativeInput!): InputAcceptedResponse!
 
     claimManagerRole(input: ClaimManagerRoleCommand!): InputAcceptedResponse!
