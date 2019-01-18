@@ -12,6 +12,8 @@ import smokefree.domain.*;
 import smokefree.graphql.CreateInitiativeInput;
 import smokefree.graphql.InputAcceptedResponse;
 import smokefree.graphql.JoinInitiativeInput;
+import smokefree.projection.InitiativeProjection;
+import smokefree.projection.Playground;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -25,11 +27,15 @@ public class Mutation implements GraphQLMutationResolver {
     @Inject
     CommandGateway gateway;
 
+    @Inject
+    InitiativeProjection initiativeProjection;
+
     private SecurityContext toContext(DataFetchingEnvironment environment) {
         return environment.getContext();
     }
 
-    public InputAcceptedResponse createInitiative(CreateInitiativeInput input, DataFetchingEnvironment env) {
+    @SneakyThrows
+    public Playground createInitiative(CreateInitiativeInput input, DataFetchingEnvironment env) {
         final CreateInitiativeCommand command = new CreateInitiativeCommand(
                 input.getInitiativeId(),
                 input.getName(),
@@ -38,8 +44,11 @@ public class Mutation implements GraphQLMutationResolver {
                 new GeoLocation(input.getLat(), input.getLng()));
         final CompletableFuture<String> result = gateway.send(decorateWithMetaData(command, env));
         final InputAcceptedResponse response = InputAcceptedResponse.fromFuture(result);
-
-        return joinInitiative(new JoinInitiativeInput(response.getId()), env);
+        final String playgroundId = response.getId();
+//        return joinInitiative(new JoinInitiativeInput(response.getId()), env);
+        joinInitiative(new JoinInitiativeInput(playgroundId), env);
+        Playground playground = initiativeProjection.playground(playgroundId);
+        return playground;
     }
 
     @SneakyThrows
