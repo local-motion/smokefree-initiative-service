@@ -52,21 +52,25 @@ public class Mutation implements GraphQLMutationResolver {
     }
 
     @SneakyThrows
-    public InputAcceptedResponse joinInitiative(JoinInitiativeInput input, DataFetchingEnvironment env) {
+    public Playground joinInitiative(JoinInitiativeInput input, DataFetchingEnvironment env) {
         String citizenId = toContext(env).requireUserId();
 
         JoinInitiativeCommand cmd = new JoinInitiativeCommand(input.getInitiativeId(), citizenId);
         gateway.sendAndWait(decorateWithMetaData(cmd, env));
-        return new InputAcceptedResponse(input.getInitiativeId());
+//        return new InputAcceptedResponse(input.getInitiativeId());
+        return initiativeProjection.playground(input.getInitiativeId());
     }
 
     /***********
      * Playground Manager related functionality
      ************/
 
-    public InputAcceptedResponse claimManagerRole(ClaimManagerRoleCommand cmd, DataFetchingEnvironment env) {
+    public Playground claimManagerRole(ClaimManagerRoleCommand cmd, DataFetchingEnvironment env) {
         gateway.sendAndWait(decorateWithMetaData(cmd, env));
-        return new InputAcceptedResponse(cmd.getInitiativeId());
+//        return initiativeProjection.playground(cmd.getInitiativeId());
+        Playground playground = initiativeProjection.playground(cmd.getInitiativeId());
+        log.info("playground mamagers: " + playground.getManagers());
+        return playground;
     }
 
     public InputAcceptedResponse decideToBecomeSmokeFree(DecideToBecomeSmokeFreeCommand cmd, DataFetchingEnvironment env) {
