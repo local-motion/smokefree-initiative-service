@@ -96,6 +96,15 @@ public class Initiative {
         }
     }
 
+    /*
+   Retrieval functions (use for outputting state consistent with the update, otherwise consider using the projections)
+    */
+    @CommandHandler
+    public Initiative getInitiative(GetInitiativeCommand cmd, MetaData metaData) {
+        return this;
+    }
+
+
     @EventSourcingHandler
     void on(InitiativeCreatedEvent evt) {
         this.id = evt.initiativeId;
