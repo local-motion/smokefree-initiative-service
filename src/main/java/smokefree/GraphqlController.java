@@ -15,7 +15,9 @@ import smokefree.graphql.GraphqlQuery;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static io.micronaut.security.rules.SecurityRule.IS_ANONYMOUS;
@@ -38,7 +40,9 @@ public class GraphqlController {
         Assert.assertNotNull(query.getQuery());
 
         // All mutations require an authenticated user
-        Assert.assertTrue(authentication != null || !query.getQuery().trim().startsWith("mutation"), "User must be authenticated");
+//        Assert.assertTrue(authentication != null || !query.getQuery().trim().startsWith("mutation"), "User must be authenticated");
+        if (authentication == null && query.getQuery().trim().startsWith("mutation"))
+            return getSingleErrorResult("User must be authenticated");
 
         // execute the query
         ExecutionInput.Builder builder = new ExecutionInput.Builder()
@@ -68,10 +72,23 @@ public class GraphqlController {
             return error.getExtensions();
         else {
             Map<String, Object> result = new HashMap<>();
-            result.put("code", "9-" + error.hashCode()%1000);
+            result.put("code", "9-" + Math.abs(error.hashCode() % 1000));
             result.put("niceMessage", "Technische fout");
             log.info("GraphQL error: " + error);
             return result;
         }
+    }
+
+    private Map<String, Object> getSingleErrorResult(String errorMessage) {
+        log.info("GraphQL error: " + errorMessage);
+
+        Map<String, Object> errorResult = new HashMap<>();
+        errorResult.put("code", "9-" + Math.abs(errorMessage.hashCode() % 1000));
+        errorResult.put("niceMessage", errorMessage);
+        Map<String, Object> result = new HashMap<>();
+        List<Map<String, Object>> resultList = new ArrayList<>();
+        resultList.add(errorResult);
+        result.put("errors", resultList);
+        return result;
     }
 }
