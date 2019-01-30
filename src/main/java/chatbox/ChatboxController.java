@@ -15,6 +15,7 @@ import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.util.Collection;
 
+import static io.micronaut.security.rules.SecurityRule.IS_ANONYMOUS;
 import static io.micronaut.security.rules.SecurityRule.IS_AUTHENTICATED;
 
 @Slf4j
@@ -48,6 +49,7 @@ public class ChatboxController {
         return "Thank you";
     }
 
+    @Secured(IS_ANONYMOUS)
     @Get("/{chatboxId}{?since}")
     public Collection<ChatMessage> getMessages(String chatboxId, @Nullable String since) {
         log.info("fetching for: " + chatboxId + ", since: " + since);
@@ -57,20 +59,6 @@ public class ChatboxController {
         else
             return chatboxRepository.getMessagesSince(chatboxId, since);
     }
-
-//    @Get("/{chatboxId}")
-//    public Collection<ChatMessage> getMessages(String chatboxId) {
-//        log.info("fetching for: " + chatboxId);
-//
-//        return chatboxRepository.getMessages(chatboxId);
-//    }
-//
-//    @Get("/{chatboxId}{?since}")
-//    public Collection<ChatMessage> getMessages(String chatboxId, String since) {
-//        log.info("fetching for: " + chatboxId + ", since: " + since);
-//
-//        return chatboxRepository.getMessagesSince(chatboxId, since);
-//    }
 
     private boolean isValidChatboxId(String chatboxId) {
         return getPlayground(chatboxId) != null;
