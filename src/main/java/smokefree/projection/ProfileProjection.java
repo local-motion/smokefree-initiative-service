@@ -14,6 +14,16 @@ import static com.google.common.collect.Maps.newConcurrentMap;
 @Slf4j
 @Singleton
 public class ProfileProjection {
+
+
+    /*
+        TODO: Note the current implementation of this profile is no longer correct as it requires users to be volunteers (=joined a playground community)
+        which does not have to be the case.
+        At the moment this profile is not used (user info is fetched from the jwt token), but in the future this projection will be restored to use, when
+        user created events can be picked up (instead of the current initiative joined events)
+     */
+
+
     private final Map<String, Profile> profiles = newConcurrentMap();
 
     @EventHandler
