@@ -87,6 +87,14 @@ public class Initiative {
         }
     }
 
+    @CommandHandler
+    public void recordSmokeFreePlaygroundObservation(RecordSmokeFreePlaygroundObservationCommand cmd, MetaData metaData) {
+        // assertEarlierCommittedDateNotInPast();
+
+        apply(new SmokeFreePlaygroundObservationRecordedEvent(cmd.getInitiativeId(), cmd.getCitizenId(), cmd.getIsSmokeFree(), cmd.getRecordObservation(), LocalDate.now()),metaData);
+
+    }
+
     private void assertEarlierCommittedDateNotInPast() {
         if (this.smokeFreeDate == null) {
             return;
@@ -135,6 +143,9 @@ public class Initiative {
     void on(SmokeFreeDateCommittedEvent evt) {
         smokeFreeDate = evt.smokeFreeDate;
     }
+
+    @EventSourcingHandler
+    void on(SmokeFreePlaygroundObservationRecordedEvent evt) { }
 
     private String requireUserId(MetaData metaData) {
         final String userId = (String) metaData.get("user_id");

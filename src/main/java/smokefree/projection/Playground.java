@@ -22,9 +22,16 @@ public class Playground {
     int volunteerCount;
     int votes;
     final List<Manager> managers = newArrayList();
+    final PlaygroundObservations playgroundObservations;
+
 
     Playground addManager(Manager manager) {
         managers.add(manager);
+        return this;
+    }
+
+    Playground addPlaygroundObservation(Observation observation) {
+        playgroundObservations.getVolunteersObservations().add(observation);
         return this;
     }
 
@@ -32,5 +39,22 @@ public class Playground {
     static class Manager {
         String id;
         String username;
+    }
+
+    @Data
+    public static class PlaygroundObservations{
+        int smokefreeObservationsCount;
+        int smokeObservationCount;
+        int smokefreeConsecutiveStreak;
+        final List<Observation> volunteersObservations = newArrayList();
+    }
+
+    @Value
+    static class Observation {
+        String citizenId;
+        String userName;
+        Boolean isSmokeFree;
+        LocalDate observationDate;
+        String recordedObservation;
     }
 }

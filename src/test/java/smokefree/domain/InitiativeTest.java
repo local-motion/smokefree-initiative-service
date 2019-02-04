@@ -158,6 +158,22 @@ class InitiativeTest {
                 .expectException(ValidationException.class);
     }
 
+    @Test
+    void should_allow_record_smokefreeobservation() {
+        LocalDate yesterday = now().minusDays(1);
+        LocalDate today = now();
+
+        fixture
+                .given(
+                        initiativeCreated("initiative-1", not_started),
+                        managerJoined(MANAGER_1),
+                        new SmokeFreeDateCommittedEvent("initiative-1", null, yesterday))
+                .when(new RecordSmokeFreePlaygroundObservationCommand("initiative-1", "citizen-1", true, "Dont see anyone smoking"), asManager1())
+                .expectSuccessfulHandlerExecution()
+                .expectEvents(SmokeFreePlaygroundObservationRecordedEvent.class
+                );
+    }
+
     private Map<String, ?> asManager1() {
         return singletonMap("user_id", MANAGER_1);
     }

@@ -44,4 +44,8 @@ public class Query implements GraphQLQueryResolver {
 //        return profiles.profile(userId);
         return new Profile(toContext(env).requireUserId(), toContext(env).requireUserName());
     }
+
+    public Playground.PlaygroundObservations validation(String id) {
+        return initiatives.validation(id);
+    }
 }
