@@ -2,7 +2,6 @@ package smokefree;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import io.micronaut.context.annotation.ConfigurationProperties;
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Value;
 import lombok.NoArgsConstructor;
@@ -10,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
-import javax.sql.DataSource;
 
 @Slf4j
 @Factory
@@ -41,4 +39,5 @@ public class DataSourceFactory {
         log.info("Local datasource initialized successfully");
         return dataSource;
     }
+
 }

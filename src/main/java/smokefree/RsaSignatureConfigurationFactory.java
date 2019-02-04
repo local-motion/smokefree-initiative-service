@@ -19,6 +19,8 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.security.interfaces.RSAPublicKey;
 
+import javax.inject.Singleton;
+
 @Slf4j
 @Factory
 @NoArgsConstructor
@@ -30,6 +32,7 @@ public class RsaSignatureConfigurationFactory {
 	private String userPoolId;
 
 	@Bean
+	@Singleton
 	public SignatureConfiguration awsCognitoSignatureConfiguration() {
 		//noinspection Convert2Lambda
 		return new RSASignature(new RSASignatureConfiguration() {

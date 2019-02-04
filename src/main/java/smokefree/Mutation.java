@@ -61,6 +61,17 @@ public class Mutation implements GraphQLMutationResolver {
         return initiativeProjection.playground(input.getInitiativeId());
     }
 
+    //noticeSmokeFreePlayground(input: RecordSmokeFreePlaygroundObservationCommand!): Playground!
+    //recordSmokeFreePlaygroundObservation(input: RecordSmokeFreePlaygroundObservationCommand!): Playground!
+    @SneakyThrows
+    public Playground recordSmokeFreePlaygroundObservation(RecordSmokeFreePlaygroundObservationCommand input, DataFetchingEnvironment env) {
+        String citizenId = toContext(env).requireUserId();
+
+        RecordSmokeFreePlaygroundObservationCommand cmd = new RecordSmokeFreePlaygroundObservationCommand(input.getInitiativeId(), citizenId, input.getIsSmokeFree(), input.getRecordObservation());
+        gateway.sendAndWait(decorateWithMetaData(cmd, env));
+//        return new InputAcceptedResponse(input.getInitiativeId());
+        return initiativeProjection.playground(input.getInitiativeId());
+    }
     /***********
      * Playground Manager related functionality
      ************/
@@ -89,8 +100,10 @@ public class Mutation implements GraphQLMutationResolver {
     }
 
     private GenericCommandMessage<?> decorateWithMetaData(Object cmd, DataFetchingEnvironment env) {
-        return new GenericCommandMessage<>(cmd, MetaData
+        MetaData metaData = MetaData
                 .with("user_id", toContext(env).requireUserId())
-                .and("user_name", toContext(env).requireUserName()));
+                .and("user_name", toContext(env).requireUserName())
+                .and("email", toContext(env).emailId());
+        return new GenericCommandMessage<>(cmd, metaData);
     }
 }

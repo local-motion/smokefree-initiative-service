@@ -54,5 +54,14 @@ public class SecurityContext extends ConcurrentHashMap<String, Object> {
         return userName;
     }
 
+    public String emailId() {
+        final Authentication authentication = authentication();
+        if (authentication == null) {
+            throw new AuthenticationException("Not Email Id registered");
+        }
+        String userName = (String) authentication.getAttributes().get("email");
+        return userName;
+    }
+
 
 }

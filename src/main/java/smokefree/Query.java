@@ -41,4 +41,8 @@ public class Query implements GraphQLQueryResolver {
         }
         return profiles.profile(userId);
     }
+
+    public Playground.PlaygroundObservations validation(String id) {
+        return initiatives.validation(id);
+    }
 }
