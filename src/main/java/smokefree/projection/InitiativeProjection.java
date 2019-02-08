@@ -3,6 +3,7 @@ package smokefree.projection;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.messaging.MetaData;
+import smokefree.aws.rds.secretmanager.SmokefreeConstants;
 import smokefree.domain.*;
 
 import javax.inject.Singleton;
@@ -41,10 +42,11 @@ public class InitiativeProjection {
     }
 
     @EventHandler
-    public void on(CitizenJoinedInitiativeEvent evt) {
+    public void on(CitizenJoinedInitiativeEvent evt, MetaData metaData) {
         log.info("ON EVENT {}", evt);
         Playground playground = playgrounds.get(evt.getInitiativeId());
         playground.setVolunteerCount(playground.getVolunteerCount() + 1);
+        playground.getVolunteers().add(new Playground.Volunteer(evt.getCitizenId(), metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME).toString()));
     }
 
     @EventHandler
@@ -66,8 +68,8 @@ public class InitiativeProjection {
     @EventHandler
     public void on(ManagerJoinedInitiativeEvent evt, MetaData metaData) {
         log.info("ON EVENT {}", evt);
-        final String userId = (String) metaData.get("user_id");                 // TODO should this data not be extracted from the event itself?
-        final String userName = (String) metaData.get("user_name");             // TODO should this data not be extracted from the event itself?
+        final String userId = (String) metaData.get(SmokefreeConstants.JWTClaimSet.USER_ID);                 // TODO should this data not be extracted from the event itself?
+        final String userName = (String) metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME);             // TODO should this data not be extracted from the event itself?
 
         Playground playground = playgrounds.get(evt.getInitiativeId());
         Playground.Manager manager = new Playground.Manager(userId, userName);
@@ -77,8 +79,8 @@ public class InitiativeProjection {
     @EventHandler
     public void on(SmokeFreePlaygroundObservationRecordedEvent evt, MetaData metaData) {
         log.info("ON EVENT {}", evt);
-        final String userId = (String) metaData.get("user_id");                 // TODO should this data not be extracted from the event itself?
-        final String userName = (String) metaData.get("user_name");
+        final String userId = (String) metaData.get(SmokefreeConstants.JWTClaimSet.USER_ID);
+        final String userName = (String) metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME);
         Playground.PlaygroundObservations playgroundObservations = playgrounds.get(evt.getInitiativeId()).getPlaygroundObservations();
         if(evt.getIsSmokeFree()) {
             playgroundObservations.smokefreeObservationsCount += 1;

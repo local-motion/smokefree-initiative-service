@@ -10,6 +10,7 @@ import org.axonframework.commandhandling.GenericCommandMessage;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.config.Configuration;
 import org.axonframework.messaging.MetaData;
+import smokefree.aws.rds.secretmanager.SmokefreeConstants;
 import smokefree.domain.CreateInitiativeCommand;
 import smokefree.projection.InitiativeProjection;
 import smokefree.projection.Playground;
@@ -45,7 +46,7 @@ public class PlaygroundImportController {
         SecurityContext context = new SecurityContext(authentication);
 
         return new GenericCommandMessage<>(cmd, MetaData
-                .with("user_id", context.requireUserId())
-                .and("user_name", context.requireUserName()));
+                .with(SmokefreeConstants.JWTClaimSet.USER_ID, context.requireUserId())
+                .and(SmokefreeConstants.JWTClaimSet.USER_NAME, context.requireUserName()));
     }
 }

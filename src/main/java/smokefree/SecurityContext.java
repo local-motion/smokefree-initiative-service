@@ -3,6 +3,7 @@ package smokefree;
 import io.micronaut.core.util.StringUtils;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.authentication.AuthenticationException;
+import smokefree.aws.rds.secretmanager.SmokefreeConstants;
 
 import javax.annotation.Nullable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -47,7 +48,7 @@ public class SecurityContext extends ConcurrentHashMap<String, Object> {
         if (authentication == null) {
             throw new AuthenticationException("Not logged in");
         }
-        String userName = (String) authentication.getAttributes().get("cognito:username");
+        String userName = (String) authentication.getAttributes().get(SmokefreeConstants.JWTClaimSet.USER_NAME);
         if (StringUtils.isEmpty(userName)) {
             throw new AuthenticationException("No username");
         }
@@ -59,7 +60,7 @@ public class SecurityContext extends ConcurrentHashMap<String, Object> {
         if (authentication == null) {
             throw new AuthenticationException("Not Email Id registered");
         }
-        String userName = (String) authentication.getAttributes().get("email");
+        String userName = (String) authentication.getAttributes().get(SmokefreeConstants.JWTClaimSet.EMAIL_ADDRESS);
         return userName;
     }
 

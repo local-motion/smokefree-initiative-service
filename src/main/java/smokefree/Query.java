@@ -9,6 +9,8 @@ import smokefree.projection.*;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Singleton
@@ -48,4 +50,19 @@ public class Query implements GraphQLQueryResolver {
     public Playground.PlaygroundObservations validation(String id) {
         return initiatives.validation(id);
     }
+
+    /**
+     * It will compute the total number of volunteers.
+     * @return
+     */
+    // Need to discuss for return format(Int or List).
+    // Whether It should return just int or list of Volunteers(?in this case total count will be calculated at front end, and helps to display all volunteers on click)
+    public long totalVolunteers() {
+        return initiatives.playgrounds().stream()
+                .filter(playground -> playground.getVolunteers().size() != 0)
+                .flatMap(playground -> playground.getVolunteers().stream())
+                .distinct()
+                .count();
+    }
+
 }

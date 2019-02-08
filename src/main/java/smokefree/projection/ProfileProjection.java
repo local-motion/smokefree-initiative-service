@@ -4,6 +4,7 @@ import io.micronaut.core.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.messaging.MetaData;
+import smokefree.aws.rds.secretmanager.SmokefreeConstants;
 import smokefree.domain.CitizenJoinedInitiativeEvent;
 
 import javax.inject.Singleton;
@@ -29,8 +30,8 @@ public class ProfileProjection {
     @EventHandler
     public void on(CitizenJoinedInitiativeEvent evt, MetaData metaData) {
         log.info("ON EVENT {}", evt);
-        final String userId = (String) metaData.get("user_id");
-        final String userName = (String) metaData.get("user_name");
+        final String userId = (String) metaData.get(SmokefreeConstants.JWTClaimSet.USER_ID);
+        final String userName = (String) metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME);
 
         if (StringUtils.isEmpty(userId)) {
             log.info("User ID not available, ignoring...");

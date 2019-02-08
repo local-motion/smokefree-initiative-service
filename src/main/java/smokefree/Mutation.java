@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.GenericCommandMessage;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.messaging.MetaData;
+import smokefree.aws.rds.secretmanager.SmokefreeConstants;
 import smokefree.domain.*;
 import smokefree.graphql.CreateInitiativeInput;
 import smokefree.graphql.InputAcceptedResponse;
@@ -101,9 +102,9 @@ public class Mutation implements GraphQLMutationResolver {
 
     private GenericCommandMessage<?> decorateWithMetaData(Object cmd, DataFetchingEnvironment env) {
         MetaData metaData = MetaData
-                .with("user_id", toContext(env).requireUserId())
-                .and("user_name", toContext(env).requireUserName())
-                .and("email", toContext(env).emailId());
+                .with(SmokefreeConstants.JWTClaimSet.USER_ID, toContext(env).requireUserId())
+                .and(SmokefreeConstants.JWTClaimSet.USER_NAME, toContext(env).requireUserName())
+                .and(SmokefreeConstants.JWTClaimSet.EMAIL_ADDRESS, toContext(env).emailId());
         return new GenericCommandMessage<>(cmd, metaData);
     }
 }

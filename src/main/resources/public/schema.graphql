@@ -20,6 +20,7 @@ type Query {
     progress: Progress
     playground(id: String!): Playground
     validation(id: String!): PlaygroundObservations
+    totalVolunteers: Long
 }
 
 type Profile {
@@ -38,6 +39,7 @@ type Playground {
     votes: Int
     managers: [Manager!]
     playgroundObservations: PlaygroundObservations!
+    volunteers: [Volunteer!]
 }
 
 enum Status {
@@ -57,6 +59,11 @@ type Progress {
 type Manager {
     id : String!
     username : String!
+}
+
+type Volunteer {
+    userId: String!
+    userName: String!
 }
 
 type Stat {
