@@ -36,16 +36,6 @@ public class Playground {
         return this;
     }
 
-    @AllArgsConstructor
-    static class User {
-        @Getter @Setter String userId;
-        @Getter @Setter String userName;
-    }
-
-    /*
-      later Manager class will be extending User class,
-      and we need to make changes from front-end to back-end , because its being already used.
-     */
     @Value
     static class Manager {
         String id;
