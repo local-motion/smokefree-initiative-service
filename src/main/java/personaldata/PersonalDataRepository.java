@@ -3,6 +3,7 @@ package personaldata;
 import chatbox.ChatMessage;
 import io.micronaut.configuration.hibernate.jpa.scope.CurrentSession;
 import io.micronaut.spring.tx.annotation.Transactional;
+import org.springframework.orm.jpa.EntityManagerFactoryAccessor;
 
 import javax.inject.Singleton;
 import javax.persistence.EntityManager;
@@ -27,10 +28,19 @@ import java.util.Collection;
 @Singleton
 public class PersonalDataRepository {
 
+    private static PersonalDataRepository singleton = null;
+    public static PersonalDataRepository getInstance() {
+        return singleton;
+    }
+
     private EntityManager entityManager;
 
     public PersonalDataRepository(@CurrentSession EntityManager entityManager) {
         this.entityManager = entityManager;
+
+        // Register this instance in a static field so it can be accessed from anywhere without dependency injection
+        // TODO: Solve this through proper dependencies injection. Requires investigation inconjunction with the Axon framework. See Issue #217.
+        singleton = this;
     }
 
     @Transactional
@@ -39,7 +49,7 @@ public class PersonalDataRepository {
     }
 
     @Transactional(readOnly = true)
-    public PersonalDataRecord getRecord(int recordId) {
+    public PersonalDataRecord getRecord(long recordId) {
         Query query = entityManager.createQuery(
                 "SELECT r from PersonalDataRecord r " +
                         "WHERE r.recordId = :recordId"

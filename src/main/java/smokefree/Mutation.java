@@ -11,11 +11,12 @@ import org.axonframework.messaging.MetaData;
 import smokefree.aws.rds.secretmanager.SmokefreeConstants;
 import smokefree.domain.*;
 import smokefree.graphql.CreateInitiativeInput;
-import smokefree.graphql.CreateUserInput;
 import smokefree.graphql.InputAcceptedResponse;
 import smokefree.graphql.JoinInitiativeInput;
 import smokefree.projection.InitiativeProjection;
 import smokefree.projection.Playground;
+import smokefree.projection.Profile;
+import smokefree.projection.ProfileProjection;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -27,10 +28,14 @@ import java.util.concurrent.CompletableFuture;
 @SuppressWarnings("unused")
 public class Mutation implements GraphQLMutationResolver {
     @Inject
-    CommandGateway gateway;
+    private CommandGateway gateway;
 
     @Inject
-    InitiativeProjection initiativeProjection;
+    private InitiativeProjection initiativeProjection;
+
+    @Inject
+    private ProfileProjection profileProjection;
+
 
     private SecurityContext toContext(DataFetchingEnvironment environment) {
         return environment.getContext();
@@ -106,22 +111,46 @@ public class Mutation implements GraphQLMutationResolver {
      * User related functionality
      ************/
 
-    public InputAcceptedResponse createUser(CreateUserInput input, DataFetchingEnvironment env) {
+    public Profile createUser(String input, DataFetchingEnvironment env) {
         String userId = toContext(env).requireUserId();
         String userName = toContext(env).requireUserName();
         String emailAddress = toContext(env).emailId();
-        CreateUserCommand cmd = new CreateUserCommand(userId, userName, emailAddress);
-        try {
+
+        // First check if the user is not already present. If so just ignore the request and return the profile.
+        Profile profile = profileProjection.profile(userId);
+        if (profile != null)
+            return profile;
+
+        // Next check if the user has been logically deleted, in which case we will revive the user
+        if (profileProjection.getDeletedProfile(userId) != null) {
+            ReviveUserCommand cmd = new ReviveUserCommand(userId);
             gateway.sendAndWait(decorateWithMetaData(cmd, env));
         }
-        catch (Exception e) {
-            if (e.getMessage().endsWith(" was already inserted")) {
-                // Ignore exception, duplicate createUser request or profile was not up to date resulting in an unnecessary createUser call
-                // Anyhow the user is present, so we can return a success respons.
+        else {
+            CreateUserCommand cmd = new CreateUserCommand(userId, userName, emailAddress);
+            try {
+                gateway.sendAndWait(decorateWithMetaData(cmd, env));
             }
-            else
-                throw(e);
+            catch (Exception e) {
+                if (e.getMessage().endsWith(" was already inserted")) {
+                    // The user may have
+                    // Ignore exception, duplicate createUser request or profile was not up to date resulting in an unnecessary createUser call
+                    // Anyhow the user is present, so we can return a success response.
+                    // Note that it is possible to due the race conditional as the profiles are updated a-synchronously, that the user is present,
+                    // but logically deleted, but the profile was not yet loaded before to detect this. In this, rare case, the end user will just
+                    // have to refresh.
+                }
+                else
+                    throw(e);
+            }
         }
+        return new Profile(userId, userName, emailAddress);
+    }
+
+    public InputAcceptedResponse deleteUser(String input, DataFetchingEnvironment env) {
+        String userId = toContext(env).requireUserId();
+        DeleteUserCommand cmd = new DeleteUserCommand(userId);
+        gateway.sendAndWait(decorateWithMetaData(cmd, env));
         return new InputAcceptedResponse(userId);
     }
 

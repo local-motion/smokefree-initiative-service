@@ -1,12 +1,16 @@
 package smokefree.projection;
 
-import io.micronaut.core.util.StringUtils;
+import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventhandling.EventHandler;
+import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.messaging.MetaData;
-import smokefree.aws.rds.secretmanager.SmokefreeConstants;
-import smokefree.domain.CitizenJoinedInitiativeEvent;
+import personaldata.PersonalDataRecord;
+import personaldata.PersonalDataRepository;
 import smokefree.domain.UserCreatedEvent;
+import smokefree.domain.UserDeletedEvent;
+import smokefree.domain.UserPII;
+import smokefree.domain.UserRevivedEvent;
 
 import javax.inject.Singleton;
 import java.util.Map;
@@ -17,38 +21,61 @@ import static com.google.common.collect.Maps.newConcurrentMap;
 @Singleton
 public class ProfileProjection {
 
-
-    /*
-        TODO: Note the current implementation of this profile is no longer correct as it requires users to be volunteers (=joined a playground community)
-        which does not have to be the case.
-        At the moment this profile is not used (user info is fetched from the jwt token), but in the future this projection will be restored to use, when
-        user created events can be picked up (instead of the current initiative joined events)
-     */
-
-
     private final Map<String, Profile> profilesById = newConcurrentMap();
     private final Map<String, Profile> profilesByName = newConcurrentMap();
+
+    private final Map<String, Profile> deletedProfilesById = newConcurrentMap();
+
+
+    /*
+            Event handlers
+     */
 
     @EventHandler
     public void on(UserCreatedEvent evt, MetaData metaData) {
         log.info("ON EVENT {}", evt);
-//        final String userId = (String) metaData.get(SmokefreeConstants.JWTClaimSet.USER_ID);
-//        final String userName = (String) metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME);
-//
-//        if (StringUtils.isEmpty(userId)) {
-//            log.info("User ID not available, ignoring...");
-//            return;
-//        }
-//        if (StringUtils.isEmpty(userName)) {
-//            log.info("User name not available, ignoring...");
-//            return;
-//        }
-        Profile profile = new Profile(evt.getUserId(), evt.getName(), evt.getEmailAddress());
-        profilesById.put(evt.getUserId(), profile);
-        profilesByName.put(evt.getName(), profile);
+
+        Profile profile;
+        if (evt.getPiiRecordId() != 0) {
+            PersonalDataRecord personalDataRecord = PersonalDataRepository.getInstance().getRecord(evt.getPiiRecordId());
+            Gson gson = new Gson();
+            UserPII userPII = gson.fromJson(personalDataRecord.getData(), UserPII.class);
+            profile = new Profile(evt.getUserId(), userPII.getName(), userPII.getEmailAddress());
+            log.info("User profile retrieved pii record " + evt.getPiiRecordId() + " for " + evt.getUserId() + " with data " + userPII);
+        }
+        else {
+            profile = new Profile(evt.getUserId(), evt.getName(), evt.getEmailAddress());
+        }
+
+        profilesById.put(profile.getId(), profile);
+        profilesByName.put(profile.getUsername(), profile);
     }
+
+    @EventSourcingHandler
+    void on(UserRevivedEvent evt) {
+        Profile profile = deletedProfilesById.get(evt.getUserId());
+        profilesById.put(profile.getId(), profile);
+        profilesByName.put(profile.getUsername(), profile);
+    }
+
+    @EventSourcingHandler
+    void on(UserDeletedEvent evt) {
+        Profile userProfile = profilesById.get(evt.getUserId());
+        profilesByName.remove(userProfile.getUsername());
+        profilesById.remove(evt.getUserId());
+        deletedProfilesById.put(userProfile.getId(), userProfile);
+    }
+
+
+    /*
+            Retrieval methods
+     */
 
     public Profile profile(String id) {
         return profilesById.get(id);
+    }
+
+    public Profile getDeletedProfile(String id) {
+        return deletedProfilesById.get(id);
     }
 }

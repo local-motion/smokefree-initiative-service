@@ -10,6 +10,7 @@ import io.micronaut.security.authentication.Authentication;
 import io.micronaut.validation.Validated;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.config.Configuration;
+import personaldata.PersonalDataRepository;
 import smokefree.graphql.GraphqlQuery;
 import smokefree.projection.ProfileProjection;
 
@@ -37,6 +38,10 @@ public class GraphqlController {
     @Inject
     private ProfileProjection profileProjection;
 
+    @Inject
+    private PersonalDataRepository personalDataRepository;
+
+
     @Post(consumes = MediaType.APPLICATION_JSON)
     public Map<String, Object> graphql(@Nullable Authentication authentication, @Size(max=4096) /* TODO Validation not yet enabled */  @Body GraphqlQuery query) throws Exception {
         log.trace("Query: {}", query.getQuery());
@@ -45,16 +50,14 @@ public class GraphqlController {
 
 
         // All mutations require an authenticated user
-//        Assert.assertTrue(authentication != null || !query.getQuery().trim().startsWith("mutation"), "User must be authenticated");
         if (authentication == null && query.getQuery().trim().startsWith("mutation"))
             return getSingleErrorResult("User must be authenticated");
 
 
         if ( authentication != null && profileProjection.profile(authentication.getName()) == null  && !query.getQuery().trim().startsWith("mutation CreateUser") ) {
-            // Authenticated user does not have a profile yet. This will be a newly enrolled user. Fail and have the front-end request a CreateUserProfile.
+            // Authenticated user does not have a profile yet. This will be a newly enrolled user. Fail and have the front-end do a CreateUser request
             return getSingleErrorResult("NO_PROFILE", "No user profile present");
         }
-
 
         // execute the query
         ExecutionInput.Builder builder = new ExecutionInput.Builder()

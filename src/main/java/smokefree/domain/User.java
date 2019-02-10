@@ -1,14 +1,22 @@
 package smokefree.domain;
 
+import com.google.gson.Gson;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.common.Assert;
+import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.messaging.MetaData;
 import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateRoot;
+import personaldata.PersonalDataRecord;
+import personaldata.PersonalDataRepository;
+import smokefree.projection.Profile;
+
+
 import static org.axonframework.modelling.command.AggregateLifecycle.apply;
+import static org.axonframework.modelling.command.AggregateLifecycle.markDeleted;
 
 @Slf4j
 @NoArgsConstructor
@@ -19,6 +27,7 @@ public class User {
     private String name;
     private String emailAddress;
 
+    private boolean deleted = false;            // Users are deleted 'logically' leaving the option to rejoin
 
     /*
                Commands
@@ -29,6 +38,8 @@ public class User {
         // a user record on their own behalf. (Note that a new user will first enroll into Cognito and then fire off
         // the CreateUserCommand, so some user details will already be contained in the JWT token and passed on in the metadata.
 
+//        PersonalDataRepository personalDataRepository = (PersonalDataRepository) metaData.get("personalDataRepository");
+        PersonalDataRepository personalDataRepository = PersonalDataRepository.getInstance();
         MetaDataManager metaDataManager = new MetaDataManager(metaData);
 
         Assert.isTrue(
@@ -37,7 +48,36 @@ public class User {
                 cmd.getEmailAddress().equals(metaDataManager.getEmailAddress())
         ,      () -> "ILLEGAL_UPDATE, CreateUserCommand invoked with attributes that do not match the user's attributes");
 
-        apply(new UserCreatedEvent(cmd.getUserId(), cmd.getName(), cmd.getEmailAddress()), metaData);
+        UserPII userPII = new UserPII(cmd.getName(), cmd.getEmailAddress());
+        Gson gson = new Gson();
+        String piiString = gson.toJson(userPII);
+
+        PersonalDataRecord personalDataRecord = new PersonalDataRecord(cmd.getUserId(), piiString);
+        personalDataRepository.storeRecord(personalDataRecord);
+
+        long recordId = personalDataRecord.getRecordId();
+        log.info("created pii record " + recordId + " for " + cmd.getUserId() + " with data " + piiString);
+//        apply(new UserCreatedEvent(cmd.getUserId(), cmd.getName(), cmd.getEmailAddress(), 0), metaData);
+        apply(new UserCreatedEvent(cmd.getUserId(), null, null, recordId), metaData);
+    }
+
+    /**
+     * A deleted user can be revived using the original userid
+     */
+    @CommandHandler
+    public void reviveUser(ReviveUserCommand cmd, MetaData metaData) {
+
+        // Ignore if the user is still active
+        if (!deleted)
+            return;
+
+        deleted = false;
+        apply(new UserRevivedEvent(cmd.getUserId()), metaData);
+    }
+
+    @CommandHandler
+    public void deleteUser(DeleteUserCommand cmd, MetaData metaData) {
+        apply(new UserDeletedEvent(cmd.getUserId()), metaData);
     }
 
 
@@ -45,11 +85,34 @@ public class User {
                Events
      */
 
-    @EventSourcingHandler
-    void on(UserCreatedEvent evt) {
+    @EventHandler
+    public void on(UserCreatedEvent evt, MetaData metaData) {
+        log.info("ON EVENT {}", evt);
+
         this.id = evt.getUserId();
-        this.name = evt.getName();
-        this.emailAddress = evt.getEmailAddress();
+        if (evt.getPiiRecordId() != 0) {
+            PersonalDataRecord personalDataRecord = PersonalDataRepository.getInstance().getRecord(evt.getPiiRecordId());
+            Gson gson = new Gson();
+            UserPII userPII = gson.fromJson(personalDataRecord.getData(), UserPII.class);
+            this.name = userPII.getName();
+            this.emailAddress = userPII.getEmailAddress();
+        }
+        else {
+            this.name = evt.getName();
+            this.emailAddress = evt.getEmailAddress();
+        }
+    }
+
+    @EventSourcingHandler
+    void on(UserRevivedEvent evt) {
+        log.info("ON EVENT {}", evt);
+        deleted = false;
+    }
+
+    @EventSourcingHandler
+    void on(UserDeletedEvent evt) {
+        log.info("ON EVENT {}", evt);
+        deleted = true;
     }
 
 }

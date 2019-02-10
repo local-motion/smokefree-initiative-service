@@ -105,7 +105,8 @@ type Mutation {
 
     recordSmokeFreePlaygroundObservation(input: RecordSmokeFreePlaygroundObservationCommand!): Playground!
 
-    createUser(input: CreateUserInput!): InputAcceptedResponse!
+    createUser(doesNotMatter: String!): Profile!
+    deleteUser(doesNotMatter: String!): InputAcceptedResponse!
 }
 
 type InputAcceptedResponse {
@@ -118,10 +119,6 @@ enum Status {
 }
 enum Type {
     smokefree
-}
-
-input CreateUserInput {
-    id : String!
 }
 
 input CreateInitiativeInput {
