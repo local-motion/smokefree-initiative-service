@@ -11,6 +11,7 @@ import org.axonframework.messaging.MetaData;
 import smokefree.aws.rds.secretmanager.SmokefreeConstants;
 import smokefree.domain.*;
 import smokefree.graphql.CreateInitiativeInput;
+import smokefree.graphql.CreateUserInput;
 import smokefree.graphql.InputAcceptedResponse;
 import smokefree.graphql.JoinInitiativeInput;
 import smokefree.projection.InitiativeProjection;
@@ -100,6 +101,36 @@ public class Mutation implements GraphQLMutationResolver {
         return new InputAcceptedResponse(cmd.getInitiativeId());
     }
 
+
+    /***********
+     * User related functionality
+     ************/
+
+    public InputAcceptedResponse createUser(CreateUserInput input, DataFetchingEnvironment env) {
+        String userId = toContext(env).requireUserId();
+        String userName = toContext(env).requireUserName();
+        String emailAddress = toContext(env).emailId();
+        CreateUserCommand cmd = new CreateUserCommand(userId, userName, emailAddress);
+        try {
+            gateway.sendAndWait(decorateWithMetaData(cmd, env));
+        }
+        catch (Exception e) {
+            if (e.getMessage().endsWith(" was already inserted")) {
+                // Ignore exception, duplicate createUser request or profile was not up to date resulting in an unnecessary createUser call
+                // Anyhow the user is present, so we can return a success respons.
+            }
+            else
+                throw(e);
+        }
+        return new InputAcceptedResponse(userId);
+    }
+
+
+
+    /***********
+     * Utility functions
+     ************/
+
     private GenericCommandMessage<?> decorateWithMetaData(Object cmd, DataFetchingEnvironment env) {
         MetaData metaData = MetaData
                 .with(SmokefreeConstants.JWTClaimSet.USER_ID, toContext(env).requireUserId())
@@ -107,4 +138,7 @@ public class Mutation implements GraphQLMutationResolver {
                 .and(SmokefreeConstants.JWTClaimSet.EMAIL_ADDRESS, toContext(env).emailId());
         return new GenericCommandMessage<>(cmd, metaData);
     }
+
+
+
 }

@@ -23,6 +23,7 @@ import org.axonframework.serialization.Serializer;
 import org.axonframework.serialization.json.JacksonSerializer;
 import org.axonframework.serialization.upcasting.event.NoOpEventUpcaster;
 import smokefree.domain.Initiative;
+import smokefree.domain.User;
 import smokefree.projection.InitiativeProjection;
 import smokefree.projection.ProfileProjection;
 
@@ -50,6 +51,7 @@ public class AxonFactory {
                 .configureQueryBus(c -> queryBus)
                 .configureSerializer(c -> serializer)
                 .configureAggregate(Initiative.class)
+                .configureAggregate(User.class)
                 .registerQueryHandler(c -> initiativeProjection)
                 .registerQueryHandler(c -> profileProjection);
         configurer.eventProcessing()

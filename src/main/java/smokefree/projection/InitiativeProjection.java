@@ -46,6 +46,7 @@ public class InitiativeProjection {
         log.info("ON EVENT {}", evt);
         Playground playground = playgrounds.get(evt.getInitiativeId());
         playground.setVolunteerCount(playground.getVolunteerCount() + 1);
+        log.info("user: " + metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME));
         playground.getVolunteers().add(new Playground.Volunteer(evt.getCitizenId(), metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME).toString()));
     }
 

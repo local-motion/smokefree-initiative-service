@@ -48,7 +48,7 @@ public class SecurityContext extends ConcurrentHashMap<String, Object> {
         if (authentication == null) {
             throw new AuthenticationException("Not logged in");
         }
-        String userName = (String) authentication.getAttributes().get(SmokefreeConstants.JWTClaimSet.USER_NAME);
+        String userName = (String) authentication.getAttributes().get(SmokefreeConstants.JWTClaimSet.COGNITO_USER_NAME);
         if (StringUtils.isEmpty(userName)) {
             throw new AuthenticationException("No username");
         }
@@ -58,7 +58,7 @@ public class SecurityContext extends ConcurrentHashMap<String, Object> {
     public String emailId() {
         final Authentication authentication = authentication();
         if (authentication == null) {
-            throw new AuthenticationException("Not Email Id registered");
+            throw new AuthenticationException("No email address registered");
         }
         String userName = (String) authentication.getAttributes().get(SmokefreeConstants.JWTClaimSet.EMAIL_ADDRESS);
         return userName;

@@ -39,12 +39,12 @@ public class Query implements GraphQLQueryResolver {
     public Profile profile(DataFetchingEnvironment env) {
 
         // For now we do not use the profile projection (see note in that class), but retrieve the info straight from the session
-//        String userId = toContext(env).userId();
-//        if (userId == null) {
-//            return null;
-//        }
-//        return profiles.profile(userId);
-        return new Profile(toContext(env).requireUserId(), toContext(env).requireUserName());
+        String userId = toContext(env).userId();
+        if (userId == null) {
+            return null;
+        }
+        return profiles.profile(userId);
+//        return new Profile(toContext(env).requireUserId(), toContext(env).requireUserName());
     }
 
     public Playground.PlaygroundObservations validation(String id) {

@@ -11,6 +11,7 @@ import io.micronaut.validation.Validated;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.config.Configuration;
 import smokefree.graphql.GraphqlQuery;
+import smokefree.projection.ProfileProjection;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -33,16 +34,27 @@ public class GraphqlController {
     @Inject
     private Configuration configuration; // TODO: Trick to trigger bean creation. Can be done differently?
 
+    @Inject
+    private ProfileProjection profileProjection;
+
     @Post(consumes = MediaType.APPLICATION_JSON)
     public Map<String, Object> graphql(@Nullable Authentication authentication, @Size(max=4096) /* TODO Validation not yet enabled */  @Body GraphqlQuery query) throws Exception {
         log.trace("Query: {}", query.getQuery());
 
         Assert.assertNotNull(query.getQuery());
 
+
         // All mutations require an authenticated user
 //        Assert.assertTrue(authentication != null || !query.getQuery().trim().startsWith("mutation"), "User must be authenticated");
         if (authentication == null && query.getQuery().trim().startsWith("mutation"))
             return getSingleErrorResult("User must be authenticated");
+
+
+        if ( authentication != null && profileProjection.profile(authentication.getName()) == null  && !query.getQuery().trim().startsWith("mutation CreateUser") ) {
+            // Authenticated user does not have a profile yet. This will be a newly enrolled user. Fail and have the front-end request a CreateUserProfile.
+            return getSingleErrorResult("NO_PROFILE", "No user profile present");
+        }
+
 
         // execute the query
         ExecutionInput.Builder builder = new ExecutionInput.Builder()
@@ -80,10 +92,14 @@ public class GraphqlController {
     }
 
     private Map<String, Object> getSingleErrorResult(String errorMessage) {
+        return getSingleErrorResult(null, errorMessage);
+    }
+    private Map<String, Object> getSingleErrorResult(String errorCode, String errorMessage) {
         log.info("GraphQL error: " + errorMessage);
 
+        String code = errorCode != null ? errorCode : "9-" + Math.abs(errorMessage.hashCode() % 1000);
         Map<String, Object> errorResult = new HashMap<>();
-        errorResult.put("code", "9-" + Math.abs(errorMessage.hashCode() % 1000));
+        errorResult.put("code", code);
         errorResult.put("niceMessage", errorMessage);
         Map<String, Object> result = new HashMap<>();
         List<Map<String, Object>> resultList = new ArrayList<>();

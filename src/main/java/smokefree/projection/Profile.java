@@ -6,4 +6,5 @@ import lombok.Value;
 public class Profile {
     String id;
     String username;
+    String emailAddress;
 }

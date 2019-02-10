@@ -26,6 +26,7 @@ type Query {
 type Profile {
     id : String!
     username : String!
+    emailAddress : String!
 }
 
 type Playground {
@@ -37,7 +38,7 @@ type Playground {
     smokeFreeDate: LocalDate
     volunteerCount: Int #@auth(role : "manager")
     votes: Int
-    managers: [Manager!]
+    managers: [Manager!]!
     playgroundObservations: PlaygroundObservations!
     volunteers: [Volunteer!]
 }
@@ -76,7 +77,6 @@ type PlaygroundObservations {
     smokeObservationCount: Int!
     smokefreeConsecutiveStreak: Int!
     volunteersObservations: [Observation!]
-
 }
 
 type Observation {
@@ -86,6 +86,7 @@ type Observation {
     observationDate: LocalDate!
     recordedObservation: String!
 }
+
 
 #
 # Mutations
@@ -103,7 +104,10 @@ type Mutation {
     commitToSmokeFreeDate(input: CommitToSmokeFreeDateCommand!): InputAcceptedResponse!
 
     recordSmokeFreePlaygroundObservation(input: RecordSmokeFreePlaygroundObservationCommand!): Playground!
+
+    createUser(input: CreateUserInput!): InputAcceptedResponse!
 }
+
 type InputAcceptedResponse {
     id : String!
 }
@@ -116,6 +120,10 @@ enum Type {
     smokefree
 }
 
+input CreateUserInput {
+    id : String!
+}
+
 input CreateInitiativeInput {
     initiativeId: String!
     type: Type!
@@ -124,9 +132,11 @@ input CreateInitiativeInput {
     lat: Float!
     lng: Float!
 }
+
 input JoinInitiativeInput {
     initiativeId: String!
 }
+
 input DecideToBecomeSmokeFreeCommand {
     initiativeId: String!
 }
