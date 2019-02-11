@@ -2,9 +2,14 @@ package personaldata;
 
 import chatbox.ChatMessage;
 import io.micronaut.configuration.hibernate.jpa.scope.CurrentSession;
+import io.micronaut.context.annotation.Context;
 import io.micronaut.spring.tx.annotation.Transactional;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
 import org.springframework.orm.jpa.EntityManagerFactoryAccessor;
+import smokefree.Application;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -25,23 +30,12 @@ import java.util.Collection;
  *
  * Apart for their deletion when a person asserts their 'right to be forgotten' these records will not be modified or deleted.
  */
+@Slf4j
 @Singleton
 public class PersonalDataRepository {
 
-    private static PersonalDataRepository singleton = null;
-    public static PersonalDataRepository getInstance() {
-        return singleton;
-    }
-
+    @Inject
     private EntityManager entityManager;
-
-    public PersonalDataRepository(@CurrentSession EntityManager entityManager) {
-        this.entityManager = entityManager;
-
-        // Register this instance in a static field so it can be accessed from anywhere without dependency injection
-        // TODO: Solve this through proper dependencies injection. Requires investigation inconjunction with the Axon framework. See Issue #217.
-        singleton = this;
-    }
 
     @Transactional
     public void storeRecord(PersonalDataRecord personalDataRecord) {
@@ -68,5 +62,6 @@ public class PersonalDataRepository {
         int deletedCount = query.executeUpdate();
         return deletedCount;
     }
+
 
 }
