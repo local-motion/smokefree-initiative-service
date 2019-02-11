@@ -3,7 +3,6 @@ package smokefree.domain;
 import org.axonframework.messaging.interceptors.BeanValidationInterceptor;
 import org.axonframework.test.aggregate.AggregateTestFixture;
 import org.axonframework.test.aggregate.FixtureConfiguration;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import smokefree.DomainException;
@@ -168,9 +167,9 @@ class InitiativeTest {
                         initiativeCreated("initiative-1", not_started),
                         managerJoined(MANAGER_1),
                         new SmokeFreeDateCommittedEvent("initiative-1", null, yesterday))
-                .when(new RecordSmokeFreePlaygroundObservationCommand("initiative-1", "citizen-1", true, "Dont see anyone smoking"), asManager1())
+                .when(new IndicatePlaygroundObservationCommand("initiative-1", true, "Dont see anyone smoking"), asManager1())
                 .expectSuccessfulHandlerExecution()
-                .expectEvents(SmokeFreePlaygroundObservationRecordedEvent.class
+                .expectEvents(PlaygroundObservationIndicatedEvent.class
                 );
     }
 

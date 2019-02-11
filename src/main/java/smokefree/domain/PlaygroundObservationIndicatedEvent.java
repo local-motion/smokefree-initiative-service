@@ -11,10 +11,10 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class SmokeFreePlaygroundObservationRecordedEvent {
+public class PlaygroundObservationIndicatedEvent {
     String initiativeId;
-    String citizenId;
-    Boolean isSmokeFree;
-    String recordObservation;
+    String userId;
+    Boolean smokefree;
+    String comment;
     LocalDate observationDate;
 }

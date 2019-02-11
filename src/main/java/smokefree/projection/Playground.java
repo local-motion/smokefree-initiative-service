@@ -22,7 +22,7 @@ public class Playground {
     int volunteerCount;
     int votes;
     final List<Manager> managers = newArrayList();
-    final PlaygroundObservations playgroundObservations;
+    final List<PlaygroundObservation> playgroundObservations = newArrayList();
     final Set<Volunteer> volunteers = new HashSet<>();
 
 
@@ -31,8 +31,8 @@ public class Playground {
         return this;
     }
 
-    Playground addPlaygroundObservation(Observation observation) {
-        playgroundObservations.getVolunteersObservations().add(observation);
+    Playground addPlaygroundObservation(PlaygroundObservation playgroundObservation) {
+        playgroundObservations.add(playgroundObservation);
         return this;
     }
 
@@ -58,20 +58,12 @@ public class Playground {
         String userName;
     }
 
-    @Data
-    public static class PlaygroundObservations{
-        int smokefreeObservationsCount;
-        int smokeObservationCount;
-        int smokefreeConsecutiveStreak;
-        final List<Observation> volunteersObservations = newArrayList();
-    }
-
     @Value
-    static class Observation {
-        String citizenId;
+    public static class PlaygroundObservation{
+        String userId;
         String userName;
-        Boolean isSmokeFree;
+        Boolean smokefree;
         LocalDate observationDate;
-        String recordedObservation;
+        String comment;
     }
 }

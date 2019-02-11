@@ -47,10 +47,6 @@ public class Query implements GraphQLQueryResolver {
 //        return new Profile(toContext(env).requireUserId(), toContext(env).requireUserName());
     }
 
-    public Playground.PlaygroundObservations validation(String id) {
-        return initiatives.validation(id);
-    }
-
     /**
      * It will compute the total number of volunteers.
      * @return total volunteers count
