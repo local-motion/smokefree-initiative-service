@@ -20,11 +20,13 @@ type Query {
     progress: Progress
     playground(id: String!): Playground
     validation(id: String!): PlaygroundObservations
+    totalVolunteers: Long
 }
 
 type Profile {
     id : String!
     username : String!
+    emailAddress : String!
 }
 
 type Playground {
@@ -36,8 +38,9 @@ type Playground {
     smokeFreeDate: LocalDate
     volunteerCount: Int #@auth(role : "manager")
     votes: Int
-    managers: [Manager!]
+    managers: [Manager!]!
     playgroundObservations: PlaygroundObservations!
+    volunteers: [Volunteer!]
 }
 
 enum Status {
@@ -59,6 +62,11 @@ type Manager {
     username : String!
 }
 
+type Volunteer {
+    userId: String!
+    userName: String!
+}
+
 type Stat {
     count : Int
     percentage : Int
@@ -69,7 +77,6 @@ type PlaygroundObservations {
     smokeObservationCount: Int!
     smokefreeConsecutiveStreak: Int!
     volunteersObservations: [Observation!]
-
 }
 
 type Observation {
@@ -79,6 +86,7 @@ type Observation {
     observationDate: LocalDate!
     recordedObservation: String!
 }
+
 
 #
 # Mutations
@@ -96,7 +104,11 @@ type Mutation {
     commitToSmokeFreeDate(input: CommitToSmokeFreeDateCommand!): InputAcceptedResponse!
 
     recordSmokeFreePlaygroundObservation(input: RecordSmokeFreePlaygroundObservationCommand!): Playground!
+
+    createUser(doesNotMatter: String!): Profile!
+    deleteUser(doesNotMatter: String!): InputAcceptedResponse!
 }
+
 type InputAcceptedResponse {
     id : String!
 }
@@ -117,9 +129,11 @@ input CreateInitiativeInput {
     lat: Float!
     lng: Float!
 }
+
 input JoinInitiativeInput {
     initiativeId: String!
 }
+
 input DecideToBecomeSmokeFreeCommand {
     initiativeId: String!
 }

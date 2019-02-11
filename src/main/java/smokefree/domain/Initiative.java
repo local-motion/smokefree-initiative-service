@@ -9,6 +9,7 @@ import org.axonframework.messaging.MetaData;
 import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateRoot;
 import smokefree.DomainException;
+import smokefree.aws.rds.secretmanager.SmokefreeConstants;
 
 import javax.validation.ValidationException;
 import java.time.LocalDate;
@@ -148,7 +149,7 @@ public class Initiative {
     void on(SmokeFreePlaygroundObservationRecordedEvent evt) { }
 
     private String requireUserId(MetaData metaData) {
-        final String userId = (String) metaData.get("user_id");
+        final String userId = (String) metaData.get(SmokefreeConstants.JWTClaimSet.USER_ID);
         assertNonNull(userId, () -> new DomainException(
                 "UNAUTHENTICATED",
                 "User ID must be set",

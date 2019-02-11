@@ -19,4 +19,14 @@ public class SmokefreeConstants {
 	public static final Object DOUBLE_SLASH = "//";
 	public static final Object SINGLE_SLASH = "/";
 
+	/**
+	 * Constants for JWT Claim attributes
+	 */
+	public static class JWTClaimSet {
+		public static final String COGNITO_USER_NAME = "cognito:username";
+		public static final String USER_NAME = "user_name";
+		public static final String USER_ID = "user_id";
+		public static final String EMAIL_ADDRESS = "email";
+	}
+
 }

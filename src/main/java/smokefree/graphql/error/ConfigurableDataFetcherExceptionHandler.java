@@ -51,7 +51,7 @@ public class ConfigurableDataFetcherExceptionHandler implements DataFetcherExcep
      * or {@link io.micronaut.security.authentication.AuthenticationException} it allows for mapping
      * an exception the an ErrorExtensions.
      *
-     * Subsequently, the ErrorExtensions is sent to the frontend where its being rendered by <ErrorDialog/>
+     * Subsequently, the ErrorExtensions is sent to the frontend
      */
     @Override
     public void accept(DataFetcherExceptionHandlerParameters handlerParameters) {

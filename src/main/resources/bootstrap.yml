@@ -79,6 +79,7 @@ jpa:
     packages-to-scan:
       - chatbox
       - smokefree
+      - personaldata
     properties:
       hibernate:
         hbm2ddl:
