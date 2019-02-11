@@ -38,16 +38,12 @@ public class GraphqlController {
     @Inject
     private ProfileProjection profileProjection;
 
-    @Inject
-    private PersonalDataRepository personalDataRepository;
-
 
     @Post(consumes = MediaType.APPLICATION_JSON)
     public Map<String, Object> graphql(@Nullable Authentication authentication, @Size(max=4096) /* TODO Validation not yet enabled */  @Body GraphqlQuery query) throws Exception {
         log.trace("Query: {}", query.getQuery());
 
         Assert.assertNotNull(query.getQuery());
-
 
         // All mutations require an authenticated user
         if (authentication == null && query.getQuery().trim().startsWith("mutation"))
@@ -56,6 +52,7 @@ public class GraphqlController {
 
         if ( authentication != null && profileProjection.profile(authentication.getName()) == null  && !query.getQuery().trim().startsWith("mutation CreateUser") ) {
             // Authenticated user does not have a profile yet. This will be a newly enrolled user. Fail and have the front-end do a CreateUser request
+            log.trace("Authenticated user without profile: authentication.getName: " + authentication.getName() + " nr of profiles: " + profileProjection.getAllProfiles().size());
             return getSingleErrorResult("NO_PROFILE", "No user profile present");
         }
 
