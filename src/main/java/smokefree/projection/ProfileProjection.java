@@ -7,12 +7,14 @@ import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.messaging.MetaData;
 import personaldata.PersonalDataRecord;
 import personaldata.PersonalDataRepository;
+import smokefree.Application;
 import smokefree.domain.UserCreatedEvent;
 import smokefree.domain.UserDeletedEvent;
 import smokefree.domain.UserPII;
 import smokefree.domain.UserRevivedEvent;
 
 import javax.inject.Singleton;
+import java.util.Collection;
 import java.util.Map;
 
 import static com.google.common.collect.Maps.newConcurrentMap;
@@ -26,6 +28,9 @@ public class ProfileProjection {
 
     private final Map<String, Profile> deletedProfilesById = newConcurrentMap();
 
+    // 'Injecting' using the application context
+    private PersonalDataRepository personalDataRepository = Application.getApplicationContext().getBean(PersonalDataRepository.class);
+
 
     /*
             Event handlers
@@ -37,7 +42,7 @@ public class ProfileProjection {
 
         Profile profile;
         if (evt.getPiiRecordId() != 0) {
-            PersonalDataRecord personalDataRecord = PersonalDataRepository.getInstance().getRecord(evt.getPiiRecordId());
+            PersonalDataRecord personalDataRecord = personalDataRepository.getRecord(evt.getPiiRecordId());
             Gson gson = new Gson();
             UserPII userPII = gson.fromJson(personalDataRecord.getData(), UserPII.class);
             profile = new Profile(evt.getUserId(), userPII.getName(), userPII.getEmailAddress());
@@ -53,6 +58,7 @@ public class ProfileProjection {
 
     @EventSourcingHandler
     void on(UserRevivedEvent evt) {
+        log.info("ON EVENT {}", evt);
         Profile profile = deletedProfilesById.get(evt.getUserId());
         profilesById.put(profile.getId(), profile);
         profilesByName.put(profile.getUsername(), profile);
@@ -60,12 +66,12 @@ public class ProfileProjection {
 
     @EventSourcingHandler
     void on(UserDeletedEvent evt) {
+        log.info("ON EVENT {}", evt);
         Profile userProfile = profilesById.get(evt.getUserId());
         profilesByName.remove(userProfile.getUsername());
         profilesById.remove(evt.getUserId());
         deletedProfilesById.put(userProfile.getId(), userProfile);
     }
-
 
     /*
             Retrieval methods
@@ -77,5 +83,9 @@ public class ProfileProjection {
 
     public Profile getDeletedProfile(String id) {
         return deletedProfilesById.get(id);
+    }
+
+    public Collection<Profile> getAllProfiles() {
+        return profilesById.values();
     }
 }
