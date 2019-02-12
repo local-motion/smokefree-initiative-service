@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.springframework.orm.jpa.EntityManagerFactoryAccessor;
 import smokefree.Application;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.persistence.EntityManager;
@@ -36,7 +35,7 @@ public class PersonalDataRepository {
 
     @Inject
     private EntityManager entityManager;
-
+  
     @Transactional
     public void storeRecord(PersonalDataRecord personalDataRecord) {
         entityManager.persist(personalDataRecord);
@@ -62,6 +61,5 @@ public class PersonalDataRepository {
         int deletedCount = query.executeUpdate();
         return deletedCount;
     }
-
 
 }

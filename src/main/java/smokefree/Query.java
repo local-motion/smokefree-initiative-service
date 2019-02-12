@@ -53,13 +53,10 @@ public class Query implements GraphQLQueryResolver {
 
     /**
      * It will compute the total number of volunteers.
-     * @return
+     * @return total volunteers count
      */
-    // Need to discuss for return format(Int or List).
-    // Whether It should return just int or list of Volunteers(?in this case total count will be calculated at front end, and helps to display all volunteers on click)
     public long totalVolunteers() {
         return initiatives.playgrounds().stream()
-                .filter(playground -> playground.getVolunteers().size() != 0)
                 .flatMap(playground -> playground.getVolunteers().stream())
                 .distinct()
                 .count();

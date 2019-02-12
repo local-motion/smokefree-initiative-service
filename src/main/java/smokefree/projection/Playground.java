@@ -53,26 +53,9 @@ public class Playground {
     }
 
     @Value
-    public static class Volunteer extends User {
-        public Volunteer(String userId, String userName) {
-            super(userId, userName);
-        }
-
-        @Override
-        public String toString() {
-            return "[" + this.getUserId() + "," + this.getUserName() +"]";
-        }
-
-        @Override
-        public boolean equals(Object volunteer) {
-            return this.getUserName().compareTo(((Volunteer)volunteer).getUserName()) == 0;
-
-        }
-
-        @Override
-        public int hashCode() {
-            return this.getUserName().hashCode();
-        }
+    public static class Volunteer {
+        String userId;
+        String userName;
     }
 
     @Data

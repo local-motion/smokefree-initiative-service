@@ -73,7 +73,6 @@ public class ProfileProjection {
         deletedProfilesById.put(userProfile.getId(), userProfile);
     }
 
-
     /*
             Retrieval methods
      */

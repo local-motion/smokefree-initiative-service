@@ -29,11 +29,10 @@ public class User {
     private String emailAddress;
 
     private boolean deleted = false;            // Users are deleted 'logically' leaving the option to rejoin
-
+    
     // 'Injecting' using the application context
     private PersonalDataRepository personalDataRepository = Application.getApplicationContext().getBean(PersonalDataRepository.class);
-
-
+  
     /*
                Commands
      */

@@ -38,12 +38,12 @@ public class GraphqlController {
     @Inject
     private ProfileProjection profileProjection;
 
-
     @Post(consumes = MediaType.APPLICATION_JSON)
     public Map<String, Object> graphql(@Nullable Authentication authentication, @Size(max=4096) /* TODO Validation not yet enabled */  @Body GraphqlQuery query) throws Exception {
         log.trace("Query: {}", query.getQuery());
 
         Assert.assertNotNull(query.getQuery());
+
 
         // All mutations require an authenticated user
         if (authentication == null && query.getQuery().trim().startsWith("mutation"))
