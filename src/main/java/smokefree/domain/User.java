@@ -12,6 +12,7 @@ import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateRoot;
 import personaldata.PersonalDataRecord;
 import personaldata.PersonalDataRepository;
+import smokefree.Application;
 import smokefree.projection.Profile;
 
 
@@ -29,6 +30,9 @@ public class User {
 
     private boolean deleted = false;            // Users are deleted 'logically' leaving the option to rejoin
 
+    // 'Injecting' using the application context
+    private PersonalDataRepository personalDataRepository = Application.getApplicationContext().getBean(PersonalDataRepository.class);
+
     /*
                Commands
      */
@@ -38,8 +42,6 @@ public class User {
         // a user record on their own behalf. (Note that a new user will first enroll into Cognito and then fire off
         // the CreateUserCommand, so some user details will already be contained in the JWT token and passed on in the metadata.
 
-//        PersonalDataRepository personalDataRepository = (PersonalDataRepository) metaData.get("personalDataRepository");
-        PersonalDataRepository personalDataRepository = PersonalDataRepository.getInstance();
         MetaDataManager metaDataManager = new MetaDataManager(metaData);
 
         Assert.isTrue(
@@ -91,7 +93,7 @@ public class User {
 
         this.id = evt.getUserId();
         if (evt.getPiiRecordId() != 0) {
-            PersonalDataRecord personalDataRecord = PersonalDataRepository.getInstance().getRecord(evt.getPiiRecordId());
+            PersonalDataRecord personalDataRecord = personalDataRepository.getRecord(evt.getPiiRecordId());
             Gson gson = new Gson();
             UserPII userPII = gson.fromJson(personalDataRecord.getData(), UserPII.class);
             this.name = userPII.getName();

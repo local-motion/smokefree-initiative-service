@@ -4,6 +4,7 @@ import chatbox.ChatDataSourceFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.core.util.CollectionUtils;
 import io.micronaut.http.HttpRequest;
@@ -14,33 +15,36 @@ import io.micronaut.http.hateos.JsonError;
 import io.micronaut.http.hateos.Link;
 import io.micronaut.runtime.Micronaut;
 import lombok.extern.slf4j.Slf4j;
+import personaldata.PersonalDataRepository;
 import smokefree.projection.InitiativeProjection;
 import smokefree.projection.ProfileProjection;
 
-@Slf4j
-//public class Application implements AutoCloseable{
-    public class Application {
+import javax.inject.Inject;
 
-//    @Inject
-//    static DatasourceConfiguration datasourceConfiguration;
+@Slf4j
+public class Application {
+
+    // Store the application context so classes can use programmatic dependency injection
+    private static ApplicationContext applicationContext = null;
+    public static ApplicationContext getApplicationContext() {
+        return applicationContext;
+    }
 
     public static void main(String[] args) {
 
         HikariDataSource dataSource = new ChatDataSourceFactory().dataSource();
-        Micronaut.build(new String[] {}).mainClass(Application.class)
+        applicationContext =
+            Micronaut.build(new String[] {})
+                .mainClass(Application.class)
                 .properties(
                         CollectionUtils.mapOf(
                                 "datasources.default.data-source", dataSource,
                                 "datasources.default.url", dataSource.getJdbcUrl()
                         )
-
-
                 )
                 .start();
-
-//        Micronaut.run(Application.class);
-
     }
+
 
     @Bean
     public ObjectMapper objectMapper() {
@@ -77,7 +81,7 @@ import smokefree.projection.ProfileProjection;
     }
 
 //    @Override
-    public void close() throws Exception {
-
-    }
+//    public void close() throws Exception {
+//
+//    }
 }

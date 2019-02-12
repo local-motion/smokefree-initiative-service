@@ -96,7 +96,7 @@ type Mutation {
     commitToSmokeFreeDate(input: CommitToSmokeFreeDateCommand!): InputAcceptedResponse!
 
     indicatePlaygroundObservation(input: IndicatePlaygroundObservationCommand!): Playground!
-
+    
     createUser(doesNotMatter: String!): Profile!
     deleteUser(doesNotMatter: String!): InputAcceptedResponse!
 }
