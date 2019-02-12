@@ -61,4 +61,5 @@ public class PersonalDataRepository {
         int deletedCount = query.executeUpdate();
         return deletedCount;
     }
+
 }
