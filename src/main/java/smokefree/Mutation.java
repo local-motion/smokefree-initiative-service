@@ -70,6 +70,9 @@ public class Mutation implements GraphQLMutationResolver {
 
     @SneakyThrows
     public Playground indicatePlaygroundObservation(IndicatePlaygroundObservationCommand input, DataFetchingEnvironment env) {
+        if(!(input.getObserver().equals(toContext(env).requireUserId()))) {
+            throw new Exception("CONFLICT_USER, Can't process the request");
+        }
         gateway.sendAndWait(decorateWithMetaData(input, env));
         return initiativeProjection.playground(input.getInitiativeId());
     }

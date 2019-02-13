@@ -91,7 +91,7 @@ public class Initiative {
     @CommandHandler
     public void indicatePlaygroundObservation(IndicatePlaygroundObservationCommand cmd, MetaData metaData) {
 
-        apply(new PlaygroundObservationIndicatedEvent(cmd.getInitiativeId(), metaData.get(SmokefreeConstants.JWTClaimSet.USER_ID).toString() , cmd.getSmokefree(), cmd.getComment(), LocalDate.now()),metaData);
+        apply(new PlaygroundObservationIndicatedEvent(cmd.getInitiativeId(), cmd.getObserver() , cmd.getSmokefree(), cmd.getComment(), LocalDate.now()),metaData);
 
     }
 
