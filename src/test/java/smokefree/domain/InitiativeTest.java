@@ -167,7 +167,7 @@ class InitiativeTest {
                         initiativeCreated("initiative-1", not_started),
                         managerJoined(MANAGER_1),
                         new SmokeFreeDateCommittedEvent("initiative-1", null, yesterday))
-                .when(new IndicatePlaygroundObservationCommand("initiative-1", true, "Dont see anyone smoking"), asManager1())
+                .when(new IndicatePlaygroundObservationCommand("initiative-1", "citizen-1", true, "Dont see anyone smoking"), asManager1())
                 .expectSuccessfulHandlerExecution()
                 .expectEvents(PlaygroundObservationIndicatedEvent.class
                 );

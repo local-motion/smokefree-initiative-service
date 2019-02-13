@@ -11,6 +11,7 @@ import org.axonframework.modelling.command.TargetAggregateIdentifier;
 public class IndicatePlaygroundObservationCommand {
     @TargetAggregateIdentifier
     String initiativeId;
+    String observer;
     Boolean smokefree;
     String comment;
 

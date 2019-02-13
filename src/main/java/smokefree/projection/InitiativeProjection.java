@@ -81,7 +81,7 @@ public class InitiativeProjection {
         log.info("ON EVENT {}", evt);
         final String userId = (String) metaData.get(SmokefreeConstants.JWTClaimSet.USER_ID);
         final String userName = (String) metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME);
-        Playground.PlaygroundObservation playgroundObservation = new Playground.PlaygroundObservation(evt.getUserId(), metaData.get(SmokefreeConstants.JWTClaimSet.COGNITO_USER_NAME).toString(), evt.getSmokefree(), evt.getObservationDate(), evt.getComment());
+        Playground.PlaygroundObservation playgroundObservation = new Playground.PlaygroundObservation(evt.getObserver(), metaData.get(SmokefreeConstants.JWTClaimSet.COGNITO_USER_NAME).toString(), evt.getSmokefree(), evt.getObservationDate(), evt.getComment());
         playgrounds.get(evt.getInitiativeId()).addPlaygroundObservation(playgroundObservation);
     }
 
