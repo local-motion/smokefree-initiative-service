@@ -35,7 +35,7 @@ public class PersonalDataRepository {
 
     @Inject
     private EntityManager entityManager;
-
+  
     @Transactional
     public void storeRecord(PersonalDataRecord personalDataRecord) {
         entityManager.persist(personalDataRecord);
