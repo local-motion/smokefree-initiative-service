@@ -13,7 +13,7 @@
         <axon.version>4.0</axon.version>
         <micronaut.version>1.0.1</micronaut.version>
         <aws.version>1.11.461</aws.version>
-        <jackson.version>2.9.7</jackson.version>
+        <jackson.version>2.9.8</jackson.version>
     </properties>
     <scm>
         <connection>scm:git:git@github.com:local-motion/${project.artifactId}.git</connection>
