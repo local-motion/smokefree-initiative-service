@@ -8,11 +8,11 @@ import org.axonframework.modelling.command.TargetAggregateIdentifier;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
 @ToString
-public class RecordSmokeFreePlaygroundObservationCommand {
+public class IndicatePlaygroundObservationCommand {
     @TargetAggregateIdentifier
     String initiativeId;
-    String citizenId;
-    Boolean isSmokeFree;
-    String recordObservation;
+    String observer;
+    Boolean smokefree;
+    String comment;
 
 }

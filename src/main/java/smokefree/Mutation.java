@@ -68,15 +68,12 @@ public class Mutation implements GraphQLMutationResolver {
         return initiativeProjection.playground(input.getInitiativeId());
     }
 
-    //noticeSmokeFreePlayground(input: RecordSmokeFreePlaygroundObservationCommand!): Playground!
-    //recordSmokeFreePlaygroundObservation(input: RecordSmokeFreePlaygroundObservationCommand!): Playground!
     @SneakyThrows
-    public Playground recordSmokeFreePlaygroundObservation(RecordSmokeFreePlaygroundObservationCommand input, DataFetchingEnvironment env) {
-        String citizenId = toContext(env).requireUserId();
-
-        RecordSmokeFreePlaygroundObservationCommand cmd = new RecordSmokeFreePlaygroundObservationCommand(input.getInitiativeId(), citizenId, input.getIsSmokeFree(), input.getRecordObservation());
-        gateway.sendAndWait(decorateWithMetaData(cmd, env));
-//        return new InputAcceptedResponse(input.getInitiativeId());
+    public Playground indicatePlaygroundObservation(IndicatePlaygroundObservationCommand input, DataFetchingEnvironment env) {
+        if(!(input.getObserver().equals(toContext(env).requireUserId()))) {
+            throw new Exception("CONFLICT_USER, Can't process the request");
+        }
+        gateway.sendAndWait(decorateWithMetaData(input, env));
         return initiativeProjection.playground(input.getInitiativeId());
     }
     /***********
@@ -164,7 +161,9 @@ public class Mutation implements GraphQLMutationResolver {
         MetaData metaData = MetaData
                 .with(SmokefreeConstants.JWTClaimSet.USER_ID, toContext(env).requireUserId())
                 .and(SmokefreeConstants.JWTClaimSet.USER_NAME, toContext(env).requireUserName())
-                .and(SmokefreeConstants.JWTClaimSet.EMAIL_ADDRESS, toContext(env).emailId());
+                .and(SmokefreeConstants.JWTClaimSet.EMAIL_ADDRESS, toContext(env).emailId())
+                // Added this so support both USER_NAME and COGNITO_USER_NAME, both returns same, will be refactor later
+                .and(SmokefreeConstants.JWTClaimSet.COGNITO_USER_NAME, toContext(env).requireUserName());
         return new GenericCommandMessage<>(cmd, metaData);
     }
 

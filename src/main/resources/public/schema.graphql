@@ -19,7 +19,6 @@ type Query {
     playgrounds: [Playground]
     progress: Progress
     playground(id: String!): Playground
-    validation(id: String!): PlaygroundObservations
     totalVolunteers: Long
 }
 
@@ -39,7 +38,7 @@ type Playground {
     volunteerCount: Int #@auth(role : "manager")
     votes: Int
     managers: [Manager!]!
-    playgroundObservations: PlaygroundObservations!
+    playgroundObservations: [PlaygroundObservation!]
     volunteers: [Volunteer!]
 }
 
@@ -72,19 +71,12 @@ type Stat {
     percentage : Int
 }
 
-type PlaygroundObservations {
-    smokefreeObservationsCount: Int!
-    smokeObservationCount: Int!
-    smokefreeConsecutiveStreak: Int!
-    volunteersObservations: [Observation!]
-}
-
-type Observation {
-    citizenId: String!
+type PlaygroundObservation {
+    userId: String!
     userName: String!
-    isSmokeFree: Boolean!
+    smokefree: Boolean!
     observationDate: LocalDate!
-    recordedObservation: String!
+    comment: String!
 }
 
 
@@ -103,8 +95,8 @@ type Mutation {
 
     commitToSmokeFreeDate(input: CommitToSmokeFreeDateCommand!): InputAcceptedResponse!
 
-    recordSmokeFreePlaygroundObservation(input: RecordSmokeFreePlaygroundObservationCommand!): Playground!
-
+    indicatePlaygroundObservation(input: IndicatePlaygroundObservationCommand!): Playground!
+    
     createUser(doesNotMatter: String!): Profile!
     deleteUser(doesNotMatter: String!): InputAcceptedResponse!
 }
@@ -148,9 +140,8 @@ input CommitToSmokeFreeDateCommand {
     initiativeId: String!
     smokeFreeDate: LocalDate!
 }
-input RecordSmokeFreePlaygroundObservationCommand {
+input IndicatePlaygroundObservationCommand {
     initiativeId: String!
-    citizenId: String!
-    isSmokeFree: Boolean!
-    recordObservation: String!
+    smokefree: Boolean!
+    comment: String!
 }

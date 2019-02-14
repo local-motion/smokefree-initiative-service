@@ -35,8 +35,7 @@ public class InitiativeProjection {
                 evt.getStatus(),
                 null,
                 0,
-                0,
-                new Playground.PlaygroundObservations()));
+                0));
 
         progress.increment(evt.getStatus());
     }
@@ -78,20 +77,12 @@ public class InitiativeProjection {
     }
 
     @EventHandler
-    public void on(SmokeFreePlaygroundObservationRecordedEvent evt, MetaData metaData) {
+    public void on(PlaygroundObservationIndicatedEvent evt, MetaData metaData) {
         log.info("ON EVENT {}", evt);
         final String userId = (String) metaData.get(SmokefreeConstants.JWTClaimSet.USER_ID);
         final String userName = (String) metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME);
-        Playground.PlaygroundObservations playgroundObservations = playgrounds.get(evt.getInitiativeId()).getPlaygroundObservations();
-        if(evt.getIsSmokeFree()) {
-            playgroundObservations.smokefreeObservationsCount += 1;
-            playgroundObservations.smokefreeConsecutiveStreak += 1;
-        } else {
-            playgroundObservations.smokefreeConsecutiveStreak = 0;
-            playgroundObservations.smokeObservationCount += 1;
-        }
-        Playground.Observation observation = new Playground.Observation(evt.getCitizenId(), metaData.get("user_name").toString(), evt.getIsSmokeFree(), evt.getObservationDate(), evt.getRecordObservation() );
-        playgroundObservations.getVolunteersObservations().add(observation);
+        Playground.PlaygroundObservation playgroundObservation = new Playground.PlaygroundObservation(evt.getObserver(), metaData.get(SmokefreeConstants.JWTClaimSet.COGNITO_USER_NAME).toString(), evt.getSmokefree(), evt.getObservationDate(), evt.getComment());
+        playgrounds.get(evt.getInitiativeId()).addPlaygroundObservation(playgroundObservation);
     }
 
     public Collection<Playground> playgrounds() {
@@ -106,7 +97,4 @@ public class InitiativeProjection {
         return progress;
     }
 
-    public Playground.PlaygroundObservations validation(String id) {
-        return playgrounds.get(id).getPlaygroundObservations();
-    }
 }

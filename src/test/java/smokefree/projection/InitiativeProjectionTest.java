@@ -123,11 +123,10 @@ class InitiativeProjectionTest {
     void should_record_smokefreeplaygroundobservation() {
         InitiativeProjection projection = new InitiativeProjection();
         projection.on(initiativeCreated("initiative-1", in_progress));
-        projection.on(new ManagerJoinedInitiativeEvent("initiative-1", "citizen-1"), MetaData
+        projection.on(new PlaygroundObservationIndicatedEvent("initiative-1", "user_id", true, "I do not see anyone is smoking", LocalDate.now()), MetaData
                 .with("user_id", "manager-1")
                 .and("user_name", "Jack Ma"));
         Playground playground = projection.playground("initiative-1");
-        assertEquals(1, playground.getManagers().size());
-        //assertEquals(new Playground.Manager("manager-1", "Jack Ma"), playground.getManagers().get(0));
+        assertEquals(1, playground.getPlaygroundObservations().size());
     }
 }
