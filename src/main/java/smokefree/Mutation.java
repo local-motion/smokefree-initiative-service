@@ -20,6 +20,7 @@ import smokefree.projection.ProfileProjection;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.validation.ValidationException;
 import java.util.concurrent.CompletableFuture;
 
 @Slf4j
@@ -37,10 +38,6 @@ public class Mutation implements GraphQLMutationResolver {
     private ProfileProjection profileProjection;
 
 
-    private SecurityContext toContext(DataFetchingEnvironment environment) {
-        return environment.getContext();
-    }
-
     @SneakyThrows
     public Playground createInitiative(CreateInitiativeInput input, DataFetchingEnvironment env) {
         final CreateInitiativeCommand command = new CreateInitiativeCommand(
@@ -54,7 +51,7 @@ public class Mutation implements GraphQLMutationResolver {
         final String playgroundId = response.getId();
 //        return joinInitiative(new JoinInitiativeInput(response.getId()), env);
         joinInitiative(new JoinInitiativeInput(playgroundId), env);
-        Playground playground = initiativeProjection.playground(playgroundId);
+        Playground playground = initiativeProjection.playground(playgroundId, getUserId(env));
         return playground;
     }
 
@@ -65,17 +62,27 @@ public class Mutation implements GraphQLMutationResolver {
         JoinInitiativeCommand cmd = new JoinInitiativeCommand(input.getInitiativeId(), citizenId);
         gateway.sendAndWait(decorateWithMetaData(cmd, env));
 //        return new InputAcceptedResponse(input.getInitiativeId());
-        return initiativeProjection.playground(input.getInitiativeId());
+        return initiativeProjection.playground(input.getInitiativeId(), getUserId(env));
     }
 
     @SneakyThrows
     public Playground indicatePlaygroundObservation(IndicatePlaygroundObservationCommand input, DataFetchingEnvironment env) {
         if(!(input.getObserver().equals(toContext(env).requireUserId()))) {
-            throw new Exception("CONFLICT_USER, Can't process the request");
+            throw new ValidationException("CONFLICT_USER, Can't process the request");
         }
         gateway.sendAndWait(decorateWithMetaData(input, env));
-        return initiativeProjection.playground(input.getInitiativeId());
+        return initiativeProjection.playground(input.getInitiativeId(), getUserId(env));
     }
+
+    @SneakyThrows
+    public Playground updateChecklist(UpdateChecklistCommand input, DataFetchingEnvironment env) {
+        if(!(input.getActor().equals(toContext(env).requireUserId())))
+            throw new ValidationException("Actor must be equal to the userId");
+        gateway.sendAndWait(decorateWithMetaData(input, env));
+        return initiativeProjection.playground(input.getInitiativeId(), getUserId(env));
+    }
+
+
     /***********
      * Playground Manager related functionality
      ************/
@@ -83,7 +90,7 @@ public class Mutation implements GraphQLMutationResolver {
     public Playground claimManagerRole(ClaimManagerRoleCommand cmd, DataFetchingEnvironment env) {
         gateway.sendAndWait(decorateWithMetaData(cmd, env));
 //        return initiativeProjection.playground(cmd.getInitiativeId());
-        Playground playground = initiativeProjection.playground(cmd.getInitiativeId());
+        Playground playground = initiativeProjection.playground(cmd.getInitiativeId(), getUserId(env));
         log.info("playground mamagers: " + playground.getManagers());
         return playground;
     }
@@ -156,6 +163,14 @@ public class Mutation implements GraphQLMutationResolver {
     /***********
      * Utility functions
      ************/
+
+    private SecurityContext toContext(DataFetchingEnvironment environment) {
+        return environment.getContext();
+    }
+
+    private String getUserId(DataFetchingEnvironment env) {
+        return toContext(env).userId();
+    }
 
     private GenericCommandMessage<?> decorateWithMetaData(Object cmd, DataFetchingEnvironment env) {
         MetaData metaData = MetaData

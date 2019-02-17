@@ -39,7 +39,7 @@ public class PlaygroundImportController {
 
     @Get
     public Collection<Playground> playgrounds() {
-        return initiativeProjection.playgrounds();
+        return initiativeProjection.playgrounds(null);
     }
 
     private GenericCommandMessage<?> decorateWithUserId(Object cmd, Authentication authentication) {

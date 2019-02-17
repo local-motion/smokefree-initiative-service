@@ -1,6 +1,9 @@
 package smokefree.projection;
 
+import io.axoniq.axonserver.grpc.event.Event;
+import org.axonframework.eventhandling.GenericEventMessage;
 import org.axonframework.messaging.MetaData;
+import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 import smokefree.domain.*;
 
@@ -24,9 +27,9 @@ class InitiativeProjectionTest {
         projection.on(initiativeCreated(finished));
         projection.on(new CitizenJoinedInitiativeEvent(initiative1.getInitiativeId(), "citizen-1"), null);
         projection.on(new CitizenJoinedInitiativeEvent(initiative1.getInitiativeId(), "citizen-2"), null);
-        assertEquals(4, projection.playgrounds().size());
+        assertEquals(4, projection.playgrounds(null).size());
 
-        final Playground playground = projection.playground(initiative1.getInitiativeId());
+        final Playground playground = projection.playground(initiative1.getInitiativeId(), null);
         assertNotNull(playground);
         assertEquals(in_progress, playground.getStatus());
         assertEquals(2, playground.getVolunteerCount());
@@ -71,30 +74,32 @@ class InitiativeProjectionTest {
         InitiativeProjection projection = new InitiativeProjection();
         projection.on(initiativeCreated("initiative-1", not_started));
         projection.on(new InitiativeProgressedEvent("initiative-1", not_started, in_progress));
-        assertEquals(in_progress, projection.playground("initiative-1").getStatus());
+        assertEquals(in_progress, projection.playground("initiative-1", null).getStatus());
 
         projection.on(new InitiativeProgressedEvent("initiative-1", in_progress, finished));
-        assertEquals(finished, projection.playground("initiative-1").getStatus());
+        assertEquals(finished, projection.playground("initiative-1", null).getStatus());
     }
 
     @Test
     void should_expose_smokefree_date_when_committed() {
         InitiativeProjection projection = new InitiativeProjection();
         projection.on(initiativeCreated("initiative-1", in_progress));
-        assertEquals(in_progress, projection.playground("initiative-1").getStatus());
+        assertEquals(in_progress, projection.playground("initiative-1", null).getStatus());
 
         projection.on(new InitiativeProgressedEvent("initiative-1", in_progress, finished));
-        assertEquals(finished, projection.playground("initiative-1").getStatus());
+        assertEquals(finished, projection.playground("initiative-1", null).getStatus());
 
-        Playground playground = projection.playground("initiative-1");
+        Playground playground = projection.playground("initiative-1", null);
         assertNotNull(playground);
         assertNull(playground.getSmokeFreeDate());
 
         LocalDate today = now();
         LocalDate tomorrow = now().plusDays(1);
-        projection.on(new SmokeFreeDateCommittedEvent("initiative-1", today, tomorrow));
+//        projection.on(new SmokeFreeDateCommittedEvent("initiative-1", today, tomorrow), new DateTime());
+        SmokeFreeDateCommittedEvent evt = new SmokeFreeDateCommittedEvent("initiative-1", today, tomorrow);
+        projection.on(evt, new GenericEventMessage<>(evt));
 
-        playground = projection.playground("initiative-1");
+        playground = projection.playground("initiative-1", null);
         assertEquals(finished, playground.getStatus());
         assertEquals(tomorrow, playground.getSmokeFreeDate());
     }
@@ -107,7 +112,7 @@ class InitiativeProjectionTest {
                 .with("user_id", "manager-1")
                 .and("user_name", "Jack Ma"));
 
-        Playground playground = projection.playground("initiative-1");
+        Playground playground = projection.playground("initiative-1", null);
         assertEquals(1, playground.getManagers().size());
         assertEquals(new Playground.Manager("manager-1", "Jack Ma"), playground.getManagers().get(0));
     }
@@ -126,7 +131,7 @@ class InitiativeProjectionTest {
         projection.on(new PlaygroundObservationIndicatedEvent("initiative-1", "user_id", true, "I do not see anyone is smoking", LocalDate.now()), MetaData
                 .with("user_id", "manager-1")
                 .and("user_name", "Jack Ma"));
-        Playground playground = projection.playground("initiative-1");
+        Playground playground = projection.playground("initiative-1", null);
         assertEquals(1, playground.getPlaygroundObservations().size());
     }
 }

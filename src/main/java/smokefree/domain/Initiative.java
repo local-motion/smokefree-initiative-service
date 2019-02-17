@@ -25,6 +25,13 @@ import static smokefree.domain.Status.*;
 @NoArgsConstructor
 @AggregateRoot
 public class Initiative {
+
+    // Constants
+
+    private static final Set<String> CHECKLIST_ITEMS = Set.of(new String[] {"invite_manager", "order_flyers", "distribute_flyers", "order_sign", "receive_sign", "place_sign"});
+
+    // Instance properties
+
     @AggregateIdentifier
     private String id;
     // TODO: Specs mention Phase; Should we rename to Phase and use prepare, execute and sustain as values?
@@ -90,9 +97,18 @@ public class Initiative {
 
     @CommandHandler
     public void indicatePlaygroundObservation(IndicatePlaygroundObservationCommand cmd, MetaData metaData) {
+        apply(new PlaygroundObservationIndicatedEvent(cmd.getInitiativeId(), cmd.getObserver() , cmd.getSmokefree(), cmd.getComment(), LocalDate.now()), metaData);
+    }
 
-        apply(new PlaygroundObservationIndicatedEvent(cmd.getInitiativeId(), cmd.getObserver() , cmd.getSmokefree(), cmd.getComment(), LocalDate.now()),metaData);
+    @CommandHandler
+    public void checklistUpdate(UpdateChecklistCommand cmd, MetaData metaData) {
+        assertUserIsInitiativeParticipant(metaData);
+        if (!CHECKLIST_ITEMS.contains(cmd.getChecklistItem()))
+            throw new ValidationException("Unknown checklist item: " + cmd.getChecklistItem());
 
+        // TODO check for superfluous updates the prevent issuing events for those
+
+        apply(new CheckListUpdateEvent(cmd.getInitiativeId(), cmd.getActor() , cmd.getChecklistItem(), cmd.isChecked()), metaData);
     }
 
     private void assertEarlierCommittedDateNotInPast() {
@@ -147,6 +163,9 @@ public class Initiative {
     @EventSourcingHandler
     void on(PlaygroundObservationIndicatedEvent evt) { }
 
+    @EventSourcingHandler
+    void on(CheckListUpdateEvent evt) { }
+
     private String requireUserId(MetaData metaData) {
         final String userId = (String) metaData.get(SmokefreeConstants.JWTClaimSet.USER_ID);
         assertNonNull(userId, () -> new DomainException(
@@ -156,6 +175,17 @@ public class Initiative {
         return userId;
     }
 
+
+    /*
+               Validations
+     */
+
+    private void assertUserIsInitiativeParticipant(MetaData metaData) {
+        String userId = requireUserId(metaData);
+        if (!citizens.contains(userId) && !managers.contains(userId))
+            throw new ValidationException("User is not participating in this initiative");
+    }
+
     private void assertCurrentUserIsManager(MetaData metaData) {
         String userId = requireUserId(metaData);
         Assert.assertThat(userId, id -> managers.contains(id), () -> new DomainException(
@@ -163,5 +193,6 @@ public class Initiative {
                 userId + " is not a manager",
                 "You are not a manager of this playground"));
     }
+
 }
 

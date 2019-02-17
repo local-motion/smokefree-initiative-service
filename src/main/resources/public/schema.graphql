@@ -40,6 +40,8 @@ type Playground {
     managers: [Manager!]!
     playgroundObservations: [PlaygroundObservation!]
     volunteers: [Volunteer!]
+    jointChecklistItems: [String!]
+    ownChecklistItems: [String!]
 }
 
 enum Status {
@@ -96,7 +98,8 @@ type Mutation {
     commitToSmokeFreeDate(input: CommitToSmokeFreeDateCommand!): InputAcceptedResponse!
 
     indicatePlaygroundObservation(input: IndicatePlaygroundObservationCommand!): Playground!
-    
+    updateChecklist(input: UpdateChecklistCommand!): Playground!
+
     createUser(doesNotMatter: String!): Profile!
     deleteUser(doesNotMatter: String!): InputAcceptedResponse!
 }
@@ -144,4 +147,10 @@ input IndicatePlaygroundObservationCommand {
     initiativeId: String!
     smokefree: Boolean!
     comment: String!
+}
+input UpdateChecklistCommand {
+    initiativeId: String!
+    actor: String!
+    checklistItem: String!
+    isChecked: Boolean!
 }

@@ -20,16 +20,13 @@ public class Query implements GraphQLQueryResolver {
     @Inject InitiativeProjection initiatives;
     @Inject ProfileProjection profiles;
 
-    private SecurityContext toContext(DataFetchingEnvironment environment) {
-        return environment.getContext();
+
+    public Collection<Playground> playgrounds(DataFetchingEnvironment env) {
+        return initiatives.playgrounds(getUserId(env));
     }
 
-    public Collection<Playground> playgrounds() {
-        return initiatives.playgrounds();
-    }
-
-    public Playground playground(String id) {
-        return initiatives.playground(id);
+    public Playground playground(String id, DataFetchingEnvironment env) {
+        return initiatives.playground(id, getUserId(env));
     }
 
     public Progress progress() {
@@ -52,10 +49,23 @@ public class Query implements GraphQLQueryResolver {
      * @return total volunteers count
      */
     public long totalVolunteers() {
-        return initiatives.playgrounds().stream()
+        return initiatives.playgrounds(null).stream()
                 .flatMap(playground -> playground.getVolunteers().stream())
                 .distinct()
                 .count();
+    }
+
+
+    /***********
+     * Utility functions
+     ************/
+
+    private SecurityContext toContext(DataFetchingEnvironment environment) {
+        return environment.getContext();
+    }
+
+    private String getUserId(DataFetchingEnvironment env) {
+        return toContext(env).userId();
     }
 
 }
