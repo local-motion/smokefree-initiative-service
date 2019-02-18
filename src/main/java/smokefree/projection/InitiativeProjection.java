@@ -99,7 +99,10 @@ public class InitiativeProjection {
 
     @EventSourcingHandler
     void on(CheckListUpdateEvent evt) {
-        playgrounds.get(evt.getInitiativeId()).setChecklistItem(evt.getActor(), evt.getChecklistItem(), evt.isChecked());
+        log.info("ON EVENT {}", evt);
+        Playground playground = playgrounds.get(evt.getInitiativeId());
+        playground.setChecklistItem(evt.getActor(), evt.getChecklistItem(), evt.isChecked());
+        Playground exPlayground = playground.getPlaygroundForUser(null);
     }
 
 

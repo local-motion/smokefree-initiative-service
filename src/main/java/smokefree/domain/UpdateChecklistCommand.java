@@ -23,5 +23,5 @@ public class UpdateChecklistCommand {
     String actor;                       // The user that checked / unchecked the item
     @NotBlank
     String checklistItem;               // Identifies the item on the checklist that is ticked on not
-    boolean isChecked;                  // The new state of the item
+    boolean checked;                    // The new state of the item
 }

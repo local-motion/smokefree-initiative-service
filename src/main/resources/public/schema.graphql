@@ -152,5 +152,5 @@ input UpdateChecklistCommand {
     initiativeId: String!
     actor: String!
     checklistItem: String!
-    isChecked: Boolean!
+    checked: Boolean!
 }

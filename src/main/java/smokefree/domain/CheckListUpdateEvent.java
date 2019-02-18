@@ -16,5 +16,5 @@ public class CheckListUpdateEvent {
     String initiativeId;
     String actor;                       // The user that checked / unchecked the item
     String checklistItem;               // Identifies the item on the checklist that is ticked on not
-    boolean isChecked;                  // The new state of the item
+    boolean checked;                    // The new state of the item
 }
