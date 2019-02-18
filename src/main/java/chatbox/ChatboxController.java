@@ -65,7 +65,7 @@ public class ChatboxController {
     }
 
     private Playground getPlayground(String playgroundId) {
-        for (Playground i: initiativeProjection.playgrounds())
+        for (Playground i: initiativeProjection.playgrounds(null))
             if (i.getId().equals(playgroundId))
                 return i;
         return null;
@@ -74,7 +74,7 @@ public class ChatboxController {
     private boolean isUserAuthorisedForChatbox(String userId, String chatboxId) {
         final Playground playground = getPlayground(chatboxId);
         if (playground != null)
-            return true;            // TODO for now always return true, because we do not yet maintain a list of volunteers
+            return playground.getVolunteers().contains(userId);            // TODO for now always return true, because we do not yet maintain a list of volunteers
         return false;
     }
 }

@@ -2,13 +2,20 @@ package smokefree.projection;
 
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventhandling.EventHandler;
+import org.axonframework.eventhandling.EventMessage;
+import org.axonframework.eventhandling.Timestamp;
+import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.messaging.MetaData;
+import org.joda.time.DateTime;
 import smokefree.aws.rds.secretmanager.SmokefreeConstants;
 import smokefree.domain.*;
 
 import javax.inject.Singleton;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.google.common.collect.Maps.newConcurrentMap;
 import static java.util.Collections.unmodifiableCollection;
@@ -18,6 +25,11 @@ import static java.util.Collections.unmodifiableCollection;
 public class InitiativeProjection {
     private final Map<String, Playground> playgrounds = newConcurrentMap();
     private final Progress progress = new Progress();
+
+
+    /*
+            Event handlers
+     */
 
     @EventHandler
     public void on(InitiativeCreatedEvent evt) {
@@ -59,7 +71,7 @@ public class InitiativeProjection {
     }
 
     @EventHandler
-    public void on(SmokeFreeDateCommittedEvent evt) {
+    public void on(SmokeFreeDateCommittedEvent evt, EventMessage<SmokeFreeDateCommittedEvent> msg)  {
         log.info("ON EVENT {}", evt);
         Playground playground = playgrounds.get(evt.getInitiativeId());
         playground.setSmokeFreeDate(evt.getSmokeFreeDate());
@@ -85,12 +97,25 @@ public class InitiativeProjection {
         playgrounds.get(evt.getInitiativeId()).addPlaygroundObservation(playgroundObservation);
     }
 
-    public Collection<Playground> playgrounds() {
-        return unmodifiableCollection(playgrounds.values());
+    @EventSourcingHandler
+    void on(CheckListUpdateEvent evt) {
+        log.info("ON EVENT {}", evt);
+        Playground playground = playgrounds.get(evt.getInitiativeId());
+        playground.setChecklistItem(evt.getActor(), evt.getChecklistItem(), evt.isChecked());
+        Playground exPlayground = playground.getPlaygroundForUser(null);
     }
 
-    public Playground playground(String id) {
-        return playgrounds.get(id);
+
+    /*
+            Serving the projections
+     */
+
+    public Collection<Playground> playgrounds(String userId) {
+        return playgrounds.values().stream().map(playground -> playground.getPlaygroundForUser(userId)).collect(Collectors.toList());
+    }
+
+    public Playground playground(String id, String userId) {
+        return playgrounds.containsKey(id) ? playgrounds.get(id).getPlaygroundForUser(userId) : null;
     }
 
     public Progress progress() {
