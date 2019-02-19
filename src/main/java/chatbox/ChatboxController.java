@@ -74,7 +74,7 @@ public class ChatboxController {
     private boolean isUserAuthorisedForChatbox(String userId, String chatboxId) {
         final Playground playground = getPlayground(chatboxId);
         if (playground != null)
-            return playground.getVolunteers().contains(userId);            // TODO for now always return true, because we do not yet maintain a list of volunteers
+            return playground.getVolunteers().stream().anyMatch(volunteer -> volunteer.getUserId().equals(userId));
         return false;
     }
 }
