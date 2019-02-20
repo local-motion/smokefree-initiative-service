@@ -5,9 +5,11 @@ import org.axonframework.eventhandling.GenericEventMessage;
 import org.axonframework.messaging.MetaData;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
+import smokefree.aws.rds.secretmanager.SmokefreeConstants;
 import smokefree.domain.*;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import static java.time.LocalDate.now;
@@ -122,7 +124,10 @@ class InitiativeProjectionTest {
     }
 
     InitiativeCreatedEvent initiativeCreated(String uuid, Status status) {
-        return new InitiativeCreatedEvent(uuid, Type.smokefree, status, "Not relevant", new GeoLocation());
+        return new InitiativeCreatedEvent(uuid, Type.smokefree, status, "Happy Smokefree", new GeoLocation(12.956314, 77.648635));
+    }
+    InitiativeCreatedEvent initiativeCreated(String uuid, Status status, GeoLocation location) {
+        return new InitiativeCreatedEvent(uuid, Type.smokefree, status, "Happy Smokefree", location);
     }
     @Test
     void should_record_smokefreeplaygroundobservation() {
@@ -133,5 +138,36 @@ class InitiativeProjectionTest {
                 .and("user_name", "Jack Ma"));
         Playground playground = projection.playground("initiative-1", null);
         assertEquals(1, playground.getPlaygroundObservations().size());
+    }
+
+    @Test
+    void should_returnNearbyPlaygrounds_when_playgroundsAreLessThan100MetersClose() {
+        InitiativeProjection projection = new InitiativeProjection();
+        projection.on(initiativeCreated("initiative-1", in_progress));
+        projection.on(initiativeCreated("initiative-2", in_progress));
+        List<Playground> playgrounds = projection.checkForNearByPlaygrounds(new GeoLocation(12.956314, 77.648635), SmokefreeConstants.MAXIMUM_PLAYGROUNDS_DISTANCE);
+        assertEquals(2, playgrounds.size());
+        assertEquals("Happy Smokefree", playgrounds.get(0).getName());
+    }
+
+    @Test
+    void should_notReturnAnyPlaygrounds_when_playgroundsAreNotLessThan100MetersClose() {
+        InitiativeProjection projection = new InitiativeProjection();
+        projection.on(initiativeCreated("initiative-1", in_progress));
+        projection.on(initiativeCreated("initiative-2", in_progress, new GeoLocation(13.956314, 77.648635)));
+        List<Playground> playgrounds = projection.checkForNearByPlaygrounds(new GeoLocation(14.956314, 77.648635), SmokefreeConstants.MAXIMUM_PLAYGROUNDS_DISTANCE);
+        assertEquals(0, playgrounds.size());
+    }
+
+    @Test
+    void should_notAllowToAddPlaygrounds_when_SystemHasAlready1000Playgrounds() {
+        InitiativeProjection projection = new InitiativeProjection(2L);
+        projection.on(initiativeCreated("initiative-1", in_progress));
+        projection.on(initiativeCreated("initiative-2", in_progress, new GeoLocation(13.956314, 77.648635)));
+        RuntimeException thrown =
+                assertThrows(RuntimeException.class,
+                        () -> projection.checkForMaximumPlaygrounds(),
+                        "Expected checkForMaximumPlaygrounds() to throw, but it didn't");
+        assertTrue(thrown.getMessage().contains("MAX_PLAYGROUNDS: System is already loaded with " + SmokefreeConstants.MAXIMUM_PLAYGROUNDS_ALLOWED + " playgrounds"));
     }
 }

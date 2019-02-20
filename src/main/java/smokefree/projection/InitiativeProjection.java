@@ -6,6 +6,9 @@ import org.axonframework.eventhandling.EventMessage;
 import org.axonframework.eventhandling.Timestamp;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.messaging.MetaData;
+import org.gavaghan.geodesy.Ellipsoid;
+import org.gavaghan.geodesy.GeodeticCalculator;
+import org.gavaghan.geodesy.GlobalPosition;
 import org.joda.time.DateTime;
 import smokefree.aws.rds.secretmanager.SmokefreeConstants;
 import smokefree.domain.*;
@@ -23,8 +26,29 @@ import static java.util.Collections.unmodifiableCollection;
 @Slf4j
 @Singleton
 public class InitiativeProjection {
+
+    /**
+     * It holds a maximum value that System can allow user to add playgrounds
+     */
+    public final long MAXIMUM_PLAYGROUNDS_ALLOWED;
     private final Map<String, Playground> playgrounds = newConcurrentMap();
     private final Progress progress = new Progress();
+
+    /**
+     * the default value for the maximum playgrounds
+     */
+    public InitiativeProjection() {
+        MAXIMUM_PLAYGROUNDS_ALLOWED = SmokefreeConstants.MAXIMUM_PLAYGROUNDS_ALLOWED;
+    }
+
+    /**
+     * the custom value for the maximum playgrounds to be allowed into the System
+     * @param maximumPlaygrounds
+     */
+    public InitiativeProjection(Long maximumPlaygrounds) {
+        MAXIMUM_PLAYGROUNDS_ALLOWED = maximumPlaygrounds;
+    }
+
 
 
     /*
@@ -121,6 +145,40 @@ public class InitiativeProjection {
 
     public Progress progress() {
         return progress;
+    }
+
+    /**
+     * It finds the playgrounds list which are nearby to the given GeoLocation.
+     * So it will useful to display in front-end, asking user for confirmation
+     * @param newPlaygroundLocation
+     * @param distance
+     * @return
+     */
+    public List<Playground> checkForNearByPlaygrounds(GeoLocation newPlaygroundLocation, long distance) {
+        GeodeticCalculator geoCalc = new GeodeticCalculator();
+        Ellipsoid reference = Ellipsoid.WGS84;
+        GlobalPosition newPlaygroundLocationPosition = new GlobalPosition(newPlaygroundLocation.getLat(), newPlaygroundLocation.getLng(), 0.0); // Point A
+        return playgrounds.entrySet().stream()
+                .filter( playgroundEntry -> {
+                    Playground playground = playgroundEntry.getValue();
+                    GlobalPosition playgroundPosition = new GlobalPosition(playground.getLat() , playground.getLng(), 0.0);
+                    double playgroundsDistance = geoCalc.calculateGeodeticCurve(reference, playgroundPosition, newPlaygroundLocationPosition).getEllipsoidalDistance();
+                    return  playgroundsDistance < distance ? true:false;
+                }).map(playgroundEntry -> playgroundEntry.getValue())
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * It cross-check whether System has already holding the maximum allowed playgrounds
+     * @return true: if system does not reach maximum playgrounds allowed
+     * @throws RuntimeException : if System has already reached maximum playground allowed
+     */
+    public boolean checkForMaximumPlaygrounds() {
+        if(playgrounds.size() < MAXIMUM_PLAYGROUNDS_ALLOWED ){
+            return true;
+        } else {
+            throw new RuntimeException("MAX_PLAYGROUNDS: System is already loaded with " + SmokefreeConstants.MAXIMUM_PLAYGROUNDS_ALLOWED + " playgrounds");
+        }
     }
 
 }
