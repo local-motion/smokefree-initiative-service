@@ -123,11 +123,13 @@ class InitiativeProjectionTest {
         return initiativeCreated(UUID.randomUUID().toString(), status);
     }
 
+    private static final String PLAYGROUND_NAME_INITIATIVE_1 = "Happy Smokefree";
+    private static final String PLAYGROUND_NAME_INITIATIVE_2 = "Happy Smokefree";
     InitiativeCreatedEvent initiativeCreated(String uuid, Status status) {
         return new InitiativeCreatedEvent(uuid, Type.smokefree, status, "Happy Smokefree", new GeoLocation(12.956314, 77.648635));
     }
     InitiativeCreatedEvent initiativeCreated(String uuid, Status status, GeoLocation location) {
-        return new InitiativeCreatedEvent(uuid, Type.smokefree, status, "Happy Smokefree", location);
+        return new InitiativeCreatedEvent(uuid, Type.smokefree, status, "Happy Smokefree 2", location);
     }
     @Test
     void should_record_smokefreeplaygroundobservation() {
@@ -169,5 +171,17 @@ class InitiativeProjectionTest {
                         () -> projection.checkForMaximumPlaygrounds(),
                         "Expected checkForMaximumPlaygrounds() to throw, but it didn't");
         assertTrue(thrown.getMessage().contains("MAX_PLAYGROUNDS: System is already loaded with " + SmokefreeConstants.MAXIMUM_PLAYGROUNDS_ALLOWED + " playgrounds"));
+    }
+
+    @Test
+    void should_throwException_when_playgroundNameAlreadyExist() {
+        InitiativeProjection projection = new InitiativeProjection();
+        projection.on(initiativeCreated("initiative-1", in_progress));
+        RuntimeException thrown =
+                assertThrows(RuntimeException.class,
+                        () -> projection.isPlaygroundAlreadyExist(PLAYGROUND_NAME_INITIATIVE_1),
+                        "Expected isPlaygroundAlreadyExist() to throw, but it didn't");
+        assertTrue(thrown.getMessage().contains("PLAYGROUND_ALREADY_EXIST: Playground name " + PLAYGROUND_NAME_INITIATIVE_1 + " is already exist"));
+
     }
 }
