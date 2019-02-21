@@ -15,7 +15,7 @@ public class CreateInitiativeInputTest {
 	private ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
 
 	@Test
-	void should_haveConstraintViolation_when_playgroundNameHasLessThan3Characters() {
+	void testInvalidPlaygroundNameIfNameHasLessThan3Characters() {
 		CreateInitiativeInput cmd = new CreateInitiativeInput(
 				"initiative-1",
 				Type.smokefree,
@@ -31,7 +31,7 @@ public class CreateInitiativeInputTest {
 	}
 
 	@Test
-	void should_haveConstraintViolation_when_playgroundNameHasMoreThan40Characters() {
+	void testInvalidPlaygroundNameIfNameHasMoreThan40Characters() {
 		CreateInitiativeInput cmd = new CreateInitiativeInput(
 				"initiative-1",
 				Type.smokefree,
@@ -47,7 +47,7 @@ public class CreateInitiativeInputTest {
 	}
 
 	@Test
-	void should_NotHaveConstraintViolation_when_playgroundNameHas3To40Characters() {
+	void testValidPlaygroundNameIfNameContaines3To40Characters() {
 		CreateInitiativeInput cmd = new CreateInitiativeInput(
 				"initiative-1",
 				Type.smokefree,
@@ -59,81 +59,5 @@ public class CreateInitiativeInputTest {
 
 		Set<ConstraintViolation<CreateInitiativeInput>> violations = validatorFactory.getValidator().validate(cmd);
 		assertEquals(0, violations.size());
-	}
-
-	@Test
-	void should_haveConstraintViolation_when_playgroundInitiativeIdIsNull() {
-		CreateInitiativeInput cmd = new CreateInitiativeInput(
-				null,
-				Type.smokefree,
-				Status.not_started,
-				"Happy Diemen",
-				22223.32,
-				32.322
-		);
-		Set<ConstraintViolation<CreateInitiativeInput>> violations = validatorFactory.getValidator().validate(cmd);
-		assertEquals(1, violations.size());
-		assertEquals("The initiativeId must have a value", violations.iterator().next().getMessage());
-	}
-	@Test
-	void should_haveConstraintViolation_when_playgroundInitiativeIdIsBlank() {
-		CreateInitiativeInput cmd = new CreateInitiativeInput(
-				"",
-				Type.smokefree,
-				Status.not_started,
-				"Happy Diemen",
-				22223.32,
-				32.322
-		);
-		Set<ConstraintViolation<CreateInitiativeInput>> violations = validatorFactory.getValidator().validate(cmd);
-		assertEquals(1, violations.size());
-		assertEquals("The initiativeId must not be blank", violations.iterator().next().getMessage());
-	}
-
-	@Test
-	void should_haveConstraintViolation_when_playgroundStatusIsNull() {
-		CreateInitiativeInput cmd = new CreateInitiativeInput(
-				"Name",
-				Type.smokefree,
-				null,
-				"Happy Diemen",
-				22223.32,
-				32.322
-		);
-		Set<ConstraintViolation<CreateInitiativeInput>> violations = validatorFactory.getValidator().validate(cmd);
-		assertEquals(1, violations.size());
-		assertEquals("The status must not be blank", violations.iterator().next().getMessage());
-	}
-
-	@Test
-	void should_haveConstraintViolation_whenPlaygroundLongitudeIsNull() {
-		CreateInitiativeInput cmd = new CreateInitiativeInput(
-				"Name",
-				Type.smokefree,
-				Status.not_started,
-				"Happy Diemen",
-				32.234566,
-				null
-		);
-		Set<ConstraintViolation<CreateInitiativeInput>> violations = validatorFactory.getValidator().validate(cmd);
-		assertEquals(1, violations.size());
-		assertEquals("The lng must not be blank", violations.iterator().next().getMessage());
-
-	}
-
-	@Test
-	void should_haveConstraintViolation_whenPlaygroundLatitudeIsNull() {
-		CreateInitiativeInput cmd = new CreateInitiativeInput(
-				"Name",
-				Type.smokefree,
-				Status.not_started,
-				"Happy Diemen",
-				null,
-				32.234566
-		);
-		Set<ConstraintViolation<CreateInitiativeInput>> violations = validatorFactory.getValidator().validate(cmd);
-		assertEquals(1, violations.size());
-		assertEquals("The lat must not be blank", violations.iterator().next().getMessage());
-
 	}
 }

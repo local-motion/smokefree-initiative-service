@@ -9,27 +9,15 @@ import org.hibernate.validator.constraints.Length;
 import smokefree.domain.Status;
 import smokefree.domain.Type;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
 public
 class CreateInitiativeInput {
-
-    @NotNull(message = "The initiativeId must have a value")
-    @Size(min = 1, message = "The initiativeId must not be blank")
     String initiativeId;
-
     Type type;
-
-    @Enumerated(EnumType.STRING)
-    @NotNull(message = "The status must not be blank")
-    //@Pattern(regexp = "a|b|c|d", flags = Pattern.Flag.CASE_INSENSITIVE) // TO-DO: Need to test it for possible values during integration test
     Status status;
 
     @Length(min = 3, message = "The name must be at least 3 characters")
@@ -37,9 +25,6 @@ class CreateInitiativeInput {
     @NotNull
     String name;
 
-    @NotNull(message = "The lat must not be blank")
     Double lat;
-
-    @NotNull(message = "The lng must not be blank")
     Double lng;
 }
