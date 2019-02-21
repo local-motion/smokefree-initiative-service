@@ -197,4 +197,20 @@ class InitiativeProjectionTest {
                 .and("user_name", "Jack Ma"));
         assertFalse(projection.checkForMaximumVolunteers("initiative-1"));
     }
+
+    @Test
+    void should_notAllowUserToClaimManagerRole_when_playgroundHasAlreadyHadMaxManagers() {
+        InitiativeProjection projection = new InitiativeProjection(2L, 2);
+        projection.on(initiativeCreated("initiative-1", in_progress));
+        projection.on(new ManagerJoinedInitiativeEvent("initiative-1", "citizen-1"), MetaData
+                .with("user_id", "manager-1")
+                .and("user_name", "Jack Ma"));
+        projection.on(new ManagerJoinedInitiativeEvent("initiative-1", "citizen-2"), MetaData
+                .with("user_id", "manager-2")
+                .and("user_name", "Jack Ma"));
+        projection.on(new ManagerJoinedInitiativeEvent("initiative-1", "citizen-3"), MetaData
+                .with("user_id", "manager-3")
+                .and("user_name", "Jack Ma"));
+        assertFalse(projection.checkForMaximumManagers("initiative-1"));
+    }
 }

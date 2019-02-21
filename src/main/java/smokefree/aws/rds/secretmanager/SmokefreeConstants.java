@@ -32,5 +32,6 @@ public class SmokefreeConstants {
 	public static final Long MAXIMUM_PLAYGROUNDS_DISTANCE = 100L;
 	public static final Long MAXIMUM_PLAYGROUNDS_ALLOWED = 1000L;
 	public static final Long MAXIMUM_VOLUNTEERS_PER_PLAYGROUND = 200L;
+	public static final Long MAXIMUM_MANAGERS_PER_PLAYGROUND = 3L;
 
 }

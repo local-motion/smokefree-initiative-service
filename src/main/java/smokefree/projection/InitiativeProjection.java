@@ -225,4 +225,11 @@ public class InitiativeProjection {
                 .flatMap(playgroundEntry -> playgroundEntry.getValue().getVolunteers().stream()).count() < MAXIMUM_VOLUNTEERS_PER_PLAYGROUND ? true :false;
     }
 
+    public boolean checkForMaximumManagers(String id) {
+        return playgrounds.entrySet()
+                .stream()
+                .filter(playgroundEntry -> playgroundEntry.getValue().getId().equals(id))
+                .flatMap(playgroundEntry -> playgroundEntry.getValue().getManagers().stream()).count() < SmokefreeConstants.MAXIMUM_MANAGERS_PER_PLAYGROUND ? true:false;
+    }
+
 }
