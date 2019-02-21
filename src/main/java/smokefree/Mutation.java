@@ -2,7 +2,6 @@ package smokefree;
 
 import com.coxautodev.graphql.tools.GraphQLMutationResolver;
 import graphql.schema.DataFetchingEnvironment;
-import io.micronaut.validation.Validated;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -21,14 +20,12 @@ import smokefree.projection.ProfileProjection;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.validation.Valid;
 import javax.validation.ValidationException;
 import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Singleton
 @NoArgsConstructor
-@Validated
 @SuppressWarnings("unused")
 public class Mutation implements GraphQLMutationResolver {
     @Inject
@@ -42,10 +39,7 @@ public class Mutation implements GraphQLMutationResolver {
 
 
     @SneakyThrows
-    public Playground createInitiative(@Valid CreateInitiativeInput input, DataFetchingEnvironment env) {
-        if(initiativeProjection.checkForMaximumPlaygrounds() &&  initiativeProjection.checkForNearByPlaygrounds(new GeoLocation(input.getLat(), input.getLng()), SmokefreeConstants.MAXIMUM_PLAYGROUNDS_DISTANCE).size() > 0) {
-            throw new RuntimeException("Smokefree Initiative for " + input.getName() + " seems to be already created");
-        }
+    public Playground createInitiative(CreateInitiativeInput input, DataFetchingEnvironment env) {
         final CreateInitiativeCommand command = new CreateInitiativeCommand(
                 input.getInitiativeId(),
                 input.getName(),
