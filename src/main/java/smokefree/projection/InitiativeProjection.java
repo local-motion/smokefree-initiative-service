@@ -181,21 +181,4 @@ public class InitiativeProjection {
         }
     }
 
-    /**
-     * It check for a playground name existance against playgrounds  before create a initiative
-     * @param playgroundName
-     * @throws  RuntimeException: if playground name is already exist
-     */
-    public void isPlaygroundAlreadyExist(String playgroundName) {
-         playgrounds.entrySet()
-                .stream()
-                .filter( playgroundEntry -> playgroundEntry.getValue().getName().equals(playgroundName))
-                .map(playgroundEntry -> playgroundEntry.getValue())
-                .findFirst()
-                .ifPresent( p -> {
-                    throw new RuntimeException("PLAYGROUND_ALREADY_EXIST: Playground name " + playgroundName + " is already exist");
-                });
-
-    }
-
 }
