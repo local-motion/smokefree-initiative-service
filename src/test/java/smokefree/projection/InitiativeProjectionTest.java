@@ -184,17 +184,4 @@ class InitiativeProjectionTest {
         assertTrue(thrown.getMessage().contains("PLAYGROUND_ALREADY_EXIST: Playground name " + PLAYGROUND_NAME_INITIATIVE_1 + " is already exist"));
 
     }
-
-    @Test
-    void should_notAllowUserToJoinInitiative_when_playgroundReachedMaxVolunteersAllowed() {
-        InitiativeProjection projection = new InitiativeProjection(2L, 2);
-        projection.on(initiativeCreated("initiative-1", in_progress));
-        projection.on(new CitizenJoinedInitiativeEvent("initiative-1", "citizen-1"), MetaData
-                .with("user_id", "manager-1")
-                .and("user_name", "Jack Ma"));
-        projection.on(new CitizenJoinedInitiativeEvent("initiative-1", "citizen-2"), MetaData
-                .with("user_id", "manager-1")
-                .and("user_name", "Jack Ma"));
-        assertFalse(projection.checkForMaximumVolunteers("initiative-1"));
-    }
 }

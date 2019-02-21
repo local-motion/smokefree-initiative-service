@@ -31,9 +31,6 @@ public class InitiativeProjection {
      * It holds a maximum value that System can allow user to add playgrounds
      */
     public final long MAXIMUM_PLAYGROUNDS_ALLOWED;
-
-    public final long MAXIMUM_VOLUNTEERS_PER_PLAYGROUND;
-
     private final Map<String, Playground> playgrounds = newConcurrentMap();
     private final Progress progress = new Progress();
 
@@ -42,7 +39,6 @@ public class InitiativeProjection {
      */
     public InitiativeProjection() {
         MAXIMUM_PLAYGROUNDS_ALLOWED = SmokefreeConstants.MAXIMUM_PLAYGROUNDS_ALLOWED;
-        MAXIMUM_VOLUNTEERS_PER_PLAYGROUND = SmokefreeConstants.MAXIMUM_VOLUNTEERS_PER_PLAYGROUND;
     }
 
     /**
@@ -51,17 +47,6 @@ public class InitiativeProjection {
      */
     public InitiativeProjection(Long maximumPlaygrounds) {
         MAXIMUM_PLAYGROUNDS_ALLOWED = maximumPlaygrounds;
-        MAXIMUM_VOLUNTEERS_PER_PLAYGROUND = SmokefreeConstants.MAXIMUM_VOLUNTEERS_PER_PLAYGROUND;
-    }
-
-    /**
-     * the custom value for the maximum playgrounds to be allowed into the System, and
-     * the custom value for the maximum volunteers per playground
-     * @param maximumPlaygrounds
-     */
-    public InitiativeProjection(Long maximumPlaygrounds, long maximumVolunteers) {
-        MAXIMUM_PLAYGROUNDS_ALLOWED = maximumPlaygrounds;
-        MAXIMUM_VOLUNTEERS_PER_PLAYGROUND = maximumVolunteers;
     }
 
 
@@ -211,18 +196,6 @@ public class InitiativeProjection {
                     throw new RuntimeException("PLAYGROUND_ALREADY_EXIST: Playground name " + playgroundName + " is already exist");
                 });
 
-    }
-
-    /**
-     * It cross-check the total volunters of a playgrond against the max allowed volunteers per playgrouns
-     * @param id
-     * @return
-     */
-    public boolean checkForMaximumVolunteers(String id) {
-        return playgrounds.entrySet()
-                .stream()
-                .filter(playgroundEntry -> playgroundEntry.getValue().getId().equals(id))
-                .flatMap(playgroundEntry -> playgroundEntry.getValue().getVolunteers().stream()).count() < MAXIMUM_VOLUNTEERS_PER_PLAYGROUND ? true :false;
     }
 
 }
