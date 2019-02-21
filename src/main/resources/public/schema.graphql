@@ -39,9 +39,9 @@ type Playground {
     votes: Int
     managers: [Manager!]!
     playgroundObservations: [PlaygroundObservation!]
-    volunteers: [Volunteer!]
-    jointChecklistItems: [String!]
-    ownChecklistItems: [String!]
+    volunteers: [Volunteer!]!
+    jointChecklistItems: [String!]!
+    ownChecklistItems: [String!]!
 }
 
 enum Status {

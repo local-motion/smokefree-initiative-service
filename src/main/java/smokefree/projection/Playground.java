@@ -109,7 +109,8 @@ public class Playground {
      * @return playground with a subset of the properties of this playground
      */
     public Playground getPlaygroundForUser(@Nullable String userId) {
-        Set<String> usersChecklistItems = userId != null ? individualChecklistItems.get(userId) : Collections.emptySet();
+        Set<String> usersChecklistItems = userId != null && individualChecklistItems.containsKey(userId) ?
+                                                    individualChecklistItems.get(userId) : Collections.emptySet();
         return new Playground(id, name, lat, lng, status, smokeFreeDate, volunteerCount, votes, volunteers, managers,
                                 playgroundObservations, jointChecklistItems, null, usersChecklistItems);
     }

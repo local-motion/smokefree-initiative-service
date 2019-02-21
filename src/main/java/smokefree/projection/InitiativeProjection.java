@@ -139,7 +139,8 @@ public class InitiativeProjection {
     }
 
     public Playground playground(String id, String userId) {
-        return playgrounds.containsKey(id) ? playgrounds.get(id).getPlaygroundForUser(userId) : null;
+        Playground playground = playgrounds.containsKey(id) ? playgrounds.get(id).getPlaygroundForUser(userId) : null;
+        return playground;
     }
 
     public Progress progress() {

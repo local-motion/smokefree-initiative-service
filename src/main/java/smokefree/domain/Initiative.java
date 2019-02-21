@@ -28,7 +28,12 @@ public class Initiative {
 
     // Constants
 
-    private static final Set<String> CHECKLIST_ITEMS = Set.of(new String[] {"invite_manager", "order_flyers", "distribute_flyers", "order_sign", "receive_sign", "place_sign"});
+    private static final Set<String> CHECKLIST_ITEMS = Set.of(new String[] {
+            "invite_manager", "order_flyers", "distribute_flyers",
+            "press_announcement", "newsletter_announcement", "website_announcement",
+            "adjust_regulations", "publish_regulations",
+            "order_sign", "place_sign", "press_announcement_smokefree"
+    });
 
     // Instance properties
 
