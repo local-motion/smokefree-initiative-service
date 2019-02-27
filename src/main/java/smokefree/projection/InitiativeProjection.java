@@ -46,7 +46,6 @@ public class InitiativeProjection {
                 geoLocation.getLng(),
                 evt.getStatus(),
                 null,
-                0,
                 0));
 
         progress.increment(evt.getStatus());
@@ -56,7 +55,6 @@ public class InitiativeProjection {
     public void on(CitizenJoinedInitiativeEvent evt, MetaData metaData) {
         log.info("ON EVENT {}", evt);
         Playground playground = playgrounds.get(evt.getInitiativeId());
-        playground.setVolunteerCount(playground.getVolunteerCount() + 1);
         log.info("user: " + metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME));
         playground.getVolunteers().add(new Playground.Volunteer(evt.getCitizenId(), metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME).toString()));
     }
@@ -80,12 +78,15 @@ public class InitiativeProjection {
     @EventHandler
     public void on(ManagerJoinedInitiativeEvent evt, MetaData metaData) {
         log.info("ON EVENT {}", evt);
-        final String userId = (String) metaData.get(SmokefreeConstants.JWTClaimSet.USER_ID);                 // TODO should this data not be extracted from the event itself?
+        final String userId = evt.getManagerId();
         final String userName = (String) metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME);             // TODO should this data not be extracted from the event itself?
 
         Playground playground = playgrounds.get(evt.getInitiativeId());
         Playground.Manager manager = new Playground.Manager(userId, userName);
         playground.addManager(manager);
+
+        // Also register the manager as a volunteer
+        playground.getVolunteers().add(new Playground.Volunteer(evt.getManagerId(), metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME).toString()));
     }
 
     @EventHandler

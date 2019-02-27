@@ -18,7 +18,6 @@ public class Playground {
     Double lng;
     Status status;
     LocalDate smokeFreeDate;
-    int volunteerCount;
     int votes;
     Set<Volunteer> volunteers = new HashSet<>();
     List<Manager> managers = newArrayList();
@@ -31,15 +30,19 @@ public class Playground {
     Map<String,Set<String>> individualChecklistItems = new HashMap<>();         // key = user
     Set<String> ownChecklistItems = null;                                       // see getPlaygroundForUser
 
+    // Deduced properties
+    public int getVolunteerCount() {
+        return volunteers.size();
+    }
 
-    public Playground(String id, String name, Double lat, Double lng, Status status, LocalDate smokeFreeDate, int volunteerCount, int votes) {
+
+    public Playground(String id, String name, Double lat, Double lng, Status status, LocalDate smokeFreeDate, int votes) {
         this.id = id;
         this.name = name;
         this.lat = lat;
         this.lng = lng;
         this.status = status;
         this.smokeFreeDate = smokeFreeDate;
-        this.volunteerCount = volunteerCount;
         this.votes = votes;
     }
 
@@ -111,7 +114,7 @@ public class Playground {
     public Playground getPlaygroundForUser(@Nullable String userId) {
         Set<String> usersChecklistItems = userId != null && individualChecklistItems.containsKey(userId) ?
                                                     individualChecklistItems.get(userId) : Collections.emptySet();
-        return new Playground(id, name, lat, lng, status, smokeFreeDate, volunteerCount, votes, volunteers, managers,
+        return new Playground(id, name, lat, lng, status, smokeFreeDate, votes, volunteers, managers,
                                 playgroundObservations, jointChecklistItems, null, usersChecklistItems);
     }
 }
