@@ -8,7 +8,7 @@ import org.axonframework.modelling.command.TargetAggregateIdentifier;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
 @ToString
-public class IndicatePlaygroundObservationCommand {
+public class RecordPlaygroundObservationCommand {
     @TargetAggregateIdentifier
     String initiativeId;
     String observer;

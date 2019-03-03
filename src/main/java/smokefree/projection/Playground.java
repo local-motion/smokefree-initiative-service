@@ -84,8 +84,8 @@ public class Playground {
 
     @Value
     public static class PlaygroundObservation {
-        String userId;
-        String userName;
+        String observerId;
+        String observerName;
         Boolean smokefree;
         LocalDate observationDate;
         String comment;

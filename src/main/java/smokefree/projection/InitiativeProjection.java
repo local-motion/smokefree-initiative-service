@@ -3,22 +3,17 @@ package smokefree.projection;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.eventhandling.EventMessage;
-import org.axonframework.eventhandling.Timestamp;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.messaging.MetaData;
-import org.joda.time.DateTime;
 import smokefree.aws.rds.secretmanager.SmokefreeConstants;
 import smokefree.domain.*;
 
 import javax.inject.Singleton;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.google.common.collect.Maps.newConcurrentMap;
-import static java.util.Collections.unmodifiableCollection;
 
 @Slf4j
 @Singleton
@@ -90,7 +85,7 @@ public class InitiativeProjection {
     }
 
     @EventHandler
-    public void on(PlaygroundObservationIndicatedEvent evt, MetaData metaData) {
+    public void on(PlaygroundObservationEvent evt, MetaData metaData) {
         log.info("ON EVENT {}", evt);
         final String userId = (String) metaData.get(SmokefreeConstants.JWTClaimSet.USER_ID);
         final String userName = (String) metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME);

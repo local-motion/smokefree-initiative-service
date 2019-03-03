@@ -101,8 +101,8 @@ public class Initiative {
     }
 
     @CommandHandler
-    public void indicatePlaygroundObservation(IndicatePlaygroundObservationCommand cmd, MetaData metaData) {
-        apply(new PlaygroundObservationIndicatedEvent(cmd.getInitiativeId(), cmd.getObserver() , cmd.getSmokefree(), cmd.getComment(), LocalDate.now()), metaData);
+    public void indicatePlaygroundObservation(RecordPlaygroundObservationCommand cmd, MetaData metaData) {
+        apply(new PlaygroundObservationEvent(cmd.getInitiativeId(), cmd.getObserver() , cmd.getSmokefree(), cmd.getComment(), LocalDate.now()), metaData);
     }
 
     @CommandHandler
@@ -166,7 +166,7 @@ public class Initiative {
     }
 
     @EventSourcingHandler
-    void on(PlaygroundObservationIndicatedEvent evt) { }
+    void on(PlaygroundObservationEvent evt) { }
 
     @EventSourcingHandler
     void on(CheckListUpdateEvent evt) { }
