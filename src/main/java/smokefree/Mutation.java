@@ -66,9 +66,9 @@ public class Mutation implements GraphQLMutationResolver {
     }
 
     @SneakyThrows
-    public Playground indicatePlaygroundObservation(IndicatePlaygroundObservationCommand input, DataFetchingEnvironment env) {
+    public Playground recordPlaygroundObservation(RecordPlaygroundObservationCommand input, DataFetchingEnvironment env) {
         if(!(input.getObserver().equals(toContext(env).requireUserId()))) {
-            throw new ValidationException("CONFLICT_USER, Can't process the request");
+            throw new ValidationException("Observer must be equal to the userId");
         }
         gateway.sendAndWait(decorateWithMetaData(input, env));
         return initiativeProjection.playground(input.getInitiativeId(), getUserId(env));

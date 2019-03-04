@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class PlaygroundObservationIndicatedEvent {
+public class PlaygroundObservationEvent {
     String initiativeId;
     String observer;
     Boolean smokefree;

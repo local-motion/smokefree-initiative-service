@@ -1,6 +1,7 @@
 package smokefree.domain;
 
 import lombok.NoArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.common.Assert;
@@ -45,6 +46,7 @@ public class Initiative {
     private Set<String> citizens = newHashSet();
 
     private LocalDate smokeFreeDate;
+    private LocalDate lastObservationDate;
 
     @CommandHandler
     public Initiative(CreateInitiativeCommand cmd, MetaData metaData) {
@@ -101,8 +103,11 @@ public class Initiative {
     }
 
     @CommandHandler
-    public void indicatePlaygroundObservation(IndicatePlaygroundObservationCommand cmd, MetaData metaData) {
-        apply(new PlaygroundObservationIndicatedEvent(cmd.getInitiativeId(), cmd.getObserver() , cmd.getSmokefree(), cmd.getComment(), LocalDate.now()), metaData);
+    public void recordPlaygroundObservation(RecordPlaygroundObservationCommand cmd, MetaData metaData) {
+        LocalDate today = LocalDate.now();
+        if (lastObservationDate != null && lastObservationDate.isEqual(today))
+            throw new ValidationException("Only one playground observation can be registered per day");
+        apply(new PlaygroundObservationEvent(cmd.getInitiativeId(), cmd.getObserver() , cmd.getSmokefree(), cmd.getComment(), today), metaData);
     }
 
     @CommandHandler
@@ -166,7 +171,9 @@ public class Initiative {
     }
 
     @EventSourcingHandler
-    void on(PlaygroundObservationIndicatedEvent evt) { }
+    void on(PlaygroundObservationEvent evt) {
+        lastObservationDate = evt.getObservationDate();
+    }
 
     @EventSourcingHandler
     void on(CheckListUpdateEvent evt) { }

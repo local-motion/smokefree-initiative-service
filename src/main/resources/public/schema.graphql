@@ -74,8 +74,8 @@ type Stat {
 }
 
 type PlaygroundObservation {
-    userId: String!
-    userName: String!
+    observerId: String!
+    observerName: String!
     smokefree: Boolean!
     observationDate: LocalDate!
     comment: String!
@@ -97,7 +97,7 @@ type Mutation {
 
     commitToSmokeFreeDate(input: CommitToSmokeFreeDateCommand!): InputAcceptedResponse!
 
-    indicatePlaygroundObservation(input: IndicatePlaygroundObservationCommand!): Playground!
+    recordPlaygroundObservation(input: RecordPlaygroundObservationCommand!): Playground!
     updateChecklist(input: UpdateChecklistCommand!): Playground!
 
     createUser(doesNotMatter: String!): Profile!
@@ -143,8 +143,9 @@ input CommitToSmokeFreeDateCommand {
     initiativeId: String!
     smokeFreeDate: LocalDate!
 }
-input IndicatePlaygroundObservationCommand {
+input RecordPlaygroundObservationCommand {
     initiativeId: String!
+    observer: String!
     smokefree: Boolean!
     comment: String!
 }

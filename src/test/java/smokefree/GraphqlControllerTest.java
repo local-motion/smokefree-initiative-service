@@ -94,8 +94,8 @@ class GraphqlControllerTest {
     @Disabled
     @Test
     void when_no_one_smoking_in_playground() {
-        String query = "mutation indicatePlaygroundObservation($input: IndicatePlaygroundObservationCommand!) {\n" +
-                "    indicatePlaygroundObservation(input: $input) {\n" +
+        String query = "mutation recordPlaygroundObservation($input: RecordPlaygroundObservationCommand!) {\n" +
+                "    recordPlaygroundObservation(input: $input) {\n" +
                 "        id\n" +
                 "        playgroundObservations { \n smokefree \n observationDate \n comment \n}" +
                 "    }\n" +

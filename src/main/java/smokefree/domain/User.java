@@ -59,7 +59,7 @@ public class User {
 
         long recordId = personalDataRecord.getRecordId();
         log.info("created pii record " + recordId + " for " + cmd.getUserId() + " with data " + piiString);
-//        apply(new UserCreatedEvent(cmd.getUserId(), cmd.getName(), cmd.getEmailAddress(), 0), metaData);
+//        apply(new UserCreatedEvent(cmd.getObserverId(), cmd.getName(), cmd.getEmailAddress(), 0), metaData);
         apply(new UserCreatedEvent(cmd.getUserId(), null, null, recordId), metaData);
     }
 

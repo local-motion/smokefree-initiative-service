@@ -1,9 +1,7 @@
 package smokefree.projection;
 
-import io.axoniq.axonserver.grpc.event.Event;
 import org.axonframework.eventhandling.GenericEventMessage;
 import org.axonframework.messaging.MetaData;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 import smokefree.domain.*;
 
@@ -128,7 +126,7 @@ class InitiativeProjectionTest {
     void should_record_smokefreeplaygroundobservation() {
         InitiativeProjection projection = new InitiativeProjection();
         projection.on(initiativeCreated("initiative-1", in_progress));
-        projection.on(new PlaygroundObservationIndicatedEvent("initiative-1", "user_id", true, "I do not see anyone is smoking", LocalDate.now()), MetaData
+        projection.on(new PlaygroundObservationEvent("initiative-1", "user_id", true, "I do not see anyone is smoking", LocalDate.now()), MetaData
                 .with("user_id", "manager-1")
                 .and("user_name", "Jack Ma"));
         Playground playground = projection.playground("initiative-1", null);
