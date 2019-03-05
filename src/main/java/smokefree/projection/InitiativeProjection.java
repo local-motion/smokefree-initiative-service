@@ -3,17 +3,24 @@ package smokefree.projection;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.eventhandling.EventMessage;
+import org.axonframework.eventhandling.Timestamp;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.messaging.MetaData;
+import org.joda.time.DateTime;
 import smokefree.aws.rds.secretmanager.SmokefreeConstants;
 import smokefree.domain.*;
 
 import javax.inject.Singleton;
+import java.time.Instant;
+import java.time.temporal.Temporal;
 import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.google.common.collect.Maps.newConcurrentMap;
+
+
+// TODO refactor playground updates to the wither pattern so playground can be immutable and updates atomic (including metadata)
 
 @Slf4j
 @Singleton
@@ -27,7 +34,7 @@ public class InitiativeProjection {
      */
 
     @EventHandler
-    public void on(InitiativeCreatedEvent evt) {
+    public void on(InitiativeCreatedEvent evt, EventMessage<?> eventMessage) {
         log.info("ON EVENT {}", evt);
         final GeoLocation geoLocation = evt.getGeoLocation();
         if (playgrounds.containsKey(evt.getInitiativeId())) {
@@ -41,37 +48,41 @@ public class InitiativeProjection {
                 geoLocation.getLng(),
                 evt.getStatus(),
                 null,
-                0));
+                0,
+                eventMessage
+                ));
 
         progress.increment(evt.getStatus());
     }
 
     @EventHandler
-    public void on(CitizenJoinedInitiativeEvent evt, MetaData metaData) {
+    public void on(CitizenJoinedInitiativeEvent evt, MetaData metaData, EventMessage<?> eventMessage) {
         log.info("ON EVENT {}", evt);
         Playground playground = playgrounds.get(evt.getInitiativeId());
-        log.info("user: " + metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME));
         playground.getVolunteers().add(new Playground.Volunteer(evt.getCitizenId(), metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME).toString()));
+        playground.setLastEventMessage(eventMessage);
     }
 
     @EventHandler
-    public void on(InitiativeProgressedEvent evt) {
+    public void on(InitiativeProgressedEvent evt, EventMessage<?> eventMessage) {
         log.info("ON EVENT {}", evt);
         Playground playground = playgrounds.get(evt.getInitiativeId());
         playground.setStatus(evt.getAfter());
+        playground.setLastEventMessage(eventMessage);
 
         progress.change(evt.getBefore(), evt.getAfter());
     }
 
     @EventHandler
-    public void on(SmokeFreeDateCommittedEvent evt, EventMessage<SmokeFreeDateCommittedEvent> msg)  {
+    public void on(SmokeFreeDateCommittedEvent evt, EventMessage<SmokeFreeDateCommittedEvent> eventMessage)  {
         log.info("ON EVENT {}", evt);
         Playground playground = playgrounds.get(evt.getInitiativeId());
         playground.setSmokeFreeDate(evt.getSmokeFreeDate());
+        playground.setLastEventMessage(eventMessage);
     }
 
     @EventHandler
-    public void on(ManagerJoinedInitiativeEvent evt, MetaData metaData) {
+    public void on(ManagerJoinedInitiativeEvent evt, MetaData metaData, EventMessage<?> eventMessage) {
         log.info("ON EVENT {}", evt);
         final String userId = evt.getManagerId();
         final String userName = (String) metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME);             // TODO should this data not be extracted from the event itself?
@@ -82,25 +93,39 @@ public class InitiativeProjection {
 
         // Also register the manager as a volunteer
         playground.getVolunteers().add(new Playground.Volunteer(evt.getManagerId(), metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME).toString()));
+
+        playground.setLastEventMessage(eventMessage);
     }
 
     @EventHandler
-    public void on(PlaygroundObservationEvent evt, MetaData metaData) {
+    public void on(PlaygroundObservationEvent evt, MetaData metaData, EventMessage<?> eventMessage) {
         log.info("ON EVENT {}", evt);
         final String userId = (String) metaData.get(SmokefreeConstants.JWTClaimSet.USER_ID);
         final String userName = (String) metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME);
         Playground.PlaygroundObservation playgroundObservation = new Playground.PlaygroundObservation(evt.getObserver(), metaData.get(SmokefreeConstants.JWTClaimSet.COGNITO_USER_NAME).toString(), evt.getSmokefree(), evt.getObservationDate(), evt.getComment());
-        playgrounds.get(evt.getInitiativeId()).addPlaygroundObservation(playgroundObservation);
+        Playground playground = playgrounds.get(evt.getInitiativeId());
+        playground.addPlaygroundObservation(playgroundObservation);
+        playground.setLastEventMessage(eventMessage);
+
     }
 
-    @EventSourcingHandler
-    void on(CheckListUpdateEvent evt) {
-        log.info("ON EVENT {}", evt);
+    @EventHandler
+    void on(CheckListUpdateEvent evt, EventMessage<?> eventMessage) {
+        log.info("ON EVENT {} AT {}", evt, eventMessage.getTimestamp());
         Playground playground = playgrounds.get(evt.getInitiativeId());
         playground.setChecklistItem(evt.getActor(), evt.getChecklistItem(), evt.isChecked());
-        Playground exPlayground = playground.getPlaygroundForUser(null);
+        playground.setLastEventMessage(eventMessage);
     }
 
+
+    /*
+            Generic event message handling
+     */
+
+//    @EventHandler
+//    void on(EventMessage<?> eventMessage, @Timestamp DateTime timestamp) {
+//        log.info("ON EVENTMESSAGE {} at {}", eventMessage, timestamp);
+//    }
 
     /*
             Serving the projections
