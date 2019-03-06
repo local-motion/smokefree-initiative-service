@@ -75,27 +75,23 @@ public class GraphqlController {
         // build the resulting response
         Map<String, Object> result = new HashMap<>();
 
-        // todo code below can probably be removed as it appears not possible to extract the extensions at the client level
-        Map<Object, Object> extensionsMap = executionResult.getExtensions() != null ?
-                                                new HashMap<>(executionResult.getExtensions()) :
-                                                new HashMap<>();
-        extensionsMap.put("digest", executionResult.getData() != null ? executionResult.getData().hashCode() : -1);
-
 
         // todo instead of optimistically hacking this into the data, create an intermediate level that holds the data and the metadata
-        int dataHashcode = executionResult.getData().hashCode();
-        if (executionResult.getData() instanceof Map) {
-            if (    executionResult.getErrors().isEmpty() && executionResult.getData() != null &&
-                    lastReponseDigest != 0 && dataHashcode == lastReponseDigest ) {
-                ((Map) executionResult.getData()).put("status", "not_modified");
-            }
+        if (executionResult.getData() != null) {
+            int dataHashcode = executionResult.getData().hashCode();
+            if (executionResult.getData() instanceof Map) {
+                if (executionResult.getErrors().isEmpty() && executionResult.getData() != null &&
+                        lastReponseDigest != 0 && dataHashcode == lastReponseDigest) {
+                    ((Map) executionResult.getData()).put("status", "not_modified");
+                }
 
-            ((Map) executionResult.getData()).put("digest", dataHashcode);
+                ((Map) executionResult.getData()).put("digest", dataHashcode);
+            }
         }
         result.put("data", executionResult.getData());
 
         // Note that these extensions are not picked up by the apollo graphql client
-        result.put("extensions", extensionsMap);
+        result.put("extensions", executionResult.getExtensions());
 
         // append any errors that may have occurred
         result.put("errors", executionResult
