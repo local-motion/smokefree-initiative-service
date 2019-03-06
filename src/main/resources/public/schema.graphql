@@ -38,7 +38,7 @@ type Playground {
     volunteerCount: Int #@auth(role : "manager")
     votes: Int
     managers: [Manager!]!
-    playgroundObservations: [PlaygroundObservation!]
+    playgroundObservations: [PlaygroundObservation!]!
     volunteers: [Volunteer!]!
     jointChecklistItems: [String!]!
     ownChecklistItems: [String!]!

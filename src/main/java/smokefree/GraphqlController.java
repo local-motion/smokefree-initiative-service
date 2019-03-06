@@ -82,6 +82,7 @@ public class GraphqlController {
             if (executionResult.getData() instanceof Map) {
                 if (executionResult.getErrors().isEmpty() && executionResult.getData() != null &&
                         lastReponseDigest != 0 && dataHashcode == lastReponseDigest) {
+                    ((Map) executionResult.getData()).clear();
                     ((Map) executionResult.getData()).put("status", "not_modified");
                 }
 
