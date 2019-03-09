@@ -80,13 +80,12 @@ public class GraphqlController {
         if (executionResult.getData() != null) {
             int dataHashcode = executionResult.getData().hashCode();
             if (executionResult.getData() instanceof Map) {
-                if (executionResult.getErrors().isEmpty() && executionResult.getData() != null &&
-                        lastReponseDigest != 0 && dataHashcode == lastReponseDigest) {
-                    ((Map) executionResult.getData()).clear();
-                    ((Map) executionResult.getData()).put("status", "not_modified");
+                Map data = (Map) executionResult.getData();
+                if (executionResult.getErrors().isEmpty() && lastReponseDigest != 0 && dataHashcode == lastReponseDigest) {
+                    data.clear();
+                    data.put("status", "not_modified");
                 }
-
-                ((Map) executionResult.getData()).put("digest", dataHashcode);
+                data.put("digest", dataHashcode);
             }
         }
         result.put("data", executionResult.getData());
