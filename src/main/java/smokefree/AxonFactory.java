@@ -44,6 +44,7 @@ public class AxonFactory {
                                        Serializer serializer,
                                        InitiativeProjection initiativeProjection,
                                        ProfileProjection profileProjection) {
+
         // TODO: How to avoid hard-coding aggregates, event- and query handlers?
         Configurer configurer = DefaultConfigurer.defaultConfiguration()
                 .configureEventBus(c -> eventBus)
@@ -54,6 +55,7 @@ public class AxonFactory {
                 .configureAggregate(User.class)
                 .registerQueryHandler(c -> initiativeProjection)
                 .registerQueryHandler(c -> profileProjection);
+
         configurer.eventProcessing()
                 .registerEventHandler(c -> initiativeProjection)
                 .registerEventHandler(c -> profileProjection);

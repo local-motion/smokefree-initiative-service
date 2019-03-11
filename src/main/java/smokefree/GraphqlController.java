@@ -17,6 +17,7 @@ import smokefree.projection.ProfileProjection;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,6 +57,13 @@ public class GraphqlController {
             return getSingleErrorResult("NO_PROFILE", "No user profile present");
         }
 
+
+        // create a fingerprint of the request
+        int fingerPrint = query.getQuery().hashCode() + query.getVariables().hashCode();    // TODO filter out meta variables?
+        Object lastDigestVariable = query.getVariables().get(("_lastDigest"));
+        int lastReponseDigest = lastDigestVariable != null && lastDigestVariable instanceof BigInteger ?
+                                ((BigInteger) lastDigestVariable).intValue() : 0;
+
         // execute the query
         ExecutionInput.Builder builder = new ExecutionInput.Builder()
                 .query(query.getQuery())
@@ -63,9 +71,26 @@ public class GraphqlController {
         builder.context(new SecurityContext(authentication));
         ExecutionResult executionResult = graphQL.execute(builder);
 
+
         // build the resulting response
         Map<String, Object> result = new HashMap<>();
+
+
+        // todo instead of optimistically hacking this into the data, create an intermediate level that holds the data and the metadata
+        if (executionResult.getData() != null) {
+            int dataHashcode = executionResult.getData().hashCode();
+            if (executionResult.getData() instanceof Map) {
+                Map data = (Map) executionResult.getData();
+                if (executionResult.getErrors().isEmpty() && lastReponseDigest != 0 && dataHashcode == lastReponseDigest) {
+                    data.clear();
+                    data.put("status", "not_modified");
+                }
+                data.put("digest", dataHashcode);
+            }
+        }
         result.put("data", executionResult.getData());
+
+        // Note that these extensions are not picked up by the apollo graphql client
         result.put("extensions", executionResult.getExtensions());
 
         // append any errors that may have occurred
@@ -74,7 +99,6 @@ public class GraphqlController {
                 .stream()
                 .map(error -> determineErrorAttributes(error))
                 .collect(toList()));
-
         return result;
     }
 
