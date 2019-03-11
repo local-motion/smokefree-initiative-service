@@ -88,18 +88,18 @@ type PlaygroundObservation {
 #
 
 type Mutation {
-    createInitiative(input: CreateInitiativeInput!): Playground!
-    joinInitiative(input: JoinInitiativeInput!): Playground!
+    createInitiative(input: CreateInitiativeInput!): InputAcceptedResponse!
+    joinInitiative(input: JoinInitiativeInput!): InputAcceptedResponse!
 
-    claimManagerRole(input: ClaimManagerRoleCommand!): Playground!
+    claimManagerRole(input: ClaimManagerRoleCommand!): InputAcceptedResponse!
 
     decideToBecomeSmokeFree(input: DecideToBecomeSmokeFreeCommand!): InputAcceptedResponse!
     decideToNotBecomeSmokeFree(input: DecideToNotBecomeSmokeFreeCommand!): InputAcceptedResponse!
 
     commitToSmokeFreeDate(input: CommitToSmokeFreeDateCommand!): InputAcceptedResponse!
 
-    recordPlaygroundObservation(input: RecordPlaygroundObservationCommand!): Playground!
-    updateChecklist(input: UpdateChecklistCommand!): Playground!
+    recordPlaygroundObservation(input: RecordPlaygroundObservationCommand!): InputAcceptedResponse!
+    updateChecklist(input: UpdateChecklistCommand!): InputAcceptedResponse!
 
     createUser(doesNotMatter: String!): Profile!
     deleteUser(doesNotMatter: String!): InputAcceptedResponse!

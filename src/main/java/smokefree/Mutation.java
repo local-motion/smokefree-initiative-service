@@ -39,7 +39,7 @@ public class Mutation implements GraphQLMutationResolver {
 
 
     @SneakyThrows
-    public Playground createInitiative(CreateInitiativeInput input, DataFetchingEnvironment env) {
+    public InputAcceptedResponse createInitiative(CreateInitiativeInput input, DataFetchingEnvironment env) {
         final CreateInitiativeCommand command = new CreateInitiativeCommand(
                 input.getInitiativeId(),
                 input.getName(),
@@ -48,38 +48,35 @@ public class Mutation implements GraphQLMutationResolver {
                 new GeoLocation(input.getLat(), input.getLng()));
         final CompletableFuture<String> result = gateway.send(decorateWithMetaData(command, env));
         final InputAcceptedResponse response = InputAcceptedResponse.fromFuture(result);
+
         final String playgroundId = response.getId();
-//        return joinInitiative(new JoinInitiativeInput(response.getId()), env);
-        joinInitiative(new JoinInitiativeInput(playgroundId), env);
-        Playground playground = initiativeProjection.playground(playgroundId, getUserId(env));
-        return playground;
+        return joinInitiative(new JoinInitiativeInput(response.getId()), env);
     }
 
     @SneakyThrows
-    public Playground joinInitiative(JoinInitiativeInput input, DataFetchingEnvironment env) {
+    public InputAcceptedResponse joinInitiative(JoinInitiativeInput input, DataFetchingEnvironment env) {
         String citizenId = toContext(env).requireUserId();
 
         JoinInitiativeCommand cmd = new JoinInitiativeCommand(input.getInitiativeId(), citizenId);
         gateway.sendAndWait(decorateWithMetaData(cmd, env));
-//        return new InputAcceptedResponse(input.getInitiativeId());
-        return initiativeProjection.playground(input.getInitiativeId(), getUserId(env));
+        return new InputAcceptedResponse(input.getInitiativeId());
     }
 
     @SneakyThrows
-    public Playground recordPlaygroundObservation(RecordPlaygroundObservationCommand input, DataFetchingEnvironment env) {
+    public InputAcceptedResponse recordPlaygroundObservation(RecordPlaygroundObservationCommand input, DataFetchingEnvironment env) {
         if(!(input.getObserver().equals(toContext(env).requireUserId()))) {
             throw new ValidationException("Observer must be equal to the userId");
         }
         gateway.sendAndWait(decorateWithMetaData(input, env));
-        return initiativeProjection.playground(input.getInitiativeId(), getUserId(env));
+        return new InputAcceptedResponse(input.getInitiativeId());
     }
 
     @SneakyThrows
-    public Playground updateChecklist(UpdateChecklistCommand input, DataFetchingEnvironment env) {
+    public InputAcceptedResponse updateChecklist(UpdateChecklistCommand input, DataFetchingEnvironment env) {
         if(!(input.getActor().equals(toContext(env).requireUserId())))
             throw new ValidationException("Actor must be equal to the userId");
         gateway.sendAndWait(decorateWithMetaData(input, env));
-        return initiativeProjection.playground(input.getInitiativeId(), getUserId(env));
+        return new InputAcceptedResponse(input.getInitiativeId());
     }
 
 
@@ -87,12 +84,9 @@ public class Mutation implements GraphQLMutationResolver {
      * Playground Manager related functionality
      ************/
 
-    public Playground claimManagerRole(ClaimManagerRoleCommand cmd, DataFetchingEnvironment env) {
+    public InputAcceptedResponse claimManagerRole(ClaimManagerRoleCommand cmd, DataFetchingEnvironment env) {
         gateway.sendAndWait(decorateWithMetaData(cmd, env));
-//        return initiativeProjection.playground(cmd.getInitiativeId());
-        Playground playground = initiativeProjection.playground(cmd.getInitiativeId(), getUserId(env));
-        log.info("playground mamagers: " + playground.getManagers());
-        return playground;
+        return new InputAcceptedResponse(cmd.getInitiativeId());
     }
 
     public InputAcceptedResponse decideToBecomeSmokeFree(DecideToBecomeSmokeFreeCommand cmd, DataFetchingEnvironment env) {

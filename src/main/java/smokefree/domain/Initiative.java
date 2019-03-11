@@ -92,7 +92,7 @@ public class Initiative {
 
     @CommandHandler
     public void commitToSmokeFreeDate(CommitToSmokeFreeDateCommand cmd, MetaData metaData) {
-        assertEarlierCommittedDateNotInPast();
+//        assertEarlierCommittedDateNotInPast();
         assertCurrentUserIsManager(metaData);
         if (smokeFreeDate == null || !cmd.smokeFreeDate.isEqual(smokeFreeDate)) {
             apply(new SmokeFreeDateCommittedEvent(cmd.initiativeId, smokeFreeDate, cmd.smokeFreeDate), metaData);
@@ -121,14 +121,14 @@ public class Initiative {
         apply(new CheckListUpdateEvent(cmd.getInitiativeId(), cmd.getActor() , cmd.getChecklistItem(), cmd.isChecked()), metaData);
     }
 
-    private void assertEarlierCommittedDateNotInPast() {
-        if (this.smokeFreeDate == null) {
-            return;
-        }
-        if (this.smokeFreeDate.isBefore(now())) {
-            throw new ValidationException("Cannot commit to a new smoke-free date once an earlier committed date has passed");
-        }
-    }
+//    private void assertEarlierCommittedDateNotInPast() {
+//        if (this.smokeFreeDate == null) {
+//            return;
+//        }
+//        if (this.smokeFreeDate.isBefore(now())) {
+//            throw new ValidationException("Cannot commit to a new smoke-free date once an earlier committed date has passed");
+//        }
+//    }
 
     /*
    Retrieval functions (use for outputting state consistent with the update, otherwise consider using the projections)
