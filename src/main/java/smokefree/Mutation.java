@@ -2,6 +2,7 @@ package smokefree;
 
 import com.coxautodev.graphql.tools.GraphQLMutationResolver;
 import graphql.schema.DataFetchingEnvironment;
+import io.micronaut.validation.Validated;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -20,12 +21,14 @@ import smokefree.projection.ProfileProjection;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.validation.Valid;
 import javax.validation.ValidationException;
 import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Singleton
 @NoArgsConstructor
+@Validated
 @SuppressWarnings("unused")
 public class Mutation implements GraphQLMutationResolver {
     @Inject
@@ -39,7 +42,8 @@ public class Mutation implements GraphQLMutationResolver {
 
 
     @SneakyThrows
-    public InputAcceptedResponse createInitiative(CreateInitiativeInput input, DataFetchingEnvironment env) {
+    public InputAcceptedResponse createInitiative(@Valid CreateInitiativeInput input, DataFetchingEnvironment env) {
+        validate(input);
         final CreateInitiativeCommand command = new CreateInitiativeCommand(
                 input.getInitiativeId(),
                 input.getName(),
@@ -95,6 +99,10 @@ public class Mutation implements GraphQLMutationResolver {
     }
 
     public InputAcceptedResponse decideToNotBecomeSmokeFree(DecideToNotBecomeSmokeFreeCommand cmd, DataFetchingEnvironment env) {
+        // the status can not be stopped unless the playground managers choose that the playground can not be smokefree
+        if(initiativeProjection.playground(cmd.getInitiativeId(), toContext(env).requireUserId()).getStatus().equals(Status.stopped)) {
+            throw new DomainException("PLAYGROUND_INITIATIVE_ALREADY_STOPPED", "The Initiative for this playground is already stopped" , "Please contact help line for more details");
+        }
         gateway.sendAndWait(decorateWithMetaData(cmd, env));
         return new InputAcceptedResponse(cmd.getInitiativeId());
     }
@@ -173,6 +181,12 @@ public class Mutation implements GraphQLMutationResolver {
                 // Added this so support both USER_NAME and COGNITO_USER_NAME, both returns same, will be refactor later
                 .and(SmokefreeConstants.JWTClaimSet.COGNITO_USER_NAME, toContext(env).requireUserName());
         return new GenericCommandMessage<>(cmd, metaData);
+    }
+
+    private void validate(CreateInitiativeInput input) {
+        initiativeProjection.checkForMaximumPlaygrounds();
+        initiativeProjection.checkPlaygroundsWithinRadius(new GeoLocation(input.getLat(), input.getLng()), SmokefreeConstants.MAXIMUM_PLAYGROUNDS_DISTANCE);
+        initiativeProjection.isPlaygroundAlreadyExist(input.getName());
     }
 
 

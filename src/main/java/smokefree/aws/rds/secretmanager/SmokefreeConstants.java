@@ -29,4 +29,7 @@ public class SmokefreeConstants {
 		public static final String EMAIL_ADDRESS = "email";
 	}
 
+	public static final Long MAXIMUM_PLAYGROUNDS_DISTANCE = 100L;
+	public static final Long MAXIMUM_PLAYGROUNDS_ALLOWED = 1000L;
+
 }

@@ -4,10 +4,12 @@ import org.axonframework.eventhandling.EventMessage;
 import org.axonframework.eventhandling.GenericEventMessage;
 import org.axonframework.messaging.MetaData;
 import org.junit.jupiter.api.Test;
+import smokefree.aws.rds.secretmanager.SmokefreeConstants;
 import smokefree.domain.*;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -153,13 +155,13 @@ class InitiativeProjectionTest {
     void should_record_smokefreeplaygroundobservation() {
         InitiativeProjection projection = new InitiativeProjection();
 
-        InitiativeCreatedEvent initiativeCreatedEvent = initiativeCreated("initiative-1", in_progress);
+        InitiativeCreatedEvent initiativeCreatedEvent = initiativeCreated("initiative-1", in_progress, new GeoLocation());
         projection.on(initiativeCreatedEvent, getMessageForEvent(initiativeCreatedEvent));
         projection.on(initiativeCreatedEvent, getMessageForEvent(initiativeCreatedEvent));
 
         Map<String, String> metadataMap = new HashMap<>();
         metadataMap.put("user_id", "manager-1");
-        metadataMap.put("user_name", "Jack Ma");
+        metadataMap.put("cognito:username", "Jack Ma");
 
         PlaygroundObservationEvent playgroundObservationEvent =
                 new PlaygroundObservationEvent("initiative-1", "user_id", true, "I do not see anyone is smoking", LocalDate.now());
@@ -176,25 +178,81 @@ class InitiativeProjectionTest {
         assertEquals(1, playground.getPlaygroundObservations().size());
     }
 
+    @Test
+    void should_throwException_when_playgroundNameAlreadyExist() {
+        InitiativeProjection projection = new InitiativeProjection();
+        triggerInitiativeCreatedEvent(projection, "initiative-1", in_progress);
+        RuntimeException thrown =
+                assertThrows(RuntimeException.class,
+                        () -> projection.isPlaygroundAlreadyExist(PLAYGROUND_NAME_INITIATIVE_1),
+                        "Expected isPlaygroundAlreadyExist() to throw, but it didn't");
+        assertTrue(thrown.getMessage().contains("Two playgrounds can not have the same name"));
+
+    }
+
+    @Test
+    void should_throwException_when_playgroundsAreLessThan100MetersClose() {
+        InitiativeProjection projection = new InitiativeProjection();
+        triggerInitiativeCreatedEvent(projection, "initiative-1", in_progress,new GeoLocation(12.956314, 77.648635));
+        triggerInitiativeCreatedEvent(projection, "initiative-2", in_progress,new GeoLocation(12.956315, 77.648636));
+        RuntimeException thrown =
+                assertThrows(RuntimeException.class,
+                        () -> projection.checkPlaygroundsWithinRadius(new GeoLocation(12.956314, 77.648635), SmokefreeConstants.MAXIMUM_PLAYGROUNDS_DISTANCE),
+                        "Expected isPlaygroundAlreadyExist() to throw, but it didn't");
+        assertTrue(thrown.getMessage().contains("Two playgrounds can not exists within 100 Meters"));
+    }
+
+    @Test
+    void should_notThrowException_when_playgroundsAreNotLessThan100MetersClose() {
+        InitiativeProjection projection = new InitiativeProjection();
+        triggerInitiativeCreatedEvent(projection, "initiative-1", in_progress,new GeoLocation(15.956314, 77.648635));
+        triggerInitiativeCreatedEvent(projection,"initiative-2", in_progress, new GeoLocation(13.956314, 77.648635));
+        assertDoesNotThrow(() -> projection.checkPlaygroundsWithinRadius(new GeoLocation(12.956314, 77.648635), SmokefreeConstants.MAXIMUM_PLAYGROUNDS_DISTANCE),
+                "Expected isPlaygroundAlreadyExist() not to throw exception");
+    }
+
+    @Test
+    void should_notAllowToAddPlaygrounds_when_SystemHasAlready1000Playgrounds() {
+        final long  MAX_PLAYGROUNDS_ALLOWED = 2L;
+        InitiativeProjection projection = new InitiativeProjection(MAX_PLAYGROUNDS_ALLOWED);
+        triggerInitiativeCreatedEvent(projection, "initiative-1", in_progress);
+        triggerInitiativeCreatedEvent(projection,"initiative-2", in_progress, new GeoLocation(13.956314, 77.648635));
+        RuntimeException thrown =
+                assertThrows(RuntimeException.class,
+                        () -> projection.checkForMaximumPlaygrounds(),
+                        "Expected checkForMaximumPlaygrounds() to throw, but it didn't");
+        assertTrue(thrown.getMessage().contains("Can not add more than " + MAX_PLAYGROUNDS_ALLOWED  + " playgrounds"));
+    }
+
+
 
     /*
         Helpers
      */
 
     private InitiativeCreatedEvent triggerInitiativeCreatedEvent(InitiativeProjection projection, Status status) {
-        return triggerInitiativeCreatedEvent(projection, UUID.randomUUID().toString(), status);
+        return triggerInitiativeCreatedEvent(projection, UUID.randomUUID().toString(), status, new GeoLocation());
     }
     private InitiativeCreatedEvent triggerInitiativeCreatedEvent(InitiativeProjection projection, String uuid, Status status) {
-        InitiativeCreatedEvent event = initiativeCreated(uuid, status);
+        InitiativeCreatedEvent event = initiativeCreated(uuid, status, new GeoLocation());
+        projection.on(event, getMessageForEvent(event));
+        return event;
+    }
+    private InitiativeCreatedEvent triggerInitiativeCreatedEvent(InitiativeProjection projection, String uuid, Status status, GeoLocation location) {
+        InitiativeCreatedEvent event = initiativeCreated(uuid, status,location);
         projection.on(event, getMessageForEvent(event));
         return event;
     }
 
+
+    private static final String PLAYGROUND_NAME_INITIATIVE_1 = "Happy Smokefree";
+    private static final String PLAYGROUND_NAME_INITIATIVE_2 = "Happy Smokefree 2";
+
     InitiativeCreatedEvent initiativeCreated(Status status) {
-        return initiativeCreated(UUID.randomUUID().toString(), status);
+        return initiativeCreated(UUID.randomUUID().toString(), status, new GeoLocation());
     }
-    InitiativeCreatedEvent initiativeCreated(String uuid, Status status) {
-        return new InitiativeCreatedEvent(uuid, Type.smokefree, status, "Not relevant", new GeoLocation());
+    InitiativeCreatedEvent initiativeCreated(String uuid, Status status, GeoLocation location) {
+        return new InitiativeCreatedEvent(uuid, Type.smokefree, status, PLAYGROUND_NAME_INITIATIVE_1, location);
     }
 
 

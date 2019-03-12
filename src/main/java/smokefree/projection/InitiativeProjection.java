@@ -6,6 +6,9 @@ import org.axonframework.eventhandling.EventMessage;
 import org.axonframework.eventhandling.Timestamp;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.messaging.MetaData;
+import org.gavaghan.geodesy.Ellipsoid;
+import org.gavaghan.geodesy.GeodeticCalculator;
+import org.gavaghan.geodesy.GlobalPosition;
 import org.joda.time.DateTime;
 import smokefree.DomainException;
 import smokefree.aws.rds.secretmanager.SmokefreeConstants;
@@ -15,6 +18,7 @@ import javax.inject.Singleton;
 import java.time.Instant;
 import java.time.temporal.Temporal;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -26,8 +30,29 @@ import static com.google.common.collect.Maps.newConcurrentMap;
 @Slf4j
 @Singleton
 public class InitiativeProjection {
+
+    /**
+     * It holds a maximum value that System can allow user to add playgrounds
+     */
+    public final long MAXIMUM_PLAYGROUNDS_ALLOWED;
+
     private final Map<String, Playground> playgrounds = newConcurrentMap();
     private final Progress progress = new Progress();
+
+    /**
+     * the default value for the maximum playgrounds
+     */
+    public InitiativeProjection() {
+        MAXIMUM_PLAYGROUNDS_ALLOWED = SmokefreeConstants.MAXIMUM_PLAYGROUNDS_ALLOWED;
+    }
+
+    /**
+     * the custom value for the maximum playgrounds to be allowed into the System
+     * @param maximumPlaygrounds maximum number of playgrounds allowed
+     */
+    public InitiativeProjection(Long maximumPlaygrounds) {
+        MAXIMUM_PLAYGROUNDS_ALLOWED = maximumPlaygrounds;
+    }
 
 
     /*
@@ -143,6 +168,60 @@ public class InitiativeProjection {
 
     public Progress progress() {
         return progress;
+    }
+
+    /**
+     * Throws a exception if the given playground name already exist.
+     * @param playgroundName     name of the playground to be checked whether it's already exist or not
+     * @return                   <code>void</code> if the given playground name is not already exist
+     * @throws RuntimeException  if the given playground name is already exist
+     */
+    public void isPlaygroundAlreadyExist(String playgroundName) {
+        playgrounds.entrySet()
+                .stream()
+                .filter( playgroundEntry -> playgroundEntry.getValue().getName().equals(playgroundName))
+                .map(playgroundEntry -> playgroundEntry.getValue())
+                .findFirst()
+                .ifPresent( p -> {
+                    throw new DomainException("PLAYGROUND_NAME_ALREADY_EXIST", "Two playgrounds can not have the same name", "Playground " + playgroundName + " is already exist, please choose a different name");
+                });
+
+    }
+    /**
+     * It finds the playgrounds list which are nearby to the given GeoLocation.
+     * So it will useful to display in front-end, asking user for confirmation
+     * @param newPlaygroundLocation  <code>GeoLocation</code> of the new playground
+     * @param distance               minimum distance between playgrounds in meters
+     * @return void                  if there are no playgrounds exist within 100 Meters
+     */
+    public void checkPlaygroundsWithinRadius(GeoLocation newPlaygroundLocation, long distance) {
+        GeodeticCalculator geodeticCalculator = new GeodeticCalculator();
+        Ellipsoid ellipsoidsReference = Ellipsoid.WGS84;
+        GlobalPosition newPlaygroundLocationPosition = new GlobalPosition(newPlaygroundLocation.getLat(), newPlaygroundLocation.getLng(), 0.0); // Point A
+        playgrounds.entrySet().stream()
+                .filter( playgroundEntry -> {
+                    Playground playground = playgroundEntry.getValue();
+                    GlobalPosition playgroundPosition = new GlobalPosition(playground.getLat() , playground.getLng(), 0.0);
+                    double playgroundsDistance = geodeticCalculator.calculateGeodeticCurve(ellipsoidsReference, playgroundPosition, newPlaygroundLocationPosition).getEllipsoidalDistance();
+                    return  playgroundsDistance < distance ? true:false;
+                }).map(playgroundEntry -> playgroundEntry.getValue())
+                .findFirst()
+                .ifPresent(p -> {
+                    throw new DomainException("PLAYGROUNS_LOCATED_CLOSELY", "Two playgrounds can not exists within 100 Meters","There is a playground already exists within 100 Meters");
+                });
+    }
+
+    /**
+     * Checks whether new playground can be added or not , based on the maximum playgrounds allowed in the system.
+     * @return void             if system does have capacity to hold new playground
+     * @throws RuntimeException if System does not have capacity to hold new playground
+     */
+    public void checkForMaximumPlaygrounds() {
+        if(playgrounds.size() < MAXIMUM_PLAYGROUNDS_ALLOWED ){
+            return;
+        } else {
+            throw new DomainException("MAXIMUM_PLAYGROUNDS","Can not add more than " + MAXIMUM_PLAYGROUNDS_ALLOWED  + " playgrounds","System is already reached the maximum of playgrounds allowed, please contact helpline");
+        }
     }
 
 }
