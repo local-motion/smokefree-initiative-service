@@ -12,6 +12,7 @@ import smokefree.projection.Playground;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+import javax.validation.ValidationException;
 import javax.validation.constraints.Size;
 import java.util.Collection;
 
@@ -31,22 +32,22 @@ public class ChatboxController {
 
 
     @Post("/{chatboxId}")
-    public String postMessage(Authentication authentication, String chatboxId, @Size(max=4096) @Body ChatMessage chatMessage) {
+    public ChatMessage postMessage(Authentication authentication, String chatboxId, @Size(max=4096) @Body ChatMessage chatMessage) {
         final String userName = authentication.getAttributes().get("cognito:username").toString();
         log.info("chat message for"  + chatboxId + ": " + chatMessage + " from: " + userName);
 
         if (!isValidChatboxId(chatboxId))
-            return "error: invalid chatbox";
+            throw new ValidationException("error: invalid chatbox");
 
         if (!isUserAuthorisedForChatbox(authentication.getName(), chatboxId))
-            return "error: user not authorised for chatbox";
+            throw new ValidationException("error: user not authorised for chatbox");
 
         chatMessage.setAuthor(userName);
         chatMessage.setChatboxId(chatboxId);
 
         chatboxRepository.storeMessage(chatboxId, chatMessage);
 
-        return "Thank you";
+        return chatMessage;
     }
 
     @Secured(IS_ANONYMOUS)
