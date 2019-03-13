@@ -114,7 +114,7 @@ public class Initiative {
     public void checklistUpdate(UpdateChecklistCommand cmd, MetaData metaData) {
         assertUserIsInitiativeParticipant(metaData);
         if (!CHECKLIST_ITEMS.contains(cmd.getChecklistItem()))
-            throw new DomainException("UNKNOWNITEM", "Unknown checklist item: " + cmd.getChecklistItem(), "Technische fout");
+            throw new DomainException("UNKNOWNITEM", "Unknown checklist item: " + cmd.getChecklistItem(), "Technical error: Unknown checklist item");
 
         // TODO check for superfluous updates the prevent issuing events for those
 

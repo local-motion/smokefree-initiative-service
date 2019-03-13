@@ -153,7 +153,6 @@ public class Mutation implements GraphQLMutationResolver {
     }
 
 
-
     /***********
      * Utility functions
      ************/
