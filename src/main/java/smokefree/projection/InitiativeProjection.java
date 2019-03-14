@@ -10,6 +10,7 @@ import smokefree.domain.*;
 import javax.inject.Singleton;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.google.common.collect.Maps.newConcurrentMap;
@@ -21,29 +22,9 @@ import static com.google.common.collect.Maps.newConcurrentMap;
 @Singleton
 public class InitiativeProjection {
 
-    /**
-     * It holds a maximum value that System can allow user to add playgrounds
-     */
-    public final long MAXIMUM_PLAYGROUNDS_ALLOWED;
 
     private final Map<String, Playground> playgrounds = newConcurrentMap();
     private final Progress progress = new Progress();
-
-    /**
-     * the default value for the maximum playgrounds
-     */
-    public InitiativeProjection() {
-        MAXIMUM_PLAYGROUNDS_ALLOWED = SmokefreeConstants.MAXIMUM_PLAYGROUNDS_ALLOWED;
-    }
-
-    /**
-     * the custom value for the maximum playgrounds to be allowed into the System
-     * @param maximumPlaygrounds maximum number of playgrounds allowed
-     */
-    public InitiativeProjection(Long maximumPlaygrounds) {
-        MAXIMUM_PLAYGROUNDS_ALLOWED = maximumPlaygrounds;
-    }
-
 
     /*
             Event handlers
@@ -160,9 +141,8 @@ public class InitiativeProjection {
         return progress;
     }
 
-
-    public Map<String, Playground> playgrounds() {
-        return playgrounds;
+    public Collection<Playground> getAllPlaygrounds() {
+        return playgrounds.values();
     }
 
 }

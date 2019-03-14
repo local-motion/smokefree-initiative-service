@@ -98,9 +98,9 @@ public class Mutation implements GraphQLMutationResolver {
     }
 
     public InputAcceptedResponse decideToNotBecomeSmokeFree(DecideToNotBecomeSmokeFreeCommand cmd, DataFetchingEnvironment env) {
-        // the status can not be stopped unless the playground managers choose that the playground can not be smokefree
         if(initiativeProjection.playground(cmd.getInitiativeId(), toContext(env).requireUserId()).getStatus().equals(Status.stopped)) {
-            throw new DomainException("PLAYGROUND_INITIATIVE_ALREADY_STOPPED", "The Initiative for this playground is already stopped" , "Please contact help line for more details");
+            // throw new DomainException("PLAYGROUND_INITIATIVE_ALREADY_STOPPED", "The Initiative for this playground is already stopped" , "Please contact help line for more details");
+            return new InputAcceptedResponse(cmd.getInitiativeId());
         }
         gateway.sendAndWait(decorateWithMetaData(cmd, env));
         return new InputAcceptedResponse(cmd.getInitiativeId());

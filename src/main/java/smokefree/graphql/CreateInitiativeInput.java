@@ -25,9 +25,7 @@ class CreateInitiativeInput {
 
     Type type;
 
-    @Enumerated(EnumType.STRING)
     @NotNull(message = "The status must not be blank")
-    //@Pattern(regexp = "a|b|c|d", flags = Pattern.Flag.CASE_INSENSITIVE) // TO-DO: Need to test it for possible values during integration test
     Status status;
 
     @Length(min = 3, message = "The name must be at least 3 characters")

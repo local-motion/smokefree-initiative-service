@@ -24,6 +24,7 @@ import io.micronaut.core.io.IOUtils;
 import io.micronaut.security.authentication.AuthenticationException;
 import io.micronaut.security.utils.SecurityService;
 import lombok.NoArgsConstructor;
+import smokefree.DomainException;
 import smokefree.Mutation;
 import smokefree.Query;
 import smokefree.graphql.error.ConfigurableDataFetcherExceptionHandler;
@@ -57,7 +58,17 @@ public class GraphqlFactory {
 
     @Bean
     public ErrorExtensionsMapper<ExecutionException> mapDomainExceptionToErrorExtensions() {
-        return exceptionToErrorExtensionsMapper(ExecutionException.class, e -> new ErrorExtensions(ErrorCode.VALIDATION, e.getMessage().split(":")[1]));
+
+        return exceptionToErrorExtensionsMapper(ExecutionException.class, e -> {
+
+            if(e.getCause() instanceof DomainException) {
+                DomainException exception = (DomainException) e.getCause();
+                return new ErrorExtensions(ErrorCode.valueOf(exception.getExtensions().get("code").toString()), exception.getExtensions().get("niceMessage").toString());
+            } else {
+                return new ErrorExtensions(ErrorCode.OTHER, e.getMessage().split(":")[1]);
+            }
+
+        });
     }
 
     @Bean
