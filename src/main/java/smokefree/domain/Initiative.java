@@ -1,7 +1,6 @@
 package smokefree.domain;
 
 import lombok.NoArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.common.Assert;
@@ -9,15 +8,20 @@ import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.messaging.MetaData;
 import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateRoot;
+import org.gavaghan.geodesy.Ellipsoid;
+import org.gavaghan.geodesy.GeodeticCalculator;
+import org.gavaghan.geodesy.GlobalPosition;
+import smokefree.Application;
 import smokefree.DomainException;
 import smokefree.aws.rds.secretmanager.SmokefreeConstants;
+import smokefree.projection.InitiativeProjection;
+import smokefree.projection.Playground;
 
 import javax.validation.ValidationException;
 import java.time.LocalDate;
 import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
-import static java.time.LocalDate.now;
 import static org.axonframework.common.Assert.assertNonNull;
 import static org.axonframework.modelling.command.AggregateLifecycle.apply;
 import static smokefree.domain.Status.*;
@@ -36,6 +40,9 @@ public class Initiative {
             "order_sign", "place_sign", "press_announcement_smokefree"
     });
 
+
+    InitiativeProjection initiativeProjection = Application.getApplicationContext().getBean(InitiativeProjection.class);
+
     // Instance properties
 
     @AggregateIdentifier
@@ -50,6 +57,9 @@ public class Initiative {
 
     @CommandHandler
     public Initiative(CreateInitiativeCommand cmd, MetaData metaData) {
+        validateMaximumPlaygroundCapacity();
+        validateDuplicatePlaygroundNames(cmd.getName());
+        validatePlaygroundsRange(cmd.getGeoLocation(), SmokefreeConstants.MAXIMUM_PLAYGROUNDS_DISTANCE);
         apply(new InitiativeCreatedEvent(cmd.initiativeId, cmd.type, cmd.status, cmd.name, cmd.geoLocation), metaData);
     }
 
@@ -204,6 +214,47 @@ public class Initiative {
                 "UNAUTHORIZED",
                 userId + " is not a manager",
                 "You are not a manager of this playground"));
+    }
+
+    private void validateMaximumPlaygroundCapacity() {
+        if(initiativeProjection.playgrounds().size() >= initiativeProjection.MAXIMUM_PLAYGROUNDS_ALLOWED) {
+            throw new DomainException("MAXIMUM_PLAYGROUNDS_CAPACITY_REACHED",
+                    "Can not add more than " + initiativeProjection.MAXIMUM_PLAYGROUNDS_ALLOWED + " playgrounds",
+                    "Sorry, Maximum playgrounds capacity is reached, please contact helpline");
+        }
+    }
+
+    private void validateDuplicatePlaygroundNames(String playgroundName) {
+        initiativeProjection.playgrounds().entrySet()
+                .stream()
+                .filter( playgroundEntry -> playgroundEntry.getValue().getName().equals(playgroundName))
+                .map(playgroundEntry -> playgroundEntry.getValue())
+                .findFirst()
+                .ifPresent( p -> {
+                    throw new DomainException("DUPLICATE_PLAYGROUND_NAME",
+                            "Playground " + playgroundName + " does already exist, please choose a different name",
+                            "Playground name does already exist");
+                });
+    }
+
+    private void validatePlaygroundsRange(GeoLocation newPlaygroundLocation, long distance) {
+        GeodeticCalculator geodeticCalculator = new GeodeticCalculator();
+        Ellipsoid ellipsoidsReference = Ellipsoid.WGS84;
+        GlobalPosition newPlaygroundPosition = new GlobalPosition(newPlaygroundLocation.getLat(), newPlaygroundLocation.getLng(), 0.0); // Point A
+        initiativeProjection.playgrounds().entrySet().stream()
+                .filter( playgroundEntry -> {
+                    Playground playground = playgroundEntry.getValue();
+                    GlobalPosition currentPlaygroundPosition = new GlobalPosition(playground.getLat() , playground.getLng(), 0.0);
+                    double playgroundsDistance = geodeticCalculator.calculateGeodeticCurve(ellipsoidsReference, currentPlaygroundPosition, newPlaygroundPosition).getEllipsoidalDistance();
+                    return  playgroundsDistance < distance ? true:false;
+                }).map(playgroundEntry -> playgroundEntry.getValue())
+                .findFirst()
+                .ifPresent(p -> {
+                    throw new DomainException("PLAYGROUNS_LOCATED_CLOSELY",
+                            "Two playgrounds can not exist within 100 Meters",
+                            "playground does already exists within 100 Meters");
+                });
+
     }
 
 }

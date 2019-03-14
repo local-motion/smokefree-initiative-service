@@ -43,7 +43,6 @@ public class Mutation implements GraphQLMutationResolver {
 
     @SneakyThrows
     public InputAcceptedResponse createInitiative(@Valid CreateInitiativeInput input, DataFetchingEnvironment env) {
-        validate(input);
         final CreateInitiativeCommand command = new CreateInitiativeCommand(
                 input.getInitiativeId(),
                 input.getName(),
@@ -182,13 +181,5 @@ public class Mutation implements GraphQLMutationResolver {
                 .and(SmokefreeConstants.JWTClaimSet.COGNITO_USER_NAME, toContext(env).requireUserName());
         return new GenericCommandMessage<>(cmd, metaData);
     }
-
-    private void validate(CreateInitiativeInput input) {
-        initiativeProjection.checkForMaximumPlaygrounds();
-        initiativeProjection.checkPlaygroundsWithinRadius(new GeoLocation(input.getLat(), input.getLng()), SmokefreeConstants.MAXIMUM_PLAYGROUNDS_DISTANCE);
-        initiativeProjection.isPlaygroundAlreadyExist(input.getName());
-    }
-
-
 
 }
