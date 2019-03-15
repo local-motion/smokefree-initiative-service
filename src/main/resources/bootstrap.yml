@@ -80,6 +80,7 @@ jpa:
       - chatbox
       - smokefree
       - personaldata
+      - configuration
     properties:
       hibernate:
         hbm2ddl:
