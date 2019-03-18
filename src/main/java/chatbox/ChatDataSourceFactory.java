@@ -26,7 +26,7 @@ public class ChatDataSourceFactory {
     private final String password= System.getenv("MYSQL_PASSWORD");
     private final String driverClassName= System.getenv("MYSQL_DRIVER_CLASS_NAME");
 
-    // Environment selector, either 'local' or 'aws'
+    // LogicalEnvironment selector, either 'local' or 'aws'
     private final String environments = System.getenv("MICRONAUT_ENVIRONMENTS");
 
     @Singleton

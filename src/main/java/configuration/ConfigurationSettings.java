@@ -1,24 +1,27 @@
 package configuration;
 
 
-import lombok.Value;
+import io.micronaut.context.annotation.Value;
+import lombok.Getter;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * Value object that holds configuration settings to be sent to the front-end
  */
-@Value
+@Singleton
+@Getter
 public class ConfigurationSettings {
-    Environment environment;
+
+    @Value("${localmotion.logicalenvironment}")
+    LogicalEnvironment logicalEnvironment;
+
+    @Inject
     CognitoSettings cognitoSettings;
+
+    @Value("${google.maps.key}")
+    String googleMapsKey;
 }
 
-@Value
-class CognitoSettings {
-    String region;
-    String userPoolId;
-    String userPoolWebClientId;
-    String domain;
-    String redirectSignIn;
-    String redirectSignOut;
-}
 
