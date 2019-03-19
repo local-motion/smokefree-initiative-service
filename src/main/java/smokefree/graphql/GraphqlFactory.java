@@ -24,6 +24,7 @@ import io.micronaut.core.io.IOUtils;
 import io.micronaut.security.authentication.AuthenticationException;
 import io.micronaut.security.utils.SecurityService;
 import lombok.NoArgsConstructor;
+import smokefree.DomainException;
 import smokefree.Mutation;
 import smokefree.Query;
 import smokefree.graphql.error.ConfigurableDataFetcherExceptionHandler;
@@ -32,13 +33,14 @@ import smokefree.graphql.error.ErrorExtensions;
 import smokefree.graphql.error.ErrorExtensionsMapper;
 
 import javax.inject.Singleton;
+import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
-
+import java.util.concurrent.ExecutionException;
 import static smokefree.graphql.error.ErrorExtensionsMapper.exceptionToErrorExtensionsMapper;
 
 @Factory
@@ -51,9 +53,28 @@ public class GraphqlFactory {
 
     @Bean
     public ErrorExtensionsMapper<ValidationException> mapValidationExceptionToErrorExtension() {
-        return exceptionToErrorExtensionsMapper(ValidationException.class, e -> new ErrorExtensions(ErrorCode.VALIDATION, "Invalid data"));
+        return exceptionToErrorExtensionsMapper(ValidationException.class, e -> new ErrorExtensions(ErrorCode.VALIDATION, e.getMessage()));
     }
 
+    @Bean
+    public ErrorExtensionsMapper<ExecutionException> mapDomainExceptionToErrorExtensions() {
+
+        return exceptionToErrorExtensionsMapper(ExecutionException.class, e -> {
+
+            if(e.getCause() instanceof DomainException) {
+                DomainException exception = (DomainException) e.getCause();
+                return new ErrorExtensions(ErrorCode.valueOf(exception.getExtensions().get("code").toString()), exception.getExtensions().get("niceMessage").toString());
+            } else {
+                return new ErrorExtensions(ErrorCode.OTHER, e.getMessage().split(":")[1]);
+            }
+
+        });
+    }
+
+    @Bean
+    public ErrorExtensionsMapper<ConstraintViolationException> mapConstraintViolationToErrorExtensions() {
+        return exceptionToErrorExtensionsMapper(ConstraintViolationException.class, e -> new ErrorExtensions(ErrorCode.VALIDATION, e.getMessage().split(":")[1]));
+    }
     @Bean
     public DataFetcherExceptionHandler dataFetcherExceptionHandler(List<ErrorExtensionsMapper> errorExtensionsMappers) {
         return new ConfigurableDataFetcherExceptionHandler(errorExtensionsMappers);

@@ -2,6 +2,7 @@ package smokefree;
 
 import com.coxautodev.graphql.tools.GraphQLMutationResolver;
 import graphql.schema.DataFetchingEnvironment;
+import io.micronaut.validation.Validated;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -20,12 +21,14 @@ import smokefree.projection.ProfileProjection;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.validation.Valid;
 import javax.validation.ValidationException;
 import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Singleton
 @NoArgsConstructor
+@Validated
 @SuppressWarnings("unused")
 public class Mutation implements GraphQLMutationResolver {
     @Inject
@@ -39,7 +42,7 @@ public class Mutation implements GraphQLMutationResolver {
 
 
     @SneakyThrows
-    public InputAcceptedResponse createInitiative(CreateInitiativeInput input, DataFetchingEnvironment env) {
+    public InputAcceptedResponse createInitiative(@Valid CreateInitiativeInput input, DataFetchingEnvironment env) {
         final CreateInitiativeCommand command = new CreateInitiativeCommand(
                 input.getInitiativeId(),
                 input.getName(),
@@ -95,6 +98,10 @@ public class Mutation implements GraphQLMutationResolver {
     }
 
     public InputAcceptedResponse decideToNotBecomeSmokeFree(DecideToNotBecomeSmokeFreeCommand cmd, DataFetchingEnvironment env) {
+        if(initiativeProjection.playground(cmd.getInitiativeId(), toContext(env).requireUserId()).getStatus().equals(Status.stopped)) {
+            // throw new DomainException("PLAYGROUND_INITIATIVE_ALREADY_STOPPED", "The Initiative for this playground is already stopped" , "Please contact help line for more details");
+            return new InputAcceptedResponse(cmd.getInitiativeId());
+        }
         gateway.sendAndWait(decorateWithMetaData(cmd, env));
         return new InputAcceptedResponse(cmd.getInitiativeId());
     }
@@ -174,7 +181,5 @@ public class Mutation implements GraphQLMutationResolver {
                 .and(SmokefreeConstants.JWTClaimSet.COGNITO_USER_NAME, toContext(env).requireUserName());
         return new GenericCommandMessage<>(cmd, metaData);
     }
-
-
 
 }

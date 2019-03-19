@@ -51,7 +51,7 @@ public class Application {
         return new ObjectMapper();
     }
 
-    @Bean
+    /*@Bean
     public InitiativeProjection initiativeProjection() {
         return new InitiativeProjection();
     }
@@ -59,7 +59,7 @@ public class Application {
     @Bean
     public ProfileProjection profileProjection() {
         return new ProfileProjection();
-    }
+    }*/
 
     @Error(global = true)
     public HttpResponse<JsonError> error(HttpRequest request, Throwable e) {

@@ -3,19 +3,14 @@ package smokefree.projection;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.eventhandling.EventMessage;
-import org.axonframework.eventhandling.Timestamp;
-import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.messaging.MetaData;
-import org.joda.time.DateTime;
-import smokefree.DomainException;
 import smokefree.aws.rds.secretmanager.SmokefreeConstants;
 import smokefree.domain.*;
 
 import javax.inject.Singleton;
-import java.time.Instant;
-import java.time.temporal.Temporal;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.google.common.collect.Maps.newConcurrentMap;
@@ -26,9 +21,10 @@ import static com.google.common.collect.Maps.newConcurrentMap;
 @Slf4j
 @Singleton
 public class InitiativeProjection {
+
+
     private final Map<String, Playground> playgrounds = newConcurrentMap();
     private final Progress progress = new Progress();
-
 
     /*
             Event handlers
@@ -143,6 +139,10 @@ public class InitiativeProjection {
 
     public Progress progress() {
         return progress;
+    }
+
+    public Collection<Playground> getAllPlaygrounds() {
+        return playgrounds.values();
     }
 
 }
