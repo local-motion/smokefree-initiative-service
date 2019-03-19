@@ -80,6 +80,7 @@ jpa:
       - chatbox
       - smokefree
       - personaldata
+      - configuration
     properties:
       hibernate:
         hbm2ddl:
@@ -100,10 +101,22 @@ jackson:
 # AWS secret Manager holds RDS details securely, that's because we do not need below database details here anymore
 aws:
   cognito:
+    # These settings are valid for running the application locally, override with env variables on server environments
     region: eu-west-1
-    userpoolid: eu-west-1_64ShtC2tS
+    userpoolid: eu-west-1_WsTxYUHyC
+    userpoolwebclientid: 3nkh1qomocr39s893jf0dp44cd
+    domain: smokefree-dev.auth.eu-west-1.amazoncognito.com
+#    redirectsignin: http://localhost:3000/onboarding/signin
+#    redirectsignout: http://localhost:3000/onboarding/logout
   rds:
     enableSsl: false
     jdbcdriverclass: com.mysql.jdbc.Driver
 
-# AWS Secret Manager instance id and region
+google:
+  maps:
+    key: use_your_personal_key_for_localhost
+
+
+localmotion:
+  # These settings are valid for running the application locally, override with env variables on server environments
+  logicalenvironment: Local
