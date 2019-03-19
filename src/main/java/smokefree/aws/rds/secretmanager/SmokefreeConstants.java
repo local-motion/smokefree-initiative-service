@@ -29,7 +29,12 @@ public class SmokefreeConstants {
 		public static final String EMAIL_ADDRESS = "email";
 	}
 
-	public static final Long MAXIMUM_PLAYGROUNDS_DISTANCE = 100L;
-	public static final Long MAXIMUM_PLAYGROUNDS_ALLOWED = 1000L;
+	public static final Integer MAXIMUM_PLAYGROUNDS_DISTANCE = 100;
+	public static final Integer MAXIMUM_PLAYGROUNDS_ALLOWED = 1000;
+
+	public static class PlaygroundWorkspace {
+		public static final Integer MAXIMUM_VOLUNTEERS_ALLOWED = 200;
+		public static final Integer MAXIMUM_MANAGERS_ALLOWED = 3;
+	}
 
 }
