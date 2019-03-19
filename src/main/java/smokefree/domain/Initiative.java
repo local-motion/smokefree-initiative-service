@@ -68,6 +68,7 @@ public class Initiative {
         if (citizens.contains(cmd.getCitizenId())) {
             log.warn("{} already joined {}. Ignoring...", cmd.citizenId, cmd.initiativeId);
         } else {
+            validateMaximumAllowedVolunteers();
             apply(new CitizenJoinedInitiativeEvent(cmd.initiativeId, cmd.citizenId), metaData);
         }
     }
@@ -79,6 +80,7 @@ public class Initiative {
         if (managers.contains(managerId)) {
             log.warn("{} is already managing {}. Ignoring...", managerId, cmd.initiativeId);
         } else {
+            validateMaximumAllowedManagers();
             apply(new ManagerJoinedInitiativeEvent(cmd.initiativeId, managerId), metaData);
         }
     }
@@ -252,6 +254,21 @@ public class Initiative {
                             "Two playgrounds can not exist within " + SmokefreeConstants.MAXIMUM_PLAYGROUNDS_DISTANCE+ " Meters",
                             "playground does already exists within "+ SmokefreeConstants.MAXIMUM_PLAYGROUNDS_DISTANCE+ " Meters");
                 });
+    }
+    private void validateMaximumAllowedVolunteers() {
+        if(citizens.size() >= SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_VOLUNTEERS_ALLOWED) {
+            throw new DomainException("MAXIMUM_VOLUNTEERS",
+                    "No more than " + SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_VOLUNTEERS_ALLOWED + " members can join the initiative" ,
+                    "No more than " + SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_VOLUNTEERS_ALLOWED + " members can join the initiative");
+        }
+    }
+
+    private void validateMaximumAllowedManagers() {
+        if(managers.size() >= SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_MANAGERS_ALLOWED) {
+            throw new DomainException("MAXIMUM_MANAGERS",
+                    "No more than " + SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_MANAGERS_ALLOWED + " volunteers can claim for manager role",
+                    "No more than " + SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_MANAGERS_ALLOWED + " volunteers can claim for manager role");
+        }
     }
 
 }
