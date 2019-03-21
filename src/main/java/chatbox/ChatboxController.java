@@ -6,12 +6,14 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
+import io.micronaut.validation.Validated;
 import lombok.extern.slf4j.Slf4j;
 import smokefree.projection.InitiativeProjection;
 import smokefree.projection.Playground;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+import javax.validation.Valid;
 import javax.validation.ValidationException;
 import javax.validation.constraints.Size;
 import java.util.Collection;
@@ -22,6 +24,7 @@ import static io.micronaut.security.rules.SecurityRule.IS_AUTHENTICATED;
 @Slf4j
 @Secured(IS_AUTHENTICATED)
 @Controller("${micronaut.context.path:}/chatbox")
+@Validated
 public class ChatboxController {
 
     @Inject
@@ -32,7 +35,7 @@ public class ChatboxController {
 
 
     @Post("/{chatboxId}")
-    public ChatMessage postMessage(Authentication authentication, String chatboxId, @Size(max=4096) @Body ChatMessage chatMessage) {
+    public ChatMessage postMessage(Authentication authentication, String chatboxId, @Valid @Body ChatMessage chatMessage) {
         final String userName = authentication.getAttributes().get("cognito:username").toString();
         log.info("chat message for"  + chatboxId + ": " + chatMessage + " from: " + userName);
 
