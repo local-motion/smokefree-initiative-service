@@ -16,10 +16,13 @@ import smokefree.DomainException;
 import smokefree.aws.rds.secretmanager.SmokefreeConstants;
 import smokefree.graphql.error.ErrorCode;
 import smokefree.projection.InitiativeProjection;
+import smokefree.projection.Playground;
 
 import javax.validation.ValidationException;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.axonframework.common.Assert.assertNonNull;
@@ -119,6 +122,7 @@ public class Initiative {
         LocalDate today = LocalDate.now();
         if (lastObservationDate != null && lastObservationDate.isEqual(today))
             throw new ValidationException("Only one playground observation can be registered per day");
+        validateMaximumAllowedObservations();
         apply(new PlaygroundObservationEvent(cmd.getInitiativeId(), cmd.getObserver() , cmd.getSmokefree(), cmd.getComment(), today), metaData);
     }
 
@@ -269,6 +273,22 @@ public class Initiative {
                     "No more than " + SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_MANAGERS_ALLOWED + " volunteers can claim for manager role",
                     "No more than " + SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_MANAGERS_ALLOWED + " volunteers can claim for manager role");
         }
+    }
+
+    private void validateMaximumAllowedObservations() {
+       if(getPlaygroundObservations(id).size() > SmokefreeConstants.PlaygroundObservation.MAXIMUM_NR_OF_OBSERVATIONS) {
+           throw new DomainException("MAXIMUM_OBSERVATIONS",
+                   "No more than " + SmokefreeConstants.PlaygroundObservation.MAXIMUM_NR_OF_OBSERVATIONS + " observations can be recorded",
+                   "No more than " + SmokefreeConstants.PlaygroundObservation.MAXIMUM_NR_OF_OBSERVATIONS + " observations can be recorded");
+       }
+    }
+
+    private List<Playground.PlaygroundObservation> getPlaygroundObservations(String id) {
+        return initiativeProjection.getAllPlaygrounds()
+                .stream()
+                .filter(playground -> playground.getId().equals(id))
+                .flatMap(playground -> playground.getPlaygroundObservations().stream())
+                .collect(Collectors.toList());
     }
 
 }

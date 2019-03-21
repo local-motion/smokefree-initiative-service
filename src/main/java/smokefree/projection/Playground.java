@@ -1,6 +1,7 @@
 package smokefree.projection;
 
-import lombok.*;
+import lombok.Data;
+import lombok.Value;
 import org.axonframework.eventhandling.EventMessage;
 import smokefree.domain.Status;
 
