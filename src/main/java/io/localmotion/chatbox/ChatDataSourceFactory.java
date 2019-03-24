@@ -1,19 +1,12 @@
-package chatbox;
+package io.localmotion.chatbox;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
-import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
-import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
 
 import javax.inject.Singleton;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.sql.DataSource;
 
 @Slf4j
 @Factory

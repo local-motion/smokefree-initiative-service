@@ -1,4 +1,4 @@
-package personaldata;
+package io.localmotion.personaldata;
 
 import lombok.*;
 

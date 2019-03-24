@@ -1,4 +1,4 @@
-package chatbox;
+package io.localmotion.chatbox;
 
 import com.amazonaws.services.secretsmanager.AWSSecretsManager;
 import com.amazonaws.services.secretsmanager.AWSSecretsManagerClient;

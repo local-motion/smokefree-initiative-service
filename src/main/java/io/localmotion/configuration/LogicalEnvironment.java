@@ -1,4 +1,4 @@
-package configuration;
+package io.localmotion.configuration;
 
 public enum LogicalEnvironment {
     Local,

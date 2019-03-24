@@ -1,4 +1,4 @@
-package configuration;
+package io.localmotion.configuration;
 
 
 import io.micronaut.context.annotation.Bean;

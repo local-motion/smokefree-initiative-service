@@ -10,14 +10,12 @@ import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.messaging.MetaData;
 import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateRoot;
-import personaldata.PersonalDataRecord;
-import personaldata.PersonalDataRepository;
+import io.localmotion.personaldata.PersonalDataRecord;
+import io.localmotion.personaldata.PersonalDataRepository;
 import smokefree.Application;
-import smokefree.projection.Profile;
 
 
 import static org.axonframework.modelling.command.AggregateLifecycle.apply;
-import static org.axonframework.modelling.command.AggregateLifecycle.markDeleted;
 
 @Slf4j
 @NoArgsConstructor

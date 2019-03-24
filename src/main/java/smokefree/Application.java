@@ -1,8 +1,7 @@
 package smokefree;
 
-import chatbox.ChatDataSourceFactory;
+import io.localmotion.chatbox.ChatDataSourceFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Bean;
@@ -15,11 +14,6 @@ import io.micronaut.http.hateos.JsonError;
 import io.micronaut.http.hateos.Link;
 import io.micronaut.runtime.Micronaut;
 import lombok.extern.slf4j.Slf4j;
-import personaldata.PersonalDataRepository;
-import smokefree.projection.InitiativeProjection;
-import smokefree.projection.ProfileProjection;
-
-import javax.inject.Inject;
 
 @Slf4j
 public class Application {

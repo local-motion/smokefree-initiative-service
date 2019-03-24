@@ -1,4 +1,4 @@
-package chatbox;
+package io.localmotion.chatbox;
 
 import lombok.*;
 

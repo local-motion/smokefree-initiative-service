@@ -77,10 +77,10 @@ micronaut:
 jpa:
   default:
     packages-to-scan:
-      - chatbox
+      - io.localmotion.chatbox
       - smokefree
-      - personaldata
-      - configuration
+      - io.localmotion.personaldata
+      - io.localmotion.configuration
     properties:
       hibernate:
         hbm2ddl:
@@ -106,8 +106,7 @@ aws:
     userpoolid: eu-west-1_WsTxYUHyC
     userpoolwebclientid: 3nkh1qomocr39s893jf0dp44cd
     domain: smokefree-dev.auth.eu-west-1.amazoncognito.com
-#    redirectsignin: http://localhost:3000/onboarding/signin
-#    redirectsignout: http://localhost:3000/onboarding/logout
+
   rds:
     enableSsl: false
     jdbcdriverclass: com.mysql.jdbc.Driver

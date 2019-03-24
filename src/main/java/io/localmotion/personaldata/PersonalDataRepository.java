@@ -1,18 +1,12 @@
-package personaldata;
+package io.localmotion.personaldata;
 
-import chatbox.ChatMessage;
-import io.micronaut.configuration.hibernate.jpa.scope.CurrentSession;
-import io.micronaut.context.annotation.Context;
 import io.micronaut.spring.tx.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.springframework.orm.jpa.EntityManagerFactoryAccessor;
-import smokefree.Application;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import java.util.Collection;
 
 /**
  * The PersonalDataRepository store and provides access to Personally Identifiable Information.

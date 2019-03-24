@@ -7,10 +7,8 @@ import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
-import io.micronaut.validation.Validated;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.config.Configuration;
-import personaldata.PersonalDataRepository;
 import smokefree.graphql.GraphqlQuery;
 import smokefree.projection.ProfileProjection;
 

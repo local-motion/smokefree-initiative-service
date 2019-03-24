@@ -1,4 +1,4 @@
-package chatbox;
+package io.localmotion.chatbox;
 
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
