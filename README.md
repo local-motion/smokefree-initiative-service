@@ -30,9 +30,9 @@ Open the installed "GraphQL Playground" OSX application
 
 ### Mutation
 
-In order to test a mutation, use the following query:
+In order to test a initiativeMutation, use the following query:
 ```
-mutation CreateArticle($input: CreateArticleInput!) {
+initiativeMutation CreateArticle($input: CreateArticleInput!) {
   createArticle(input: $input) {
     id
   }

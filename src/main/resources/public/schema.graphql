@@ -88,27 +88,38 @@ type PlaygroundObservation {
 #
 
 type Mutation {
-    playground: PlaygroundMutation!
 
+# Initiative
     createInitiative(input: CreateInitiativeInput!): InputAcceptedResponse!
     joinInitiative(input: JoinInitiativeInput!): InputAcceptedResponse!
-
-    claimManagerRole(input: ClaimManagerRoleCommand!): InputAcceptedResponse!
-
-    decideToBecomeSmokeFree(input: DecideToBecomeSmokeFreeCommand!): InputAcceptedResponse!
-    decideToNotBecomeSmokeFree(input: DecideToNotBecomeSmokeFreeCommand!): InputAcceptedResponse!
-
-    commitToSmokeFreeDate(input: CommitToSmokeFreeDateCommand!): InputAcceptedResponse!
-
-    recordPlaygroundObservation(input: RecordPlaygroundObservationCommand!): InputAcceptedResponse!
     updateChecklist(input: UpdateChecklistCommand!): InputAcceptedResponse!
 
+# Playground
+    claimManagerRole(input: ClaimManagerRoleCommand!): InputAcceptedResponse!
+    decideToBecomeSmokeFree(input: DecideToBecomeSmokeFreeCommand!): InputAcceptedResponse!
+    decideToNotBecomeSmokeFree(input: DecideToNotBecomeSmokeFreeCommand!): InputAcceptedResponse!
+    commitToSmokeFreeDate(input: CommitToSmokeFreeDateCommand!): InputAcceptedResponse!
+    recordPlaygroundObservation(input: RecordPlaygroundObservationCommand!): InputAcceptedResponse!
+
+# User
     createUser(doesNotMatter: String!): Profile!
     deleteUser(doesNotMatter: String!): InputAcceptedResponse!
+
+}
+
+type InitiativeMutation {
+    createInitiative(input: CreateInitiativeInput!): InputAcceptedResponse!
+    joinInitiative(input: JoinInitiativeInput!): InputAcceptedResponse!
+    updateChecklist(input: UpdateChecklistCommand!): InputAcceptedResponse!
 }
 
 type PlaygroundMutation {
     recordPlaygroundObservation(input: RecordPlaygroundObservationCommand!): InputAcceptedResponse!
+}
+
+type UserMutation {
+    createUser(doesNotMatter: String!): Profile!
+    deleteUser(doesNotMatter: String!): InputAcceptedResponse!
 }
 
 type InputAcceptedResponse {

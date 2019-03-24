@@ -25,13 +25,14 @@ import io.micronaut.security.authentication.AuthenticationException;
 import io.micronaut.security.utils.SecurityService;
 import lombok.NoArgsConstructor;
 import io.localmotion.application.DomainException;
-import smokefree.Mutation;
-import smokefree.PlaygroundMutation;
+import io.localmotion.initiative.controller.InitiativeMutation;
+import io.localmotion.smokefreeplaygrounds.controller.PlaygroundMutation;
 import smokefree.Query;
 import io.localmotion.interfacing.graphql.error.ConfigurableDataFetcherExceptionHandler;
 import io.localmotion.interfacing.graphql.error.ErrorCode;
 import io.localmotion.interfacing.graphql.error.ErrorExtensions;
 import io.localmotion.interfacing.graphql.error.ErrorExtensionsMapper;
+import io.localmotion.user.controller.UserMutation;
 
 import javax.inject.Singleton;
 import javax.validation.ConstraintViolationException;
@@ -83,8 +84,9 @@ public class GraphqlFactory {
 
     @Bean
     @Singleton
-//    public GraphQL graphQL(Query query, Mutation mutation, SecurityService securityService, ObjectMapper objectMapper, DataFetcherExceptionHandler exceptionHandler) throws IOException {
-    public GraphQL graphQL(Query query, Mutation mutation, PlaygroundMutation playgroundMutation, SecurityService securityService, ObjectMapper objectMapper, DataFetcherExceptionHandler exceptionHandler) throws IOException {
+//    public GraphQL graphQL(Query query, InitiativeMutation initiativeMutation, SecurityService securityService, ObjectMapper objectMapper, DataFetcherExceptionHandler exceptionHandler) throws IOException {
+    public GraphQL graphQL(Query query, InitiativeMutation initiativeMutation, PlaygroundMutation playgroundMutation, UserMutation userMutation,
+                           SecurityService securityService, ObjectMapper objectMapper, DataFetcherExceptionHandler exceptionHandler) throws IOException {
         /*
          * More information can be found at https://www.graphql-java-kickstart.com/tools/schema-definition/
          */
@@ -92,7 +94,7 @@ public class GraphqlFactory {
         final String schemaString = IOUtils.readText(new BufferedReader(new InputStreamReader(input)));
         final SchemaParserBuilder builder = SchemaParser.newParser()
                 .options(SchemaParserOptions.newOptions().objectMapperProvider(fieldDefinition -> objectMapper).build())
-                .resolvers(query, mutation, playgroundMutation)
+                .resolvers(query, initiativeMutation, playgroundMutation, userMutation)
                 .schemaString(schemaString)
                 .directive("auth", new AuthenticationDirective(securityService))
                 .scalars(
