@@ -88,6 +88,8 @@ type PlaygroundObservation {
 #
 
 type Mutation {
+    playground: PlaygroundMutation!
+
     createInitiative(input: CreateInitiativeInput!): InputAcceptedResponse!
     joinInitiative(input: JoinInitiativeInput!): InputAcceptedResponse!
 
@@ -103,6 +105,10 @@ type Mutation {
 
     createUser(doesNotMatter: String!): Profile!
     deleteUser(doesNotMatter: String!): InputAcceptedResponse!
+}
+
+type PlaygroundMutation {
+    recordPlaygroundObservation(input: RecordPlaygroundObservationCommand!): InputAcceptedResponse!
 }
 
 type InputAcceptedResponse {

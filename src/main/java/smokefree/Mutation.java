@@ -13,6 +13,7 @@ import io.localmotion.user.command.CreateUserCommand;
 import io.localmotion.user.command.DeleteUserCommand;
 import io.localmotion.user.command.ReviveUserCommand;
 import io.micronaut.validation.Validated;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +49,9 @@ public class Mutation implements GraphQLMutationResolver {
     @Inject
     private ProfileProjection profileProjection;
 
+    @Inject
+    @Getter
+    private PlaygroundMutation playground;
 
     @SneakyThrows
     public InputAcceptedResponse createInitiative(@Valid CreateInitiativeInput input, DataFetchingEnvironment env) {
@@ -71,14 +75,14 @@ public class Mutation implements GraphQLMutationResolver {
         return new InputAcceptedResponse(input.getInitiativeId());
     }
 
-    @SneakyThrows
-    public InputAcceptedResponse recordPlaygroundObservation(RecordPlaygroundObservationCommand input, DataFetchingEnvironment env) {
-        if(!(input.getObserver().equals(toContext(env).requireUserId()))) {
-            throw new ValidationException("Observer must be equal to the userId");
-        }
-        gateway.sendAndWait(decorateWithMetaData(input, env));
-        return new InputAcceptedResponse(input.getInitiativeId());
-    }
+//    @SneakyThrows
+//    public InputAcceptedResponse recordPlaygroundObservation(RecordPlaygroundObservationCommand input, DataFetchingEnvironment env) {
+//        if(!(input.getObserver().equals(toContext(env).requireUserId()))) {
+//            throw new ValidationException("Observer must be equal to the userId");
+//        }
+//        gateway.sendAndWait(decorateWithMetaData(input, env));
+//        return new InputAcceptedResponse(input.getInitiativeId());
+//    }
 
     @SneakyThrows
     public InputAcceptedResponse updateChecklist(UpdateChecklistCommand input, DataFetchingEnvironment env) {

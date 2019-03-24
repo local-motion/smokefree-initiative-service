@@ -26,6 +26,7 @@ import io.micronaut.security.utils.SecurityService;
 import lombok.NoArgsConstructor;
 import io.localmotion.application.DomainException;
 import smokefree.Mutation;
+import smokefree.PlaygroundMutation;
 import smokefree.Query;
 import io.localmotion.interfacing.graphql.error.ConfigurableDataFetcherExceptionHandler;
 import io.localmotion.interfacing.graphql.error.ErrorCode;
@@ -82,7 +83,8 @@ public class GraphqlFactory {
 
     @Bean
     @Singleton
-    public GraphQL graphQL(Query query, Mutation mutation, SecurityService securityService, ObjectMapper objectMapper, DataFetcherExceptionHandler exceptionHandler) throws IOException {
+//    public GraphQL graphQL(Query query, Mutation mutation, SecurityService securityService, ObjectMapper objectMapper, DataFetcherExceptionHandler exceptionHandler) throws IOException {
+    public GraphQL graphQL(Query query, Mutation mutation, PlaygroundMutation playgroundMutation, SecurityService securityService, ObjectMapper objectMapper, DataFetcherExceptionHandler exceptionHandler) throws IOException {
         /*
          * More information can be found at https://www.graphql-java-kickstart.com/tools/schema-definition/
          */
@@ -90,7 +92,7 @@ public class GraphqlFactory {
         final String schemaString = IOUtils.readText(new BufferedReader(new InputStreamReader(input)));
         final SchemaParserBuilder builder = SchemaParser.newParser()
                 .options(SchemaParserOptions.newOptions().objectMapperProvider(fieldDefinition -> objectMapper).build())
-                .resolvers(query, mutation)
+                .resolvers(query, mutation, playgroundMutation)
                 .schemaString(schemaString)
                 .directive("auth", new AuthenticationDirective(securityService))
                 .scalars(
