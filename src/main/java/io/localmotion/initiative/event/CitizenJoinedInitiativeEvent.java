@@ -1,4 +1,4 @@
-package smokefree.domain;
+package io.localmotion.initiative.event;
 
 import lombok.*;
 

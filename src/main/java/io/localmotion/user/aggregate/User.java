@@ -6,6 +6,9 @@ import io.localmotion.user.command.CreateUserCommand;
 import io.localmotion.user.command.DeleteUserCommand;
 import io.localmotion.user.command.ReviveUserCommand;
 import io.localmotion.user.domain.UserPII;
+import io.localmotion.user.event.UserCreatedEvent;
+import io.localmotion.user.event.UserDeletedEvent;
+import io.localmotion.user.event.UserRevivedEvent;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
@@ -18,7 +21,6 @@ import org.axonframework.modelling.command.AggregateRoot;
 import io.localmotion.personaldata.PersonalDataRecord;
 import io.localmotion.personaldata.PersonalDataRepository;
 import io.localmotion.application.Application;
-import smokefree.domain.*;
 
 
 import static org.axonframework.modelling.command.AggregateLifecycle.apply;

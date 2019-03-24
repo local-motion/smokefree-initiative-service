@@ -1,9 +1,5 @@
 package smokefree.projection;
 
-import org.axonframework.messaging.MetaData;
-import org.junit.jupiter.api.Test;
-import smokefree.domain.CitizenJoinedInitiativeEvent;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ProfileProjectionTest {

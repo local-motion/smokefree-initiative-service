@@ -1,4 +1,4 @@
-package smokefree.domain;
+package io.localmotion.initiative.event;
 
 import io.localmotion.initiative.domain.GeoLocation;
 import io.localmotion.initiative.domain.Status;

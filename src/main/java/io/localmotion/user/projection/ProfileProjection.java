@@ -8,10 +8,10 @@ import org.axonframework.messaging.MetaData;
 import io.localmotion.personaldata.PersonalDataRecord;
 import io.localmotion.personaldata.PersonalDataRepository;
 import io.localmotion.application.Application;
-import smokefree.domain.UserCreatedEvent;
-import smokefree.domain.UserDeletedEvent;
+import io.localmotion.user.event.UserCreatedEvent;
+import io.localmotion.user.event.UserDeletedEvent;
 import io.localmotion.user.domain.UserPII;
-import smokefree.domain.UserRevivedEvent;
+import io.localmotion.user.event.UserRevivedEvent;
 
 import javax.inject.Singleton;
 import java.util.Collection;

@@ -1,4 +1,4 @@
-package smokefree.domain;
+package io.localmotion.user.event;
 
 import lombok.*;
 
@@ -6,9 +6,6 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
 @ToString
-public class UserCreatedEvent {
+public class UserRevivedEvent {
     String userId;
-    String name;
-    String emailAddress;
-    long piiRecordId;
 }

@@ -1,6 +1,12 @@
 package io.localmotion.initiative.projection;
 
 import io.localmotion.initiative.domain.GeoLocation;
+import io.localmotion.initiative.event.CheckListUpdateEvent;
+import io.localmotion.initiative.event.CitizenJoinedInitiativeEvent;
+import io.localmotion.initiative.event.InitiativeCreatedEvent;
+import io.localmotion.smokefreeplaygrounds.event.ManagerJoinedInitiativeEvent;
+import io.localmotion.smokefreeplaygrounds.event.PlaygroundObservationEvent;
+import io.localmotion.smokefreeplaygrounds.event.SmokeFreeDateCommittedEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.eventhandling.EventMessage;
