@@ -1,14 +1,15 @@
-package smokefree.domain;
+package io.localmotion.initiative.command;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
-@Data
-@NoArgsConstructor
+@Getter
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
-public class DecideToBecomeSmokeFreeCommand {
+class LeaveInitiativeCommand {
     @TargetAggregateIdentifier
     String initiativeId;
 }

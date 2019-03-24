@@ -1,4 +1,4 @@
-package smokefree;
+package io.localmotion.application;
 
 import graphql.ErrorType;
 import graphql.GraphQLError;

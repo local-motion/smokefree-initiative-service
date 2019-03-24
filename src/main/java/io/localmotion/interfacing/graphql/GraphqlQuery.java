@@ -1,4 +1,4 @@
-package smokefree.graphql;
+package io.localmotion.interfacing.graphql;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

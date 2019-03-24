@@ -1,15 +1,18 @@
-package smokefree.domain;
+package io.localmotion.initiative.command;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
+import javax.validation.constraints.NotBlank;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DecideToNotBecomeSmokeFreeCommand {
+public class JoinInitiativeCommand {
     @TargetAggregateIdentifier
     String initiativeId;
-    String reason;
+    @NotBlank
+    String citizenId;
 }

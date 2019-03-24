@@ -2,14 +2,16 @@ package smokefree.domain;
 
 import io.localmotion.initiative.aggregate.Initiative;
 import io.localmotion.initiative.command.CreateInitiativeCommand;
+import io.localmotion.initiative.command.JoinInitiativeCommand;
 import io.localmotion.initiative.domain.GeoLocation;
 import io.localmotion.initiative.domain.Status;
+import io.localmotion.smokefreeplaygrounds.command.*;
 import org.axonframework.messaging.interceptors.BeanValidationInterceptor;
 import org.axonframework.test.aggregate.AggregateTestFixture;
 import org.axonframework.test.aggregate.FixtureConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import smokefree.DomainException;
+import io.localmotion.application.DomainException;
 
 import javax.validation.ValidationException;
 import java.time.LocalDate;

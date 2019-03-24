@@ -3,9 +3,12 @@ package smokefree;
 import com.coxautodev.graphql.tools.GraphQLMutationResolver;
 import graphql.schema.DataFetchingEnvironment;
 import io.localmotion.initiative.command.CreateInitiativeCommand;
+import io.localmotion.initiative.command.JoinInitiativeCommand;
 import io.localmotion.initiative.command.UpdateChecklistCommand;
 import io.localmotion.initiative.domain.GeoLocation;
 import io.localmotion.initiative.domain.Status;
+import io.localmotion.interfacing.graphql.SecurityContext;
+import io.localmotion.smokefreeplaygrounds.command.*;
 import io.localmotion.user.command.CreateUserCommand;
 import io.localmotion.user.command.DeleteUserCommand;
 import io.localmotion.user.command.ReviveUserCommand;
@@ -17,10 +20,9 @@ import org.axonframework.commandhandling.GenericCommandMessage;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.messaging.MetaData;
 import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
-import smokefree.domain.*;
 import io.localmotion.initiative.controller.CreateInitiativeInput;
-import smokefree.graphql.InputAcceptedResponse;
-import smokefree.graphql.JoinInitiativeInput;
+import io.localmotion.initiative.controller.InputAcceptedResponse;
+import io.localmotion.initiative.controller.JoinInitiativeInput;
 import io.localmotion.initiative.projection.InitiativeProjection;
 import io.localmotion.user.projection.Profile;
 import io.localmotion.user.projection.ProfileProjection;
@@ -56,10 +58,8 @@ public class Mutation implements GraphQLMutationResolver {
                 input.getStatus(),
                 new GeoLocation(input.getLat(), input.getLng()));
         final CompletableFuture<String> result = gateway.send(decorateWithMetaData(command, env));
-        final InputAcceptedResponse response = InputAcceptedResponse.fromFuture(result);
-
-        final String playgroundId = response.getId();
-        return joinInitiative(new JoinInitiativeInput(response.getId()), env);
+        final String playgroundId = result.get();
+        return joinInitiative(new JoinInitiativeInput(playgroundId), env);
     }
 
     @SneakyThrows

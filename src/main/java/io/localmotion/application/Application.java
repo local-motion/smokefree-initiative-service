@@ -1,4 +1,4 @@
-package smokefree;
+package io.localmotion.application;
 
 import io.localmotion.chatbox.ChatDataSourceFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;

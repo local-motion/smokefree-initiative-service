@@ -8,7 +8,7 @@ import io.micronaut.test.annotation.MicronautTest;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import smokefree.graphql.GraphqlQuery;
+import io.localmotion.interfacing.graphql.GraphqlQuery;
 
 import javax.inject.Inject;
 import java.util.Map;

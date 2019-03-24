@@ -5,6 +5,7 @@ import graphql.schema.DataFetchingEnvironment;
 import io.localmotion.initiative.projection.InitiativeProjection;
 import io.localmotion.initiative.projection.Playground;
 import io.localmotion.initiative.projection.Progress;
+import io.localmotion.interfacing.graphql.SecurityContext;
 import io.localmotion.user.projection.Profile;
 import io.localmotion.user.projection.ProfileProjection;
 import lombok.NoArgsConstructor;
@@ -38,18 +39,15 @@ public class Query implements GraphQLQueryResolver {
     }
 
     public Profile profile(DataFetchingEnvironment env) {
-
-        // For now we do not use the profile projection (see note in that class), but retrieve the info straight from the session
         String userId = toContext(env).userId();
         if (userId == null) {
             return null;
         }
         return profiles.profile(userId);
-//        return new Profile(toContext(env).requireUserId(), toContext(env).requireUserName());
     }
 
     /**
-     * It will compute the total number of volunteers.
+     * Compute and return the total number of volunteers.
      * @return total volunteers count
      */
     public long totalVolunteers() {

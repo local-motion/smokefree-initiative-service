@@ -1,4 +1,4 @@
-package smokefree.domain;
+package io.localmotion.smokefreeplaygrounds.command;
 
 import lombok.*;
 import org.axonframework.modelling.command.AggregateIdentifier;

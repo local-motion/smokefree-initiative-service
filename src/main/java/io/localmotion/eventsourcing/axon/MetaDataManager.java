@@ -1,8 +1,8 @@
-package smokefree.domain;
+package io.localmotion.eventsourcing.axon;
 
 import lombok.AllArgsConstructor;
 import org.axonframework.messaging.MetaData;
-import smokefree.DomainException;
+import io.localmotion.application.DomainException;
 import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 
 import static org.axonframework.common.Assert.assertNonNull;
@@ -32,7 +32,7 @@ public class MetaDataManager {
     }
 
     public String getUserName() {
-        final String userName= (String) metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME);
+        final String userName = (String) metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME);
         assertNonNull(userName, () -> new DomainException(
                 "UNAUTHENTICATED",
                 "No userName present",
@@ -41,7 +41,7 @@ public class MetaDataManager {
     }
 
     public String getEmailAddress() {
-        final String emailAddress= (String) metaData.get(SmokefreeConstants.JWTClaimSet.EMAIL_ADDRESS);
+        final String emailAddress = (String) metaData.get(SmokefreeConstants.JWTClaimSet.EMAIL_ADDRESS);
         assertNonNull(emailAddress, () -> new DomainException(
                 "UNAUTHENTICATED",
                 "No emailAddress present",

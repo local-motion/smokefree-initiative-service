@@ -1,4 +1,4 @@
-package smokefree;
+package io.localmotion.interfacing.graphql;
 
 import graphql.*;
 import io.micronaut.http.MediaType;
@@ -9,7 +9,6 @@ import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.config.Configuration;
-import smokefree.graphql.GraphqlQuery;
 import io.localmotion.user.projection.ProfileProjection;
 
 import javax.annotation.Nullable;

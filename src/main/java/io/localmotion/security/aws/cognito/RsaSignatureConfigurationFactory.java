@@ -1,4 +1,4 @@
-package smokefree;
+package io.localmotion.security.aws.cognito;
 
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.util.IOUtils;

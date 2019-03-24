@@ -1,6 +1,7 @@
 package io.localmotion.user.aggregate;
 
 import com.google.gson.Gson;
+import io.localmotion.eventsourcing.axon.MetaDataManager;
 import io.localmotion.user.command.CreateUserCommand;
 import io.localmotion.user.command.DeleteUserCommand;
 import io.localmotion.user.command.ReviveUserCommand;
@@ -16,7 +17,7 @@ import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateRoot;
 import io.localmotion.personaldata.PersonalDataRecord;
 import io.localmotion.personaldata.PersonalDataRepository;
-import smokefree.Application;
+import io.localmotion.application.Application;
 import smokefree.domain.*;
 
 

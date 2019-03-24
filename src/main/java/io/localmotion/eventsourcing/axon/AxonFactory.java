@@ -1,4 +1,4 @@
-package smokefree;
+package io.localmotion.eventsourcing.axon;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micronaut.context.annotation.Factory;

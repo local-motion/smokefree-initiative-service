@@ -1,9 +1,11 @@
 package io.localmotion.initiative.aggregate;
 
 import io.localmotion.initiative.command.CreateInitiativeCommand;
+import io.localmotion.initiative.command.JoinInitiativeCommand;
 import io.localmotion.initiative.command.UpdateChecklistCommand;
 import io.localmotion.initiative.domain.GeoLocation;
 import io.localmotion.initiative.domain.Status;
+import io.localmotion.smokefreeplaygrounds.command.*;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
@@ -15,11 +17,11 @@ import org.axonframework.modelling.command.AggregateRoot;
 import org.gavaghan.geodesy.Ellipsoid;
 import org.gavaghan.geodesy.GeodeticCalculator;
 import org.gavaghan.geodesy.GlobalPosition;
-import smokefree.Application;
-import smokefree.DomainException;
+import io.localmotion.application.Application;
+import io.localmotion.application.DomainException;
 import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 import smokefree.domain.*;
-import smokefree.graphql.error.ErrorCode;
+import io.localmotion.interfacing.graphql.error.ErrorCode;
 import io.localmotion.initiative.projection.InitiativeProjection;
 
 import javax.validation.ValidationException;
@@ -65,7 +67,6 @@ public class Initiative {
         validateMaximumPlaygroundCapacity();
         validateDuplicatePlaygroundNames(cmd.getName());
         validatePlaygroundsRange(cmd.getGeoLocation(), SmokefreeConstants.MAXIMUM_PLAYGROUNDS_DISTANCE);
-//        apply(new InitiativeCreatedEvent(cmd.initiativeId, cmd.type, cmd.status, cmd.name, cmd.geoLocation), metaData);
         apply(new InitiativeCreatedEvent(cmd.getInitiativeId(), cmd.getType(), cmd.getStatus(), cmd.getName(), cmd.getGeoLocation()), metaData);
     }
 
@@ -75,7 +76,6 @@ public class Initiative {
             log.warn("{} already joined {}. Ignoring...", cmd.getCitizenId(), cmd.getInitiativeId());
         } else {
             validateMaximumAllowedVolunteers();
-//            apply(new CitizenJoinedInitiativeEvent(cmd.initiativeId, cmd.citizenId), metaData);
             apply(new CitizenJoinedInitiativeEvent(cmd.getInitiativeId(), cmd.getCitizenId()), metaData);
         }
     }
@@ -111,7 +111,6 @@ public class Initiative {
 
     @CommandHandler
     public void commitToSmokeFreeDate(CommitToSmokeFreeDateCommand cmd, MetaData metaData) {
-//        assertEarlierCommittedDateNotInPast();
         assertCurrentUserIsManager(metaData);
         if (smokeFreeDate == null || !cmd.getSmokeFreeDate().isEqual(smokeFreeDate)) {
             apply(new SmokeFreeDateCommittedEvent(cmd.getInitiativeId(), smokeFreeDate, cmd.getSmokeFreeDate()), metaData);
@@ -140,23 +139,10 @@ public class Initiative {
         apply(new CheckListUpdateEvent(cmd.getInitiativeId(), cmd.getActor() , cmd.getChecklistItem(), cmd.isChecked()), metaData);
     }
 
-//    private void assertEarlierCommittedDateNotInPast() {
-//        if (this.smokeFreeDate == null) {
-//            return;
-//        }
-//        if (this.smokeFreeDate.isBefore(now())) {
-//            throw new ValidationException("Cannot commit to a new smoke-free date once an earlier committed date has passed");
-//        }
-//    }
 
     /*
-   Retrieval functions (use for outputting state consistent with the update, otherwise consider using the projections)
-    */
-    @CommandHandler
-    public Initiative getInitiative(GetInitiativeCommand cmd, MetaData metaData) {
-        return this;
-    }
-
+            Event handlers
+     */
 
     @EventSourcingHandler
     void on(InitiativeCreatedEvent evt) {

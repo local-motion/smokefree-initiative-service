@@ -1,4 +1,4 @@
-package smokefree.graphql;
+package io.localmotion.interfacing.graphql;
 
 import com.coxautodev.graphql.tools.SchemaParser;
 import com.coxautodev.graphql.tools.SchemaParserBuilder;
@@ -24,13 +24,13 @@ import io.micronaut.core.io.IOUtils;
 import io.micronaut.security.authentication.AuthenticationException;
 import io.micronaut.security.utils.SecurityService;
 import lombok.NoArgsConstructor;
-import smokefree.DomainException;
+import io.localmotion.application.DomainException;
 import smokefree.Mutation;
 import smokefree.Query;
-import smokefree.graphql.error.ConfigurableDataFetcherExceptionHandler;
-import smokefree.graphql.error.ErrorCode;
-import smokefree.graphql.error.ErrorExtensions;
-import smokefree.graphql.error.ErrorExtensionsMapper;
+import io.localmotion.interfacing.graphql.error.ConfigurableDataFetcherExceptionHandler;
+import io.localmotion.interfacing.graphql.error.ErrorCode;
+import io.localmotion.interfacing.graphql.error.ErrorExtensions;
+import io.localmotion.interfacing.graphql.error.ErrorExtensionsMapper;
 
 import javax.inject.Singleton;
 import javax.validation.ConstraintViolationException;
@@ -41,7 +41,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import static smokefree.graphql.error.ErrorExtensionsMapper.exceptionToErrorExtensionsMapper;
+import static io.localmotion.interfacing.graphql.error.ErrorExtensionsMapper.exceptionToErrorExtensionsMapper;
 
 @Factory
 @NoArgsConstructor

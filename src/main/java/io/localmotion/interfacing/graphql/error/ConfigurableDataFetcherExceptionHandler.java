@@ -1,4 +1,4 @@
-package smokefree.graphql.error;
+package io.localmotion.interfacing.graphql.error;
 
 import graphql.ErrorType;
 import graphql.ExceptionWhileDataFetching;

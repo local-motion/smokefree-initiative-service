@@ -1,4 +1,4 @@
-package smokefree;
+package io.localmotion.interfacing.graphql;
 
 import io.micronaut.core.util.StringUtils;
 import io.micronaut.security.authentication.Authentication;
@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @SuppressWarnings("WeakerAccess")
 public class SecurityContext extends ConcurrentHashMap<String, Object> {
-    SecurityContext(Authentication authentication) {
+    public SecurityContext(Authentication authentication) {
         if (authentication != null) {
             put("authentication", authentication);
         }

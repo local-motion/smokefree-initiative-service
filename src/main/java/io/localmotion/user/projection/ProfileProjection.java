@@ -7,7 +7,7 @@ import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.messaging.MetaData;
 import io.localmotion.personaldata.PersonalDataRecord;
 import io.localmotion.personaldata.PersonalDataRepository;
-import smokefree.Application;
+import io.localmotion.application.Application;
 import smokefree.domain.UserCreatedEvent;
 import smokefree.domain.UserDeletedEvent;
 import io.localmotion.user.domain.UserPII;

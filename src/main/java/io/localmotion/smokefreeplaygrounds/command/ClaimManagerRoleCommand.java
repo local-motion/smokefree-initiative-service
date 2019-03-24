@@ -1,18 +1,15 @@
-package smokefree.domain;
+package io.localmotion.smokefreeplaygrounds.command;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
-import javax.validation.constraints.NotBlank;
-
-@Data
-@NoArgsConstructor
+@Getter
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
-public class JoinInitiativeCommand {
+public class ClaimManagerRoleCommand {
     @TargetAggregateIdentifier
     String initiativeId;
-    @NotBlank
-    String citizenId;
 }

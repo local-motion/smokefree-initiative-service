@@ -1,5 +1,6 @@
-package smokefree;
+package io.localmotion.smokefreeplaygrounds.controller;
 
+import io.localmotion.interfacing.graphql.SecurityContext;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;

@@ -1,4 +1,4 @@
-package smokefree;
+package io.localmotion.storage.database;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
