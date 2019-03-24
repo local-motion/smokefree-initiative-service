@@ -1,5 +1,9 @@
 package smokefree.domain;
 
+import io.localmotion.initiative.aggregate.Initiative;
+import io.localmotion.initiative.command.CreateInitiativeCommand;
+import io.localmotion.initiative.domain.GeoLocation;
+import io.localmotion.initiative.domain.Status;
 import org.axonframework.messaging.interceptors.BeanValidationInterceptor;
 import org.axonframework.test.aggregate.AggregateTestFixture;
 import org.axonframework.test.aggregate.FixtureConfiguration;
@@ -13,8 +17,8 @@ import java.util.Map;
 
 import static java.time.LocalDate.now;
 import static java.util.Collections.singletonMap;
-import static smokefree.domain.Status.*;
-import static smokefree.domain.Type.smokefree;
+import static io.localmotion.initiative.domain.Status.*;
+import static io.localmotion.initiative.domain.Type.smokefree;
 
 @SuppressWarnings("ConstantConditions")
 class InitiativeTest {

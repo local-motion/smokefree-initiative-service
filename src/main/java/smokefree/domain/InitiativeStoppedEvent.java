@@ -1,5 +1,6 @@
 package smokefree.domain;
 
+import io.localmotion.initiative.domain.Status;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

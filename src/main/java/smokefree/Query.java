@@ -2,23 +2,27 @@ package smokefree;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
+import io.localmotion.initiative.projection.InitiativeProjection;
+import io.localmotion.initiative.projection.Playground;
+import io.localmotion.initiative.projection.Progress;
+import io.localmotion.user.projection.Profile;
+import io.localmotion.user.projection.ProfileProjection;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import smokefree.projection.*;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Collection;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Singleton
 @NoArgsConstructor
 @SuppressWarnings("unused")
 public class Query implements GraphQLQueryResolver {
-    @Inject InitiativeProjection initiatives;
-    @Inject ProfileProjection profiles;
+    @Inject
+    InitiativeProjection initiatives;
+    @Inject
+    ProfileProjection profiles;
 
 
     public Collection<Playground> playgrounds(DataFetchingEnvironment env) {

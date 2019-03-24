@@ -7,8 +7,8 @@ import io.micronaut.http.annotation.Post;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
 import lombok.extern.slf4j.Slf4j;
-import smokefree.projection.InitiativeProjection;
-import smokefree.projection.Playground;
+import io.localmotion.initiative.projection.InitiativeProjection;
+import io.localmotion.initiative.projection.Playground;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;

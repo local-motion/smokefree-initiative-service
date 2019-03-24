@@ -3,7 +3,7 @@ package smokefree;
 import io.micronaut.core.util.StringUtils;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.authentication.AuthenticationException;
-import smokefree.aws.rds.secretmanager.SmokefreeConstants;
+import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 
 import javax.annotation.Nullable;
 import java.util.concurrent.ConcurrentHashMap;

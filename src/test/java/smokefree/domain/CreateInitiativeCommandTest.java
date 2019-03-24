@@ -1,7 +1,10 @@
 package smokefree.domain;
 
+import io.localmotion.initiative.command.CreateInitiativeCommand;
+import io.localmotion.initiative.domain.Status;
+import io.localmotion.initiative.domain.Type;
 import org.junit.jupiter.api.Test;
-import smokefree.graphql.CreateInitiativeInput;
+import io.localmotion.initiative.controller.CreateInitiativeInput;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;

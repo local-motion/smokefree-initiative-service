@@ -10,10 +10,10 @@ import org.axonframework.commandhandling.GenericCommandMessage;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.config.Configuration;
 import org.axonframework.messaging.MetaData;
-import smokefree.aws.rds.secretmanager.SmokefreeConstants;
-import smokefree.domain.CreateInitiativeCommand;
-import smokefree.projection.InitiativeProjection;
-import smokefree.projection.Playground;
+import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
+import io.localmotion.initiative.command.CreateInitiativeCommand;
+import io.localmotion.initiative.projection.InitiativeProjection;
+import io.localmotion.initiative.projection.Playground;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;

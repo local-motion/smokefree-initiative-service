@@ -3,7 +3,7 @@ package smokefree.domain;
 import lombok.AllArgsConstructor;
 import org.axonframework.messaging.MetaData;
 import smokefree.DomainException;
-import smokefree.aws.rds.secretmanager.SmokefreeConstants;
+import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 
 import static org.axonframework.common.Assert.assertNonNull;
 

@@ -22,10 +22,10 @@ import org.axonframework.queryhandling.*;
 import org.axonframework.serialization.Serializer;
 import org.axonframework.serialization.json.JacksonSerializer;
 import org.axonframework.serialization.upcasting.event.NoOpEventUpcaster;
-import smokefree.domain.Initiative;
-import smokefree.domain.User;
-import smokefree.projection.InitiativeProjection;
-import smokefree.projection.ProfileProjection;
+import io.localmotion.initiative.aggregate.Initiative;
+import io.localmotion.user.aggregate.User;
+import io.localmotion.initiative.projection.InitiativeProjection;
+import io.localmotion.user.projection.ProfileProjection;
 
 import javax.inject.Named;
 import javax.inject.Singleton;

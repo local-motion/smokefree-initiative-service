@@ -10,7 +10,7 @@ import io.micronaut.security.authentication.Authentication;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.config.Configuration;
 import smokefree.graphql.GraphqlQuery;
-import smokefree.projection.ProfileProjection;
+import io.localmotion.user.projection.ProfileProjection;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;

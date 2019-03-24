@@ -1,48 +1,37 @@
-package io.localmotion.chatbox;
+package io.localmotion.storage.aws.rds.secretmanager;
 
 import com.amazonaws.services.secretsmanager.AWSSecretsManager;
-import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder;
 import com.amazonaws.services.secretsmanager.model.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micronaut.context.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
-import io.localmotion.storage.aws.rds.secretmanager.SecretManagerException;
-import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants.*;
-
 @Slf4j
-//@Singleton
-public class ChatAWSSecretManager {
-//    @Value("${secret.name}")
-//    private String secretName;
-//
-//    @Value("${aws.rds.jdbcdriverclass}")
-//    private String driverClass;
-//
-//    @Value("${aws.rds.enableSsl:true}")
-//    private boolean isSslEnabled;
+@Singleton
+public class RDSSecretManager {
+    @Value("${secret.name}")
+    private String secretName;
 
+    @Value("${aws.rds.jdbcdriverclass}")
+    private String driverClass;
 
+    @Value("${aws.rds.enableSsl:true}")
+    private boolean isSslEnabled;
 
-    private final String secretName = System.getenv("SECRET_NAME");
-    private final String secretRegion = System.getenv("SECRET_REGION");
-    private final String driverClass = System.getenv("MYSQL_DRIVER_CLASS_NAME");
-    private final boolean isSslEnabled = !"false".equals(System.getenv("AWS_RDS_ENABLESSL"));
+    @Inject
+    ObjectMapper objectMapper;
 
+    @Inject
+    AWSSecretsManager secretManagerClient;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-//    private final AWSSecretsManager secretManagerClient = AWSSecretsManagerClient.builder().defaultClient();
-    private final AWSSecretsManager secretManagerClient   = AWSSecretsManagerClientBuilder.standard()
-            .withRegion(secretRegion)
-            .build();
-
-    private Map<String, Object> secretMap = null;
+    private Map<String, Object> secretMap;
 
     private Map<String, Object> getRDSDetails() {
         if (secretMap == null) {
@@ -100,11 +89,11 @@ public class ChatAWSSecretManager {
             this.getRDSDetails();
         }
         StringBuilder jdbcUrl = new StringBuilder("jdbc");
-        jdbcUrl.append(COLON);
-        jdbcUrl.append(secretMap.get(DB_ENGINE)).append(COLON).append(DOUBLE_SLASH);
-        jdbcUrl.append(secretMap.get(DB_HOST)).append(COLON);
-        jdbcUrl.append(secretMap.get(DB_PORT)).append(SINGLE_SLASH);
-        jdbcUrl.append(secretMap.get(DBNAME));
+        jdbcUrl.append(SmokefreeConstants.COLON);
+        jdbcUrl.append(secretMap.get(SmokefreeConstants.DB_ENGINE)).append(SmokefreeConstants.COLON).append(SmokefreeConstants.DOUBLE_SLASH);
+        jdbcUrl.append(secretMap.get(SmokefreeConstants.DB_HOST)).append(SmokefreeConstants.COLON);
+        jdbcUrl.append(secretMap.get(SmokefreeConstants.DB_PORT)).append(SmokefreeConstants.SINGLE_SLASH);
+        jdbcUrl.append(secretMap.get(SmokefreeConstants.DBNAME));
         if (isSslEnabled) {
             jdbcUrl.append("?verifyServerCertificate=true&useSSL=true");
         }
