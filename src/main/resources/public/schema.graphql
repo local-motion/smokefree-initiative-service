@@ -97,7 +97,6 @@ type Mutation {
 # Playground
     claimManagerRole(input: ClaimManagerRoleCommand!): InputAcceptedResponse!
     decideToBecomeSmokeFree(input: DecideToBecomeSmokeFreeCommand!): InputAcceptedResponse!
-    decideToNotBecomeSmokeFree(input: DecideToNotBecomeSmokeFreeCommand!): InputAcceptedResponse!
     commitToSmokeFreeDate(input: CommitToSmokeFreeDateCommand!): InputAcceptedResponse!
     recordPlaygroundObservation(input: RecordPlaygroundObservationCommand!): InputAcceptedResponse!
 
@@ -149,10 +148,6 @@ input JoinInitiativeInput {
 
 input DecideToBecomeSmokeFreeCommand {
     initiativeId: String!
-}
-input DecideToNotBecomeSmokeFreeCommand {
-    initiativeId: String!
-    reason: String
 }
 input ClaimManagerRoleCommand {
     initiativeId: String!

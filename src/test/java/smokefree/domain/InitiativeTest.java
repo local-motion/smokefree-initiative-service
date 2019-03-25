@@ -117,19 +117,6 @@ class InitiativeTest {
     }
 
     @Test
-    void should_have_stopped_status_when_not_deciding_to_become_smokefree() {
-        String reason = "Obviously no good reason";
-        fixture
-                .given(
-                        initiativeCreated("initiative-1", not_started),
-                        managerJoined(MANAGER_1))
-                .when(new DecideToNotBecomeSmokeFreeCommand("initiative-1", reason), asManager1())
-                .expectSuccessfulHandlerExecution()
-                .expectEvents(new InitiativeStoppedEvent("initiative-1", not_started, stopped, reason));
-
-    }
-
-    @Test
     void should_deny_status_change_when_not_manager() {
         fixture
                 .given(

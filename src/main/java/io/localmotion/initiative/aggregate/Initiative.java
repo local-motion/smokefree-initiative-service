@@ -110,12 +110,6 @@ public class Initiative {
     }
 
     @CommandHandler
-    public void decideToNotBecomeSmokeFree(DecideToNotBecomeSmokeFreeCommand cmd, MetaData metaData) {
-        assertCurrentUserIsManager(metaData);
-        apply(new InitiativeStoppedEvent(cmd.getInitiativeId(), status, stopped, cmd.getReason()), metaData);
-    }
-
-    @CommandHandler
     public void commitToSmokeFreeDate(CommitToSmokeFreeDateCommand cmd, MetaData metaData) {
         assertCurrentUserIsManager(metaData);
         if (smokeFreeDate == null || !cmd.getSmokeFreeDate().isEqual(smokeFreeDate)) {
@@ -168,11 +162,6 @@ public class Initiative {
 
     @EventSourcingHandler
     void on(InitiativeProgressedEvent evt) {
-        status = evt.getAfter();
-    }
-
-    @EventSourcingHandler
-    void on(InitiativeStoppedEvent evt) {
         status = evt.getAfter();
     }
 
