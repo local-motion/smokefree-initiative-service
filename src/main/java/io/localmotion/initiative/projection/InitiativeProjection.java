@@ -29,9 +29,8 @@ import static com.google.common.collect.Maps.newConcurrentMap;
 @Singleton
 public class InitiativeProjection {
 
-
     private final Map<String, Playground> playgrounds = newConcurrentMap();
-    private final Progress progress = new Progress();
+
 
     /*
             Event handlers
@@ -55,8 +54,6 @@ public class InitiativeProjection {
                 0,
                 eventMessage
                 ));
-
-        progress.increment(evt.getStatus());
     }
 
     @EventHandler
@@ -75,25 +72,14 @@ public class InitiativeProjection {
         Status newStatus = oldStatus == Status.not_started ? Status.in_progress : oldStatus;
         playground.setStatus(newStatus);
         playground.setLastEventMessage(eventMessage);
-
-        progress.change(oldStatus, newStatus);
     }
-
-//    @EventHandler
-//    public void on(InitiativeProgressedEvent evt, EventMessage<?> eventMessage) {
-//        log.info("ON EVENT {}", evt);
-//        Playground playground = playgrounds.get(evt.getInitiativeId());
-//        playground.setStatus(evt.getAfter());
-//        playground.setLastEventMessage(eventMessage);
-//
-//        progress.change(evt.getBefore(), evt.getAfter());
-//    }
 
     @EventHandler
     public void on(SmokeFreeDateCommittedEvent evt, EventMessage<SmokeFreeDateCommittedEvent> eventMessage)  {
         log.info("ON EVENT {}", evt);
         Playground playground = playgrounds.get(evt.getInitiativeId());
         playground.setSmokeFreeDate(evt.getSmokeFreeDate());
+        playground.setStatus(Status.finished);
         playground.setLastEventMessage(eventMessage);
     }
 
@@ -135,15 +121,6 @@ public class InitiativeProjection {
 
 
     /*
-            Generic event message handling
-     */
-
-//    @EventHandler
-//    void on(EventMessage<?> eventMessage, @Timestamp DateTime timestamp) {
-//        log.info("ON EVENTMESSAGE {} at {}", eventMessage, timestamp);
-//    }
-
-    /*
             Serving the projections
      */
 
@@ -154,10 +131,6 @@ public class InitiativeProjection {
     public Playground playground(String id, String userId) {
         Playground playground = playgrounds.containsKey(id) ? playgrounds.get(id).getPlaygroundForUser(userId) : null;
         return playground;
-    }
-
-    public Progress progress() {
-        return progress;
     }
 
     public Collection<Playground> getAllPlaygrounds() {

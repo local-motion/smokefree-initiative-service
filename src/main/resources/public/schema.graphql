@@ -17,7 +17,6 @@ schema {
 type Query {
     profile: Profile
     playgrounds: [Playground]
-    progress: Progress
     playground(id: String!): Playground
     totalVolunteers: Long
 }
@@ -49,14 +48,6 @@ enum Status {
     not_started
     in_progress
     finished
-}
-
-type Progress {
-    total: Int
-    remaining: Int
-    smokeFree: Stat
-    workingOnIt: Stat
-    smoking: Stat
 }
 
 type Manager {

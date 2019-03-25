@@ -4,7 +4,6 @@ import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
 import io.localmotion.initiative.projection.InitiativeProjection;
 import io.localmotion.initiative.projection.Playground;
-import io.localmotion.initiative.projection.Progress;
 import io.localmotion.interfacing.graphql.SecurityContext;
 import io.localmotion.user.projection.Profile;
 import io.localmotion.user.projection.ProfileProjection;
@@ -32,10 +31,6 @@ public class Query implements GraphQLQueryResolver {
 
     public Playground playground(String id, DataFetchingEnvironment env) {
         return initiatives.playground(id, getUserId(env));
-    }
-
-    public Progress progress() {
-        return initiatives.progress();
     }
 
     public Profile profile(DataFetchingEnvironment env) {
