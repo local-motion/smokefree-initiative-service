@@ -1,18 +1,19 @@
 package io.localmotion.initiative.projection;
 
 import io.localmotion.initiative.domain.GeoLocation;
+import io.localmotion.initiative.domain.Status;
 import io.localmotion.initiative.event.CheckListUpdateEvent;
 import io.localmotion.initiative.event.CitizenJoinedInitiativeEvent;
 import io.localmotion.initiative.event.InitiativeCreatedEvent;
 import io.localmotion.smokefreeplaygrounds.event.ManagerJoinedInitiativeEvent;
 import io.localmotion.smokefreeplaygrounds.event.PlaygroundObservationEvent;
 import io.localmotion.smokefreeplaygrounds.event.SmokeFreeDateCommittedEvent;
+import io.localmotion.smokefreeplaygrounds.event.SmokeFreeDecisionEvent;
+import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.eventhandling.EventMessage;
 import org.axonframework.messaging.MetaData;
-import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
-import smokefree.domain.*;
 
 import javax.inject.Singleton;
 import java.util.Collection;
@@ -67,14 +68,26 @@ public class InitiativeProjection {
     }
 
     @EventHandler
-    public void on(InitiativeProgressedEvent evt, EventMessage<?> eventMessage) {
+    public void on(SmokeFreeDecisionEvent evt, EventMessage<?> eventMessage) {
         log.info("ON EVENT {}", evt);
         Playground playground = playgrounds.get(evt.getInitiativeId());
-        playground.setStatus(evt.getAfter());
+        Status oldStatus = playground.getStatus();
+        Status newStatus = oldStatus == Status.not_started ? Status.in_progress : oldStatus;
+        playground.setStatus(newStatus);
         playground.setLastEventMessage(eventMessage);
 
-        progress.change(evt.getBefore(), evt.getAfter());
+        progress.change(oldStatus, newStatus);
     }
+
+//    @EventHandler
+//    public void on(InitiativeProgressedEvent evt, EventMessage<?> eventMessage) {
+//        log.info("ON EVENT {}", evt);
+//        Playground playground = playgrounds.get(evt.getInitiativeId());
+//        playground.setStatus(evt.getAfter());
+//        playground.setLastEventMessage(eventMessage);
+//
+//        progress.change(evt.getBefore(), evt.getAfter());
+//    }
 
     @EventHandler
     public void on(SmokeFreeDateCommittedEvent evt, EventMessage<SmokeFreeDateCommittedEvent> eventMessage)  {

@@ -1,5 +1,7 @@
 package io.localmotion.initiative.aggregate;
 
+import io.localmotion.application.Application;
+import io.localmotion.application.DomainException;
 import io.localmotion.initiative.command.CreateInitiativeCommand;
 import io.localmotion.initiative.command.JoinInitiativeCommand;
 import io.localmotion.initiative.command.UpdateChecklistCommand;
@@ -8,10 +10,17 @@ import io.localmotion.initiative.domain.Status;
 import io.localmotion.initiative.event.CheckListUpdateEvent;
 import io.localmotion.initiative.event.CitizenJoinedInitiativeEvent;
 import io.localmotion.initiative.event.InitiativeCreatedEvent;
-import io.localmotion.smokefreeplaygrounds.command.*;
+import io.localmotion.initiative.projection.InitiativeProjection;
+import io.localmotion.interfacing.graphql.error.ErrorCode;
+import io.localmotion.smokefreeplaygrounds.command.ClaimManagerRoleCommand;
+import io.localmotion.smokefreeplaygrounds.command.CommitToSmokeFreeDateCommand;
+import io.localmotion.smokefreeplaygrounds.command.DecideToBecomeSmokeFreeCommand;
+import io.localmotion.smokefreeplaygrounds.command.RecordPlaygroundObservationCommand;
 import io.localmotion.smokefreeplaygrounds.event.ManagerJoinedInitiativeEvent;
 import io.localmotion.smokefreeplaygrounds.event.PlaygroundObservationEvent;
 import io.localmotion.smokefreeplaygrounds.event.SmokeFreeDateCommittedEvent;
+import io.localmotion.smokefreeplaygrounds.event.SmokeFreeDecisionEvent;
+import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
@@ -23,21 +32,15 @@ import org.axonframework.modelling.command.AggregateRoot;
 import org.gavaghan.geodesy.Ellipsoid;
 import org.gavaghan.geodesy.GeodeticCalculator;
 import org.gavaghan.geodesy.GlobalPosition;
-import io.localmotion.application.Application;
-import io.localmotion.application.DomainException;
-import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
-import smokefree.domain.*;
-import io.localmotion.interfacing.graphql.error.ErrorCode;
-import io.localmotion.initiative.projection.InitiativeProjection;
 
 import javax.validation.ValidationException;
 import java.time.LocalDate;
 import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
+import static io.localmotion.initiative.domain.Status.*;
 import static org.axonframework.common.Assert.assertNonNull;
 import static org.axonframework.modelling.command.AggregateLifecycle.apply;
-import static io.localmotion.initiative.domain.Status.*;
 
 @Slf4j
 @NoArgsConstructor
@@ -105,19 +108,30 @@ public class Initiative {
         if (status != not_started && status != stopped) {
             log.warn("Status is already {}, cannot change to {}. Ignoring...", status, in_progress);
         } else {
-            apply(new InitiativeProgressedEvent(cmd.getInitiativeId(), status, in_progress), metaData);
+            apply(new SmokeFreeDecisionEvent(cmd.getInitiativeId(), true), metaData);
         }
     }
 
+//    @CommandHandler
+//    public void decideToBecomeSmokeFree(DecideToBecomeSmokeFreeCommand cmd, MetaData metaData) {
+//        assertCurrentUserIsManager(metaData);
+//
+//        if (status != not_started && status != stopped) {
+//            log.warn("Status is already {}, cannot change to {}. Ignoring...", status, in_progress);
+//        } else {
+//            apply(new InitiativeProgressedEvent(cmd.getInitiativeId(), status, in_progress), metaData);
+//        }
+//    }
+//
     @CommandHandler
     public void commitToSmokeFreeDate(CommitToSmokeFreeDateCommand cmd, MetaData metaData) {
         assertCurrentUserIsManager(metaData);
         if (smokeFreeDate == null || !cmd.getSmokeFreeDate().isEqual(smokeFreeDate)) {
             apply(new SmokeFreeDateCommittedEvent(cmd.getInitiativeId(), smokeFreeDate, cmd.getSmokeFreeDate()), metaData);
         }
-        if (status != finished) {
-            apply(new InitiativeProgressedEvent(cmd.getInitiativeId(), status, finished), metaData);
-        }
+//        if (status != finished) {
+//            apply(new InitiativeProgressedEvent(cmd.getInitiativeId(), status, finished), metaData);
+//        }
     }
 
     @CommandHandler
@@ -160,9 +174,14 @@ public class Initiative {
         managers.add(evt.getManagerId());
     }
 
+//    @EventSourcingHandler
+//    void on(InitiativeProgressedEvent evt) {
+//        status = evt.getAfter();
+//    }
+
     @EventSourcingHandler
-    void on(InitiativeProgressedEvent evt) {
-        status = evt.getAfter();
+    void on(SmokeFreeDecisionEvent evt) {
+        status = status == not_started ? in_progress : status;
     }
 
     @EventSourcingHandler

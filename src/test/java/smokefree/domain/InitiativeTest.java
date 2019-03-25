@@ -11,6 +11,7 @@ import io.localmotion.smokefreeplaygrounds.command.*;
 import io.localmotion.smokefreeplaygrounds.event.ManagerJoinedInitiativeEvent;
 import io.localmotion.smokefreeplaygrounds.event.PlaygroundObservationEvent;
 import io.localmotion.smokefreeplaygrounds.event.SmokeFreeDateCommittedEvent;
+import io.localmotion.smokefreeplaygrounds.event.SmokeFreeDecisionEvent;
 import org.axonframework.messaging.interceptors.BeanValidationInterceptor;
 import org.axonframework.test.aggregate.AggregateTestFixture;
 import org.axonframework.test.aggregate.FixtureConfiguration;
@@ -97,7 +98,7 @@ class InitiativeTest {
                         managerJoined(MANAGER_1))
                 .when(new DecideToBecomeSmokeFreeCommand("initiative-1"), asManager1())
                 .expectSuccessfulHandlerExecution()
-                .expectEvents(new InitiativeProgressedEvent("initiative-1", not_started, in_progress));
+                .expectEvents(new SmokeFreeDecisionEvent("initiative-1", true));
     }
 
     @Test
@@ -137,8 +138,7 @@ class InitiativeTest {
                 .when(new CommitToSmokeFreeDateCommand("initiative-1", tomorrow), asManager1())
                 .expectSuccessfulHandlerExecution()
                 .expectEvents(
-                        new SmokeFreeDateCommittedEvent("initiative-1", null, tomorrow),
-                        new InitiativeProgressedEvent("initiative-1", not_started, finished));
+                        new SmokeFreeDateCommittedEvent("initiative-1", null, tomorrow));
     }
 
     @Test
