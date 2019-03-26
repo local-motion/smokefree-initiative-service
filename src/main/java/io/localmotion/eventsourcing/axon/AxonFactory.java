@@ -1,6 +1,7 @@
 package io.localmotion.eventsourcing.axon;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.localmotion.smokefreeplaygrounds.aggregate.PlaygroundInitiative;
 import io.micronaut.context.annotation.Factory;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,6 +53,7 @@ public class AxonFactory {
                 .configureQueryBus(c -> queryBus)
                 .configureSerializer(c -> serializer)
                 .configureAggregate(Initiative.class)
+                .configureAggregate(PlaygroundInitiative.class)
                 .configureAggregate(User.class)
                 .registerQueryHandler(c -> initiativeProjection)
                 .registerQueryHandler(c -> profileProjection);

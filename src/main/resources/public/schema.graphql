@@ -104,6 +104,9 @@ type InitiativeMutation {
 }
 
 type PlaygroundMutation {
+    claimManagerRole(input: ClaimManagerRoleCommand!): InputAcceptedResponse!
+    decideToBecomeSmokeFree(input: DecideToBecomeSmokeFreeCommand!): InputAcceptedResponse!
+    commitToSmokeFreeDate(input: CommitToSmokeFreeDateCommand!): InputAcceptedResponse!
     recordPlaygroundObservation(input: RecordPlaygroundObservationCommand!): InputAcceptedResponse!
 }
 

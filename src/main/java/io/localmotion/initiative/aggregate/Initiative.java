@@ -22,6 +22,7 @@ import io.localmotion.smokefreeplaygrounds.event.SmokeFreeDateCommittedEvent;
 import io.localmotion.smokefreeplaygrounds.event.SmokeFreeDecisionEvent;
 import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.common.Assert;
@@ -61,23 +62,24 @@ public class Initiative {
 
     // Instance properties
 
+    @Setter
     @AggregateIdentifier
-    private String id;
+    protected String id;
     // TODO: Specs mention Phase; Should we rename to Phase and use prepare, execute and sustain as values?
-    private Status status;
-    private Set<String> managers = newHashSet();
-    private Set<String> citizens = newHashSet();
+//    private Status status;  // TODO we need to revive the status in some form
+//    protected Set<String> managers = newHashSet();
+    protected Set<String> citizens = newHashSet();
 
-    private LocalDate smokeFreeDate;
-    private LocalDate lastObservationDate;
+//    private LocalDate smokeFreeDate;
+//    private LocalDate lastObservationDate;
 
-    @CommandHandler
-    public Initiative(CreateInitiativeCommand cmd, MetaData metaData) {
-        validateMaximumPlaygroundCapacity();
-        validateDuplicatePlaygroundNames(cmd.getName());
-        validatePlaygroundsRange(cmd.getGeoLocation(), SmokefreeConstants.MAXIMUM_PLAYGROUNDS_DISTANCE);
-        apply(new InitiativeCreatedEvent(cmd.getInitiativeId(), cmd.getType(), cmd.getStatus(), cmd.getName(), cmd.getGeoLocation()), metaData);
-    }
+//    @CommandHandler
+//    public Initiative(CreateInitiativeCommand cmd, MetaData metaData) {
+//        validateMaximumPlaygroundCapacity();
+//        validateDuplicatePlaygroundNames(cmd.getName());
+//        validatePlaygroundsRange(cmd.getGeoLocation(), SmokefreeConstants.MAXIMUM_PLAYGROUNDS_DISTANCE);
+//        apply(new InitiativeCreatedEvent(cmd.getInitiativeId(), cmd.getType(), cmd.getStatus(), cmd.getName(), cmd.getGeoLocation()), metaData);
+//    }
 
     @CommandHandler
     public void joinInitiative(JoinInitiativeCommand cmd, MetaData metaData) {
@@ -87,59 +89,6 @@ public class Initiative {
             validateMaximumAllowedVolunteers();
             apply(new CitizenJoinedInitiativeEvent(cmd.getInitiativeId(), cmd.getCitizenId()), metaData);
         }
-    }
-
-    @CommandHandler
-    public void claimManagerRole(ClaimManagerRoleCommand cmd, MetaData metaData) {
-        String managerId = requireUserId(metaData);
-
-        if (managers.contains(managerId)) {
-            log.warn("{} is already managing {}. Ignoring...", managerId, cmd.getInitiativeId());
-        } else {
-            validateMaximumAllowedManagers();
-            apply(new ManagerJoinedInitiativeEvent(cmd.getInitiativeId(), managerId), metaData);
-        }
-    }
-
-    @CommandHandler
-    public void decideToBecomeSmokeFree(DecideToBecomeSmokeFreeCommand cmd, MetaData metaData) {
-        assertCurrentUserIsManager(metaData);
-
-        if (status != not_started && status != stopped) {
-            log.warn("Status is already {}, cannot change to {}. Ignoring...", status, in_progress);
-        } else {
-            apply(new SmokeFreeDecisionEvent(cmd.getInitiativeId(), true), metaData);
-        }
-    }
-
-//    @CommandHandler
-//    public void decideToBecomeSmokeFree(DecideToBecomeSmokeFreeCommand cmd, MetaData metaData) {
-//        assertCurrentUserIsManager(metaData);
-//
-//        if (status != not_started && status != stopped) {
-//            log.warn("Status is already {}, cannot change to {}. Ignoring...", status, in_progress);
-//        } else {
-//            apply(new InitiativeProgressedEvent(cmd.getInitiativeId(), status, in_progress), metaData);
-//        }
-//    }
-//
-    @CommandHandler
-    public void commitToSmokeFreeDate(CommitToSmokeFreeDateCommand cmd, MetaData metaData) {
-        assertCurrentUserIsManager(metaData);
-        if (smokeFreeDate == null || !cmd.getSmokeFreeDate().isEqual(smokeFreeDate)) {
-            apply(new SmokeFreeDateCommittedEvent(cmd.getInitiativeId(), smokeFreeDate, cmd.getSmokeFreeDate()), metaData);
-        }
-//        if (status != finished) {
-//            apply(new InitiativeProgressedEvent(cmd.getInitiativeId(), status, finished), metaData);
-//        }
-    }
-
-    @CommandHandler
-    public void recordPlaygroundObservation(RecordPlaygroundObservationCommand cmd, MetaData metaData) {
-        LocalDate today = LocalDate.now();
-        if (lastObservationDate != null && lastObservationDate.isEqual(today))
-            throw new ValidationException("Only one playground observation can be registered per day");
-        apply(new PlaygroundObservationEvent(cmd.getInitiativeId(), cmd.getObserver() , cmd.getSmokefree(), cmd.getComment(), today), metaData);
     }
 
     @CommandHandler
@@ -153,46 +102,81 @@ public class Initiative {
         apply(new CheckListUpdateEvent(cmd.getInitiativeId(), cmd.getActor() , cmd.getChecklistItem(), cmd.isChecked()), metaData);
     }
 
+//    @CommandHandler
+//    public void claimManagerRole(ClaimManagerRoleCommand cmd, MetaData metaData) {
+//        String managerId = requireUserId(metaData);
+//
+//        if (managers.contains(managerId)) {
+//            log.warn("{} is already managing {}. Ignoring...", managerId, cmd.getInitiativeId());
+//        } else {
+//            validateMaximumAllowedManagers();
+//            apply(new ManagerJoinedInitiativeEvent(cmd.getInitiativeId(), managerId), metaData);
+//        }
+//    }
+
+//    @CommandHandler
+//    public void decideToBecomeSmokeFree(DecideToBecomeSmokeFreeCommand cmd, MetaData metaData) {
+//        assertCurrentUserIsManager(metaData);
+//
+//        if (status != not_started && status != stopped) {
+//            log.warn("Status is already {}, cannot change to {}. Ignoring...", status, in_progress);
+//        } else {
+//            apply(new SmokeFreeDecisionEvent(cmd.getInitiativeId(), true), metaData);
+//        }
+//    }
+
+//    @CommandHandler
+//    public void commitToSmokeFreeDate(CommitToSmokeFreeDateCommand cmd, MetaData metaData) {
+//        assertCurrentUserIsManager(metaData);
+//        if (smokeFreeDate == null || !cmd.getSmokeFreeDate().isEqual(smokeFreeDate)) {
+//            apply(new SmokeFreeDateCommittedEvent(cmd.getInitiativeId(), smokeFreeDate, cmd.getSmokeFreeDate()), metaData);
+//        }
+//    }
+
+//    @CommandHandler
+//    public void recordPlaygroundObservation(RecordPlaygroundObservationCommand cmd, MetaData metaData) {
+//        LocalDate today = LocalDate.now();
+//        if (lastObservationDate != null && lastObservationDate.isEqual(today))
+//            throw new ValidationException("Only one playground observation can be registered per day");
+//        apply(new PlaygroundObservationEvent(cmd.getInitiativeId(), cmd.getObserver() , cmd.getSmokefree(), cmd.getComment(), today), metaData);
+//    }
+
+
 
     /*
             Event handlers
      */
 
-    @EventSourcingHandler
-    void on(InitiativeCreatedEvent evt) {
-        this.id = evt.getInitiativeId();
-        this.status = evt.getStatus();
-    }
+//    @EventSourcingHandler
+//    void on(InitiativeCreatedEvent evt) {
+//        this.id = evt.getInitiativeId();
+////        this.status = evt.getStatus();
+//    }
 
     @EventSourcingHandler
     void on(CitizenJoinedInitiativeEvent evt) {
         citizens.add(evt.getCitizenId());
     }
 
-    @EventSourcingHandler
-    void on(ManagerJoinedInitiativeEvent evt) {
-        managers.add(evt.getManagerId());
-    }
-
 //    @EventSourcingHandler
-//    void on(InitiativeProgressedEvent evt) {
-//        status = evt.getAfter();
+//    void on(ManagerJoinedInitiativeEvent evt) {
+//        managers.add(evt.getManagerId());
 //    }
 
-    @EventSourcingHandler
-    void on(SmokeFreeDecisionEvent evt) {
-        status = status == not_started ? in_progress : status;
-    }
-
-    @EventSourcingHandler
-    void on(SmokeFreeDateCommittedEvent evt) {
-        smokeFreeDate = evt.getSmokeFreeDate();
-    }
-
-    @EventSourcingHandler
-    void on(PlaygroundObservationEvent evt) {
-        lastObservationDate = evt.getObservationDate();
-    }
+//    @EventSourcingHandler
+//    void on(SmokeFreeDecisionEvent evt) {
+//        status = status == not_started ? in_progress : status;
+//    }
+//
+//    @EventSourcingHandler
+//    void on(SmokeFreeDateCommittedEvent evt) {
+//        smokeFreeDate = evt.getSmokeFreeDate();
+//    }
+//
+//    @EventSourcingHandler
+//    void on(PlaygroundObservationEvent evt) {
+//        lastObservationDate = evt.getObservationDate();
+//    }
 
     @EventSourcingHandler
     void on(CheckListUpdateEvent evt) { }
@@ -211,19 +195,20 @@ public class Initiative {
                Validations
      */
 
-    private void assertUserIsInitiativeParticipant(MetaData metaData) {
+    protected void assertUserIsInitiativeParticipant(MetaData metaData) {
         String userId = requireUserId(metaData);
-        if (!citizens.contains(userId) && !managers.contains(userId))
+//        if (!citizens.contains(userId) && !managers.contains(userId))
+        if (!citizens.contains(userId))
             throw new ValidationException("User is not participating in this initiative");
     }
 
-    private void assertCurrentUserIsManager(MetaData metaData) {
-        String userId = requireUserId(metaData);
-        Assert.assertThat(userId, id -> managers.contains(id), () -> new DomainException(
-                ErrorCode.UNAUTHORIZED.toString(),
-                userId + " is not a manager",
-                "You are not a manager of this playground"));
-    }
+//    private void assertCurrentUserIsManager(MetaData metaData) {
+//        String userId = requireUserId(metaData);
+//        Assert.assertThat(userId, id -> managers.contains(id), () -> new DomainException(
+//                ErrorCode.UNAUTHORIZED.toString(),
+//                userId + " is not a manager",
+//                "You are not a manager of this playground"));
+//    }
 
     private void validateMaximumPlaygroundCapacity() {
         if(initiativeProjection.getAllPlaygrounds().size() >= SmokefreeConstants.MAXIMUM_PLAYGROUNDS_ALLOWED) {
@@ -233,35 +218,35 @@ public class Initiative {
         }
     }
 
-    private void validateDuplicatePlaygroundNames(String playgroundName) {
-        initiativeProjection.getAllPlaygrounds().stream()
-                .filter( playground -> playground.getName().equals(playgroundName))
-                .findFirst()
-                .ifPresent( p -> {
-                    throw new DomainException(ErrorCode.DUPLICATE_PLAYGROUND_NAME.toString(),
-                            "Playground " + playgroundName + " does already exist, please choose a different name",
-                            "Playground name does already exist");
-                });
+//    private void validateDuplicatePlaygroundNames(String playgroundName) {
+//        initiativeProjection.getAllPlaygrounds().stream()
+//                .filter( playground -> playground.getName().equals(playgroundName))
+//                .findFirst()
+//                .ifPresent( p -> {
+//                    throw new DomainException(ErrorCode.DUPLICATE_PLAYGROUND_NAME.toString(),
+//                            "Playground " + playgroundName + " does already exist, please choose a different name",
+//                            "Playground name does already exist");
+//                });
+//
+//    }
 
-    }
-
-    private void validatePlaygroundsRange(GeoLocation newPlaygroundLocation, long distance) {
-        GeodeticCalculator geodeticCalculator = new GeodeticCalculator();
-        final Ellipsoid ellipsoidsReference = Ellipsoid.WGS84;
-        final GlobalPosition newPlaygroundPosition = new GlobalPosition(newPlaygroundLocation.getLat(), newPlaygroundLocation.getLng(), 0.0);
-        initiativeProjection.getAllPlaygrounds().stream()
-                .filter( playground -> {
-                    GlobalPosition currentPlaygroundPosition = new GlobalPosition(playground.getLat() , playground.getLng(), 0.0);
-                    double playgroundsDistance = geodeticCalculator.calculateGeodeticCurve(ellipsoidsReference, currentPlaygroundPosition, newPlaygroundPosition).getEllipsoidalDistance();
-                    return  playgroundsDistance < distance;
-                })
-                .findFirst()
-                .ifPresent(p -> {
-                    throw new DomainException(ErrorCode.PLAYGROUNS_LOCATED_CLOSELY.toString(),
-                            "Two playgrounds can not exist within " + SmokefreeConstants.MAXIMUM_PLAYGROUNDS_DISTANCE+ " Meters",
-                            "playground does already exists within "+ SmokefreeConstants.MAXIMUM_PLAYGROUNDS_DISTANCE+ " Meters");
-                });
-    }
+//    private void validatePlaygroundsRange(GeoLocation newPlaygroundLocation, long distance) {
+//        GeodeticCalculator geodeticCalculator = new GeodeticCalculator();
+//        final Ellipsoid ellipsoidsReference = Ellipsoid.WGS84;
+//        final GlobalPosition newPlaygroundPosition = new GlobalPosition(newPlaygroundLocation.getLat(), newPlaygroundLocation.getLng(), 0.0);
+//        initiativeProjection.getAllPlaygrounds().stream()
+//                .filter( playground -> {
+//                    GlobalPosition currentPlaygroundPosition = new GlobalPosition(playground.getLat() , playground.getLng(), 0.0);
+//                    double playgroundsDistance = geodeticCalculator.calculateGeodeticCurve(ellipsoidsReference, currentPlaygroundPosition, newPlaygroundPosition).getEllipsoidalDistance();
+//                    return  playgroundsDistance < distance;
+//                })
+//                .findFirst()
+//                .ifPresent(p -> {
+//                    throw new DomainException(ErrorCode.PLAYGROUNS_LOCATED_CLOSELY.toString(),
+//                            "Two playgrounds can not exist within " + SmokefreeConstants.MAXIMUM_PLAYGROUNDS_DISTANCE+ " Meters",
+//                            "playground does already exists within "+ SmokefreeConstants.MAXIMUM_PLAYGROUNDS_DISTANCE+ " Meters");
+//                });
+//    }
     private void validateMaximumAllowedVolunteers() {
         if(citizens.size() >= SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_VOLUNTEERS_ALLOWED) {
             throw new DomainException("MAXIMUM_VOLUNTEERS",
@@ -270,13 +255,13 @@ public class Initiative {
         }
     }
 
-    private void validateMaximumAllowedManagers() {
-        if(managers.size() >= SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_MANAGERS_ALLOWED) {
-            throw new DomainException("MAXIMUM_MANAGERS",
-                    "No more than " + SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_MANAGERS_ALLOWED + " volunteers can claim for manager role",
-                    "No more than " + SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_MANAGERS_ALLOWED + " volunteers can claim for manager role");
-        }
-    }
+//    private void validateMaximumAllowedManagers() {
+//        if(managers.size() >= SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_MANAGERS_ALLOWED) {
+//            throw new DomainException("MAXIMUM_MANAGERS",
+//                    "No more than " + SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_MANAGERS_ALLOWED + " volunteers can claim for manager role",
+//                    "No more than " + SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_MANAGERS_ALLOWED + " volunteers can claim for manager role");
+//        }
+//    }
 
 }
 
