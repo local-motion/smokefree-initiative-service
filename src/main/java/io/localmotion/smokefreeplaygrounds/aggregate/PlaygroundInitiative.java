@@ -36,6 +36,7 @@ import org.gavaghan.geodesy.GlobalPosition;
 
 import javax.validation.ValidationException;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
@@ -74,6 +75,13 @@ public class PlaygroundInitiative extends Initiative {
     private LocalDate smokeFreeDate;
     private LocalDate lastObservationDate;
 
+
+//    @Override
+//    public void checklistUpdate(UpdateChecklistCommand cmd, MetaData metaData) {
+//        log.info("I am here, not doing anything");
+//    }
+
+
     @CommandHandler
     public PlaygroundInitiative(CreateInitiativeCommand cmd, MetaData metaData) {
         validateMaximumPlaygroundCapacity();
@@ -82,15 +90,10 @@ public class PlaygroundInitiative extends Initiative {
         apply(new InitiativeCreatedEvent(cmd.getInitiativeId(), cmd.getType(), cmd.getStatus(), cmd.getName(), cmd.getGeoLocation()), metaData);
     }
 
-//    @CommandHandler
-//    public void joinInitiative(JoinInitiativeCommand cmd, MetaData metaData) {
-//        if (citizens.contains(cmd.getCitizenId())) {
-//            log.warn("{} already joined {}. Ignoring...", cmd.getCitizenId(), cmd.getInitiativeId());
-//        } else {
-//            validateMaximumAllowedVolunteers();
-//            apply(new CitizenJoinedInitiativeEvent(cmd.getInitiativeId(), cmd.getCitizenId()), metaData);
-//        }
-//    }
+    @Override
+    protected Set<String> getChecklistItems() {
+        return CHECKLIST_ITEMS;
+    }
 
     @CommandHandler
     public void claimManagerRole(ClaimManagerRoleCommand cmd, MetaData metaData) {
@@ -131,16 +134,6 @@ public class PlaygroundInitiative extends Initiative {
         apply(new PlaygroundObservationEvent(cmd.getInitiativeId(), cmd.getObserver() , cmd.getSmokefree(), cmd.getComment(), today), metaData);
     }
 
-//    @CommandHandler
-//    public void checklistUpdate(UpdateChecklistCommand cmd, MetaData metaData) {
-//        assertUserIsInitiativeParticipant(metaData);
-//        if (!CHECKLIST_ITEMS.contains(cmd.getChecklistItem()))
-//            throw new DomainException("UNKNOWNITEM", "Unknown checklist item: " + cmd.getChecklistItem(), "Technical error: Unknown checklist item");
-//
-//        // TODO check for superfluous updates the prevent issuing events for those
-//
-//        apply(new CheckListUpdateEvent(cmd.getInitiativeId(), cmd.getActor() , cmd.getChecklistItem(), cmd.isChecked()), metaData);
-//    }
 
 
     /*
@@ -152,11 +145,6 @@ public class PlaygroundInitiative extends Initiative {
         this.id = evt.getInitiativeId();
         this.status = evt.getStatus();
     }
-
-//    @EventSourcingHandler
-//    void on(CitizenJoinedInitiativeEvent evt) {
-//        citizens.add(evt.getCitizenId());
-//    }
 
     @EventSourcingHandler
     void on(ManagerJoinedInitiativeEvent evt) {
@@ -178,9 +166,6 @@ public class PlaygroundInitiative extends Initiative {
     void on(PlaygroundObservationEvent evt) {
         lastObservationDate = evt.getObservationDate();
     }
-
-//    @EventSourcingHandler
-//    void on(CheckListUpdateEvent evt) { }
 
     private String requireUserId(MetaData metaData) {
         final String userId = (String) metaData.get(SmokefreeConstants.JWTClaimSet.USER_ID);
@@ -224,8 +209,8 @@ public class PlaygroundInitiative extends Initiative {
                 .findFirst()
                 .ifPresent( p -> {
                     throw new DomainException(ErrorCode.DUPLICATE_PLAYGROUND_NAME.toString(),
-                            "Playground " + playgroundName + " does already exist, please choose a different name",
-                            "Playground name does already exist");
+                            "Initiative " + playgroundName + " does already exist, please choose a different name",
+                            "Initiative name does already exist");
                 });
 
     }

@@ -2,6 +2,7 @@ package io.localmotion.eventsourcing.axon;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.localmotion.smokefreeplaygrounds.aggregate.PlaygroundInitiative;
+import io.localmotion.smokefreeplaygrounds.projection.PlaygroundProjection;
 import io.micronaut.context.annotation.Factory;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +45,7 @@ public class AxonFactory {
                                        QueryBus queryBus,
                                        Serializer serializer,
                                        InitiativeProjection initiativeProjection,
+                                       PlaygroundProjection playgroundProjection,
                                        ProfileProjection profileProjection) {
 
         // TODO: How to avoid hard-coding aggregates, event- and query handlers?
@@ -56,10 +58,12 @@ public class AxonFactory {
                 .configureAggregate(PlaygroundInitiative.class)
                 .configureAggregate(User.class)
                 .registerQueryHandler(c -> initiativeProjection)
+                .registerQueryHandler(c -> playgroundProjection)
                 .registerQueryHandler(c -> profileProjection);
 
         configurer.eventProcessing()
                 .registerEventHandler(c -> initiativeProjection)
+                .registerEventHandler(c -> playgroundProjection)
                 .registerEventHandler(c -> profileProjection);
 
         Configuration configuration = configurer.buildConfiguration();

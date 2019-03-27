@@ -48,15 +48,6 @@ public class PlaygroundMutation implements GraphQLMutationResolver {
         return new InputAcceptedResponse(cmd.getInitiativeId());
     }
 
-    public InputAcceptedResponse decideToNotBecomeSmokeFree(DecideToNotBecomeSmokeFreeCommand cmd, DataFetchingEnvironment env) {
-        if(initiativeProjection.playground(cmd.getInitiativeId(), toContext(env).requireUserId()).getStatus().equals(Status.stopped)) {
-            // throw new DomainException("PLAYGROUND_INITIATIVE_ALREADY_STOPPED", "The Initiative for this playground is already stopped" , "Please contact help line for more details");
-            return new InputAcceptedResponse(cmd.getInitiativeId());
-        }
-        gateway.sendAndWait(decorateWithMetaData(cmd, env));
-        return new InputAcceptedResponse(cmd.getInitiativeId());
-    }
-
     public InputAcceptedResponse commitToSmokeFreeDate(CommitToSmokeFreeDateCommand cmd, DataFetchingEnvironment env) {
         gateway.sendAndWait(decorateWithMetaData(cmd, env));
         return new InputAcceptedResponse(cmd.getInitiativeId());

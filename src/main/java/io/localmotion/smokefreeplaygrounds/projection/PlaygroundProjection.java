@@ -1,4 +1,4 @@
-package io.localmotion.initiative.projection;
+package io.localmotion.smokefreeplaygrounds.projection;
 
 import io.localmotion.initiative.domain.GeoLocation;
 import io.localmotion.initiative.domain.Status;
@@ -27,9 +27,9 @@ import static com.google.common.collect.Maps.newConcurrentMap;
 
 @Slf4j
 @Singleton
-public class InitiativeProjection {
+public class PlaygroundProjection {
 
-    private final Map<String, Initiative> playgrounds = newConcurrentMap();
+    private final Map<String, Playground> playgrounds = newConcurrentMap();
 
 
     /*
@@ -44,7 +44,7 @@ public class InitiativeProjection {
             log.warn("Received initiative creation for {} {} multiple times", evt.getInitiativeId(), evt.getName());
             return;
         }
-        playgrounds.put(evt.getInitiativeId(), new Initiative(
+        playgrounds.put(evt.getInitiativeId(), new Playground(
                 evt.getInitiativeId(),
                 evt.getName(),
                 geoLocation.getLat(),
@@ -59,28 +59,28 @@ public class InitiativeProjection {
     @EventHandler
     public void on(CitizenJoinedInitiativeEvent evt, MetaData metaData, EventMessage<?> eventMessage) {
         log.info("ON EVENT {}", evt);
-        Initiative initiative = playgrounds.get(evt.getInitiativeId());
-        initiative.getVolunteers().add(new Initiative.Volunteer(evt.getCitizenId(), metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME).toString()));
-        initiative.setLastEventMessage(eventMessage);
+        Playground playground = playgrounds.get(evt.getInitiativeId());
+        playground.getVolunteers().add(new Playground.Volunteer(evt.getCitizenId(), metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME).toString()));
+        playground.setLastEventMessage(eventMessage);
     }
 
     @EventHandler
     public void on(SmokeFreeDecisionEvent evt, EventMessage<?> eventMessage) {
         log.info("ON EVENT {}", evt);
-        Initiative initiative = playgrounds.get(evt.getInitiativeId());
-        Status oldStatus = initiative.getStatus();
+        Playground playground = playgrounds.get(evt.getInitiativeId());
+        Status oldStatus = playground.getStatus();
         Status newStatus = oldStatus == Status.not_started ? Status.in_progress : oldStatus;
-        initiative.setStatus(newStatus);
-        initiative.setLastEventMessage(eventMessage);
+        playground.setStatus(newStatus);
+        playground.setLastEventMessage(eventMessage);
     }
 
     @EventHandler
     public void on(SmokeFreeDateCommittedEvent evt, EventMessage<SmokeFreeDateCommittedEvent> eventMessage)  {
         log.info("ON EVENT {}", evt);
-        Initiative initiative = playgrounds.get(evt.getInitiativeId());
-        initiative.setSmokeFreeDate(evt.getSmokeFreeDate());
-        initiative.setStatus(Status.finished);
-        initiative.setLastEventMessage(eventMessage);
+        Playground playground = playgrounds.get(evt.getInitiativeId());
+        playground.setSmokeFreeDate(evt.getSmokeFreeDate());
+        playground.setStatus(Status.finished);
+        playground.setLastEventMessage(eventMessage);
     }
 
     @EventHandler
@@ -89,14 +89,14 @@ public class InitiativeProjection {
         final String userId = evt.getManagerId();
         final String userName = (String) metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME);             // TODO should this data not be extracted from the event itself?
 
-        Initiative initiative = playgrounds.get(evt.getInitiativeId());
-        Initiative.Manager manager = new Initiative.Manager(userId, userName);
-        initiative.addManager(manager);
+        Playground playground = playgrounds.get(evt.getInitiativeId());
+        Playground.Manager manager = new Playground.Manager(userId, userName);
+        playground.addManager(manager);
 
         // Also register the manager as a volunteer
-        initiative.getVolunteers().add(new Initiative.Volunteer(evt.getManagerId(), metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME).toString()));
+        playground.getVolunteers().add(new Playground.Volunteer(evt.getManagerId(), metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME).toString()));
 
-        initiative.setLastEventMessage(eventMessage);
+        playground.setLastEventMessage(eventMessage);
     }
 
     @EventHandler
@@ -104,19 +104,19 @@ public class InitiativeProjection {
         log.info("ON EVENT {}", evt);
         final String userId = (String) metaData.get(SmokefreeConstants.JWTClaimSet.USER_ID);
         final String userName = (String) metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME);
-        Initiative.PlaygroundObservation playgroundObservation = new Initiative.PlaygroundObservation(evt.getObserver(), metaData.get(SmokefreeConstants.JWTClaimSet.COGNITO_USER_NAME).toString(), evt.getSmokefree(), evt.getObservationDate(), evt.getComment());
-        Initiative initiative = playgrounds.get(evt.getInitiativeId());
-        initiative.addPlaygroundObservation(playgroundObservation);
-        initiative.setLastEventMessage(eventMessage);
+        Playground.PlaygroundObservation playgroundObservation = new Playground.PlaygroundObservation(evt.getObserver(), metaData.get(SmokefreeConstants.JWTClaimSet.COGNITO_USER_NAME).toString(), evt.getSmokefree(), evt.getObservationDate(), evt.getComment());
+        Playground playground = playgrounds.get(evt.getInitiativeId());
+        playground.addPlaygroundObservation(playgroundObservation);
+        playground.setLastEventMessage(eventMessage);
 
     }
 
     @EventHandler
     void on(CheckListUpdateEvent evt, EventMessage<?> eventMessage) {
         log.info("ON EVENT {} AT {}", evt, eventMessage.getTimestamp());
-        Initiative initiative = playgrounds.get(evt.getInitiativeId());
-        initiative.setChecklistItem(evt.getActor(), evt.getChecklistItem(), evt.isChecked());
-        initiative.setLastEventMessage(eventMessage);
+        Playground playground = playgrounds.get(evt.getInitiativeId());
+        playground.setChecklistItem(evt.getActor(), evt.getChecklistItem(), evt.isChecked());
+        playground.setLastEventMessage(eventMessage);
     }
 
 
@@ -124,16 +124,16 @@ public class InitiativeProjection {
             Serving the projections
      */
 
-    public Collection<Initiative> playgrounds(String userId) {
+    public Collection<Playground> playgrounds(String userId) {
         return playgrounds.values().stream().map(playground -> playground.getPlaygroundForUser(userId)).collect(Collectors.toList());
     }
 
-    public Initiative playground(String id, String userId) {
-        Initiative initiative = playgrounds.containsKey(id) ? playgrounds.get(id).getPlaygroundForUser(userId) : null;
-        return initiative;
+    public Playground playground(String id, String userId) {
+        Playground playground = playgrounds.containsKey(id) ? playgrounds.get(id).getPlaygroundForUser(userId) : null;
+        return playground;
     }
 
-    public Collection<Initiative> getAllPlaygrounds() {
+    public Collection<Playground> getAllPlaygrounds() {
         return playgrounds.values();
     }
 

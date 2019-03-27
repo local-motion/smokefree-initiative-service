@@ -1,8 +1,9 @@
-package io.localmotion.initiative.projection;
+package io.localmotion.smokefreeplaygrounds.projection;
 
-import lombok.*;
-import org.axonframework.eventhandling.EventMessage;
 import io.localmotion.initiative.domain.Status;
+import lombok.Data;
+import lombok.Value;
+import org.axonframework.eventhandling.EventMessage;
 
 import javax.annotation.Nullable;
 import java.time.LocalDate;

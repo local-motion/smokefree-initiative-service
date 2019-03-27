@@ -27,14 +27,26 @@ type Profile {
     emailAddress : String!
 }
 
+type Initiative {
+    id : String!
+    lng : Float
+    lat : Float
+    status: Status
+    volunteerCount: Int
+    volunteers: [Volunteer!]!
+    jointChecklistItems: [String!]!
+    ownChecklistItems: [String!]!
+    lastUpdateTimestamp: Date!
+}
+
 type Playground {
     id : String!
-    name : String
+    name : String!
     lng : Float
     lat : Float
     status: Status
     smokeFreeDate: LocalDate
-    volunteerCount: Int #@auth(role : "manager")
+    volunteerCount: Int
     votes: Int
     managers: [Manager!]!
     playgroundObservations: [PlaygroundObservation!]!
@@ -85,7 +97,7 @@ type Mutation {
     joinInitiative(input: JoinInitiativeInput!): InputAcceptedResponse!
     updateChecklist(input: UpdateChecklistCommand!): InputAcceptedResponse!
 
-# Playground
+# Initiative
     claimManagerRole(input: ClaimManagerRoleCommand!): InputAcceptedResponse!
     decideToBecomeSmokeFree(input: DecideToBecomeSmokeFreeCommand!): InputAcceptedResponse!
     commitToSmokeFreeDate(input: CommitToSmokeFreeDateCommand!): InputAcceptedResponse!

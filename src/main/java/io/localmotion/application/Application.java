@@ -46,8 +46,8 @@ public class Application {
     }
 
     /*@Bean
-    public InitiativeProjection initiativeProjection() {
-        return new InitiativeProjection();
+    public PlaygroundProjection initiativeProjection() {
+        return new PlaygroundProjection();
     }
 
     @Bean

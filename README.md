@@ -18,7 +18,7 @@ AWS_COGNITO_USERPOOLID  eu-west-1_WsTxYUHyC
 ## Running Graphql Playground
 
 ```
-brew cask install graphql-playground
+brew cask install graphql-initiative
 ```
 
 Open the installed "GraphQL Playground" OSX application

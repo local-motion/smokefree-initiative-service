@@ -14,7 +14,7 @@ import org.axonframework.messaging.MetaData;
 import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 import io.localmotion.initiative.command.CreateInitiativeCommand;
 import io.localmotion.initiative.projection.InitiativeProjection;
-import io.localmotion.initiative.projection.Playground;
+import io.localmotion.initiative.projection.Initiative;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
@@ -39,7 +39,7 @@ public class PlaygroundImportController {
     }
 
     @Get
-    public Collection<Playground> playgrounds() {
+    public Collection<Initiative> playgrounds() {
         return initiativeProjection.playgrounds(null);
     }
 

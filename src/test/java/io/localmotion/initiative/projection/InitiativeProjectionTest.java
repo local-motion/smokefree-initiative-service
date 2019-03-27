@@ -11,7 +11,6 @@ import io.localmotion.smokefreeplaygrounds.event.SmokeFreeDateCommittedEvent;
 import org.axonframework.eventhandling.EventMessage;
 import org.axonframework.eventhandling.GenericEventMessage;
 import org.junit.jupiter.api.Test;
-import smokefree.domain.*;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -39,10 +38,10 @@ class InitiativeProjectionTest {
         CitizenJoinedInitiativeEvent joined2 = new CitizenJoinedInitiativeEvent(initiative1.getInitiativeId(), "citizen-2");
         projection.on(joined1, null, getMessageForEvent(joined2));
 
-        final Playground playground = projection.playground(initiative1.getInitiativeId(), null);
-        assertNotNull(playground);
-        assertEquals(in_progress, playground.getStatus());
-        assertEquals(2, playground.getVolunteerCount());
+        final Initiative initiative = projection.playground(initiative1.getInitiativeId(), null);
+        assertNotNull(initiative);
+        assertEquals(in_progress, initiative.getStatus());
+        assertEquals(2, initiative.getVolunteerCount());
     }
 
     @Test
@@ -52,9 +51,9 @@ class InitiativeProjectionTest {
         triggerInitiativeCreatedEvent(projection, "initiative-1", in_progress);
         assertEquals(in_progress, projection.playground("initiative-1", null).getStatus());
 
-        Playground playground = projection.playground("initiative-1", null);
-        assertNotNull(playground);
-        assertNull(playground.getSmokeFreeDate());
+        Initiative initiative = projection.playground("initiative-1", null);
+        assertNotNull(initiative);
+        assertNull(initiative.getSmokeFreeDate());
 
         LocalDate today = now();
         LocalDate tomorrow = now().plusDays(1);
@@ -62,9 +61,9 @@ class InitiativeProjectionTest {
         SmokeFreeDateCommittedEvent committedEvent = new SmokeFreeDateCommittedEvent("initiative-1", today, tomorrow);
         projection.on(committedEvent, new GenericEventMessage<>(committedEvent));
 
-        playground = projection.playground("initiative-1", null);
-        assertEquals(finished, playground.getStatus());
-        assertEquals(tomorrow, playground.getSmokeFreeDate());
+        initiative = projection.playground("initiative-1", null);
+        assertEquals(finished, initiative.getStatus());
+        assertEquals(tomorrow, initiative.getSmokeFreeDate());
     }
 
     @Test
@@ -84,9 +83,9 @@ class InitiativeProjectionTest {
         projection.on(managerjoinedEvent, managerjoinedEventMessage.getMetaData(), managerjoinedEventMessage);
 
 
-        Playground playground = projection.playground("initiative-1", null);
-        assertEquals(1, playground.getManagers().size());
-        assertEquals(new Playground.Manager("manager-1", "Jack Ma"), playground.getManagers().get(0));
+        Initiative initiative = projection.playground("initiative-1", null);
+        assertEquals(1, initiative.getManagers().size());
+        assertEquals(new Initiative.Manager("manager-1", "Jack Ma"), initiative.getManagers().get(0));
     }
 
     @Test
@@ -107,8 +106,8 @@ class InitiativeProjectionTest {
         EventMessage<?> playgroundObservationEventMessage = getMessageForEvent(playgroundObservationEvent, metadataMap);
         projection.on(playgroundObservationEvent, playgroundObservationEventMessage.getMetaData(), playgroundObservationEventMessage);
 
-        Playground playground = projection.playground("initiative-1", null);
-        assertEquals(1, playground.getPlaygroundObservations().size());
+        Initiative initiative = projection.playground("initiative-1", null);
+        assertEquals(1, initiative.getPlaygroundObservations().size());
     }
 
 

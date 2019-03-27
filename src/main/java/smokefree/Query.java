@@ -3,8 +3,10 @@ package smokefree;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
 import io.localmotion.initiative.projection.InitiativeProjection;
-import io.localmotion.initiative.projection.Playground;
+import io.localmotion.initiative.projection.Initiative;
 import io.localmotion.interfacing.graphql.SecurityContext;
+import io.localmotion.smokefreeplaygrounds.projection.Playground;
+import io.localmotion.smokefreeplaygrounds.projection.PlaygroundProjection;
 import io.localmotion.user.projection.Profile;
 import io.localmotion.user.projection.ProfileProjection;
 import lombok.NoArgsConstructor;
@@ -19,18 +21,21 @@ import java.util.Collection;
 @NoArgsConstructor
 @SuppressWarnings("unused")
 public class Query implements GraphQLQueryResolver {
+//    @Inject
+//    private InitiativeProjection initiatives;
     @Inject
-    InitiativeProjection initiatives;
+    private ProfileProjection profiles;
+
     @Inject
-    ProfileProjection profiles;
+    private PlaygroundProjection playgroundProjection;
 
 
     public Collection<Playground> playgrounds(DataFetchingEnvironment env) {
-        return initiatives.playgrounds(getUserId(env));
+        return playgroundProjection.playgrounds(getUserId(env));
     }
 
     public Playground playground(String id, DataFetchingEnvironment env) {
-        return initiatives.playground(id, getUserId(env));
+        return playgroundProjection.playground(id, getUserId(env));
     }
 
     public Profile profile(DataFetchingEnvironment env) {
@@ -46,7 +51,7 @@ public class Query implements GraphQLQueryResolver {
      * @return total volunteers count
      */
     public long totalVolunteers() {
-        return initiatives.playgrounds(null).stream()
+        return playgroundProjection.playgrounds(null).stream()
                 .flatMap(playground -> playground.getVolunteers().stream())
                 .distinct()
                 .count();

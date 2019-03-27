@@ -25,7 +25,7 @@ class GraphqlControllerTest {
     HttpClient client;
 
     //    @Inject
-//    InitiativeProjection initiatives;
+//    PlaygroundProjection initiatives;
     private String fakeJwt = "fakeJwt";
 
     //@Test
@@ -84,7 +84,7 @@ class GraphqlControllerTest {
         log.info("Response: {}", body);
 
 //        Thread.sleep(100);
-//        final Collection<Playground> playgrounds = initiatives.playgrounds();
+//        final Collection<Initiative> playgrounds = initiatives.playgrounds();
 //        assertEquals(1, playgrounds.size());
     }
 
@@ -114,7 +114,7 @@ class GraphqlControllerTest {
         log.info("Response: {}", body);
 
 //        Thread.sleep(100);
-//        final Collection<Playground> playgrounds = initiatives.playgrounds();
+//        final Collection<Initiative> playgrounds = initiatives.playgrounds();
 //        assertEquals(1, playgrounds.size());
     }
 }

@@ -1,5 +1,6 @@
 package io.localmotion.chatbox;
 
+import io.localmotion.initiative.projection.Initiative;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
@@ -8,7 +9,6 @@ import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
 import lombok.extern.slf4j.Slf4j;
 import io.localmotion.initiative.projection.InitiativeProjection;
-import io.localmotion.initiative.projection.Playground;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -65,17 +65,17 @@ public class ChatboxController {
         return getPlayground(chatboxId) != null;
     }
 
-    private Playground getPlayground(String playgroundId) {
-        for (Playground i: initiativeProjection.playgrounds(null))
+    private Initiative getPlayground(String playgroundId) {
+        for (Initiative i: initiativeProjection.playgrounds(null))
             if (i.getId().equals(playgroundId))
                 return i;
         return null;
     }
 
     private boolean isUserAuthorisedForChatbox(String userId, String chatboxId) {
-        final Playground playground = getPlayground(chatboxId);
-        if (playground != null)
-            return playground.getVolunteers().stream().anyMatch(volunteer -> volunteer.getUserId().equals(userId));
+        final Initiative initiative = getPlayground(chatboxId);
+        if (initiative != null)
+            return initiative.getVolunteers().stream().anyMatch(volunteer -> volunteer.getUserId().equals(userId));
         return false;
     }
 }
