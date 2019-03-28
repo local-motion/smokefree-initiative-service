@@ -1,5 +1,124 @@
 micronaut:
-#  security:
-#    token:
-#      propagation:
-#        enabled: true
+  application:
+    name: smokefree-initiative-service
+
+  server:
+    port: 18086
+    cors:
+      enabled: true
+      configurations:
+        web:
+          allowedOrigins:
+          - http://localhost:3000
+          - http://foo.com
+          - ^http(|s)://www\.google\.com$
+          allowedMethods:
+          - GET
+          - POST
+          - OPTIONS
+
+  router:
+    static-resources:
+      public:
+        enabled: true
+        paths: classpath:public
+        mapping: /**
+
+  context:
+    path: /api
+  security:
+    enabled: true
+    endpoints:
+      login:
+        enabled: true
+      logout:
+        enabled: true
+      oauth:
+        # TODO: is oauth needed? we're not refreshing on the server when 'implicit grant' flow?
+        enabled: true
+      beans:
+        enabled: true
+        sensitive: true
+      info:
+        enabled: true
+        sensitive: false
+    intercept-url-map:
+    - pattern: /schema.graphql
+      http-method: GET
+      access:
+      - isAnonymous()
+    token:
+      enabled: true
+      jwt:
+        enabled: true
+        algorithm: HS256
+        bearer:
+          enabled: true
+          header-name: "Authorization"
+          prefix: "Bearer"
+        signature:
+          enabled: true
+          rsa:
+            enabled: true
+            algorithm: HS256
+
+# Database and JPA
+#datasources:
+#  default:
+#    url: ${JDBC_URL:`jdbc:mysql://localhost:3306/smokefree`}
+#    username: ${JDBC_USER:root}
+#    password: ${JDBC_PASSWORD:root}
+#    driverClassName: ${JDBC_DRIVER:com.mysql.jdbc.Driver}
+
+#  other:
+#    url: ${JDBC_URL:`jdbc:h2:mem:default;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE`}
+#    username: ${JDBC_USER:sa}
+#    password: ${JDBC_PASSWORD:""}
+#    driverClassName: ${JDBC_DRIVER:org.h2.Driver}
+
+jpa:
+  default:
+    packages-to-scan:
+    - chatbox
+    - smokefree
+    - personaldata
+    - configuration
+    properties:
+      hibernate:
+        hbm2ddl:
+          auto: update
+        show_sql: true
+
+---
+# https://docs.micronaut.io/latest/guide/index.html#jsonBinding
+jackson:
+  serializationInclusion: ALWAYS
+  serialization:
+    indentOutput: true
+    writeDatesAsTimestamps: false
+  deserialization:
+    useBigIntegerForInts: true
+    failOnUnknownProperties: false
+
+# AWS secret Manager holds RDS details securely, that's because we do not need below database details here anymore
+aws:
+  cognito:
+    # These settings are valid for running the application locally, override with env variables on server environments
+    region: eu-west-1
+    userpoolid: eu-west-1_WsTxYUHyC
+    userpoolwebclientid: 3nkh1qomocr39s893jf0dp44cd
+    domain: smokefree-dev.auth.eu-west-1.amazoncognito.com
+  #    redirectsignin: http://localhost:3000/onboarding/signin
+  #    redirectsignout: http://localhost:3000/onboarding/logout
+  rds:
+    enableSsl: false
+    jdbcdriverclass: com.mysql.jdbc.Driver
+
+google:
+  maps:
+    key: use_your_personal_key_for_localhost
+
+
+localmotion:
+  # These settings are valid for running the application locally, override with env variables on server environments
+  logicalenvironment: Local
