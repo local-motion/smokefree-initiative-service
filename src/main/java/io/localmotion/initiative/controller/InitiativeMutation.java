@@ -58,9 +58,9 @@ public class InitiativeMutation implements GraphQLMutationResolver {
 
     @SneakyThrows
     public InputAcceptedResponse joinInitiative(JoinInitiativeInput input, DataFetchingEnvironment env) {
-        String citizenId = toContext(env).requireUserId();
+        String memberId = toContext(env).requireUserId();
 
-        JoinInitiativeCommand cmd = new JoinInitiativeCommand(input.getInitiativeId(), citizenId);
+        JoinInitiativeCommand cmd = new JoinInitiativeCommand(input.getInitiativeId(), memberId);
         gateway.sendAndWait(decorateWithMetaData(cmd, env));
         return new InputAcceptedResponse(input.getInitiativeId());
     }

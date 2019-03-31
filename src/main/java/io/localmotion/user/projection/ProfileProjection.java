@@ -49,7 +49,7 @@ public class ProfileProjection {
             log.info("User profile retrieved pii record " + evt.getPiiRecordId() + " for " + evt.getUserId() + " with data " + userPII);
         }
         else {
-            profile = new Profile(evt.getUserId(), evt.getName(), evt.getEmailAddress());
+            profile = new Profile(evt.getUserId(), "removed", "removed");
         }
 
         profilesById.put(profile.getId(), profile);

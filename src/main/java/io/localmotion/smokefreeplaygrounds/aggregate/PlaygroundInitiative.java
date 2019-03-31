@@ -4,23 +4,15 @@ import io.localmotion.application.Application;
 import io.localmotion.application.DomainException;
 import io.localmotion.initiative.aggregate.Initiative;
 import io.localmotion.initiative.command.CreateInitiativeCommand;
-import io.localmotion.initiative.command.JoinInitiativeCommand;
-import io.localmotion.initiative.command.UpdateChecklistCommand;
 import io.localmotion.initiative.domain.GeoLocation;
 import io.localmotion.initiative.domain.Status;
-import io.localmotion.initiative.event.CheckListUpdateEvent;
-import io.localmotion.initiative.event.CitizenJoinedInitiativeEvent;
-import io.localmotion.initiative.event.InitiativeCreatedEvent;
 import io.localmotion.initiative.projection.InitiativeProjection;
 import io.localmotion.interfacing.graphql.error.ErrorCode;
 import io.localmotion.smokefreeplaygrounds.command.ClaimManagerRoleCommand;
 import io.localmotion.smokefreeplaygrounds.command.CommitToSmokeFreeDateCommand;
 import io.localmotion.smokefreeplaygrounds.command.DecideToBecomeSmokeFreeCommand;
 import io.localmotion.smokefreeplaygrounds.command.RecordPlaygroundObservationCommand;
-import io.localmotion.smokefreeplaygrounds.event.ManagerJoinedInitiativeEvent;
-import io.localmotion.smokefreeplaygrounds.event.PlaygroundObservationEvent;
-import io.localmotion.smokefreeplaygrounds.event.SmokeFreeDateCommittedEvent;
-import io.localmotion.smokefreeplaygrounds.event.SmokeFreeDecisionEvent;
+import io.localmotion.smokefreeplaygrounds.event.*;
 import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +20,6 @@ import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.common.Assert;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.messaging.MetaData;
-import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateRoot;
 import org.gavaghan.geodesy.Ellipsoid;
 import org.gavaghan.geodesy.GeodeticCalculator;
@@ -36,7 +27,6 @@ import org.gavaghan.geodesy.GlobalPosition;
 
 import javax.validation.ValidationException;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
@@ -63,23 +53,13 @@ public class PlaygroundInitiative extends Initiative {
 
     // Instance properties
 
-//    @AggregateIdentifier
-//    private String id;
-
 
     // TODO: Specs mention Phase; Should we rename to Phase and use prepare, execute and sustain as values?
     private Status status;
     private Set<String> managers = newHashSet();
-//    private Set<String> citizens = newHashSet();
 
     private LocalDate smokeFreeDate;
     private LocalDate lastObservationDate;
-
-
-//    @Override
-//    public void checklistUpdate(UpdateChecklistCommand cmd, MetaData metaData) {
-//        log.info("I am here, not doing anything");
-//    }
 
 
     @CommandHandler
@@ -87,7 +67,7 @@ public class PlaygroundInitiative extends Initiative {
         validateMaximumPlaygroundCapacity();
         validateDuplicatePlaygroundNames(cmd.getName());
         validatePlaygroundsRange(cmd.getGeoLocation(), SmokefreeConstants.MAXIMUM_PLAYGROUNDS_DISTANCE);
-        apply(new InitiativeCreatedEvent(cmd.getInitiativeId(), cmd.getType(), cmd.getStatus(), cmd.getName(), cmd.getGeoLocation()), metaData);
+        apply(new PlaygroundInitiativeCreatedEvent(cmd.getInitiativeId(), cmd.getType(), cmd.getStatus(), cmd.getName(), cmd.getGeoLocation()), metaData);
     }
 
     @Override
@@ -122,7 +102,7 @@ public class PlaygroundInitiative extends Initiative {
     public void commitToSmokeFreeDate(CommitToSmokeFreeDateCommand cmd, MetaData metaData) {
         assertCurrentUserIsManager(metaData);
         if (smokeFreeDate == null || !cmd.getSmokeFreeDate().isEqual(smokeFreeDate)) {
-            apply(new SmokeFreeDateCommittedEvent(cmd.getInitiativeId(), smokeFreeDate, cmd.getSmokeFreeDate()), metaData);
+            apply(new SmokeFreeDateCommittedEvent(cmd.getInitiativeId(), cmd.getSmokeFreeDate()), metaData);
         }
     }
 
@@ -141,7 +121,7 @@ public class PlaygroundInitiative extends Initiative {
      */
 
     @EventSourcingHandler
-    void on(InitiativeCreatedEvent evt) {
+    void on(PlaygroundInitiativeCreatedEvent evt) {
         this.id = evt.getInitiativeId();
         this.status = evt.getStatus();
     }
@@ -149,7 +129,7 @@ public class PlaygroundInitiative extends Initiative {
     @EventSourcingHandler
     void on(ManagerJoinedInitiativeEvent evt) {
         managers.add(evt.getManagerId());
-        citizens.add(evt.getManagerId());
+        members.add(evt.getManagerId());
     }
 
     @EventSourcingHandler
@@ -181,12 +161,6 @@ public class PlaygroundInitiative extends Initiative {
                Validations
      */
 
-//    private void assertUserIsInitiativeParticipant(MetaData metaData) {
-//        String userId = requireUserId(metaData);
-//        if (!citizens.contains(userId) && !managers.contains(userId))
-//            throw new ValidationException("User is not participating in this initiative");
-//    }
-
     private void assertCurrentUserIsManager(MetaData metaData) {
         String userId = requireUserId(metaData);
         Assert.assertThat(userId, id -> managers.contains(id), () -> new DomainException(
@@ -212,7 +186,6 @@ public class PlaygroundInitiative extends Initiative {
                             "Initiative " + playgroundName + " does already exist, please choose a different name",
                             "Initiative name does already exist");
                 });
-
     }
 
     private void validatePlaygroundsRange(GeoLocation newPlaygroundLocation, long distance) {
@@ -233,7 +206,7 @@ public class PlaygroundInitiative extends Initiative {
                 });
     }
     private void validateMaximumAllowedVolunteers() {
-        if(citizens.size() >= SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_VOLUNTEERS_ALLOWED) {
+        if(members.size() >= SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_VOLUNTEERS_ALLOWED) {
             throw new DomainException("MAXIMUM_VOLUNTEERS",
                     "No more than " + SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_VOLUNTEERS_ALLOWED + " members can join the initiative" ,
                     "No more than " + SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_VOLUNTEERS_ALLOWED + " members can join the initiative");

@@ -4,8 +4,8 @@ import io.localmotion.application.Application;
 import io.localmotion.application.DomainException;
 import io.localmotion.initiative.command.JoinInitiativeCommand;
 import io.localmotion.initiative.command.UpdateChecklistCommand;
-import io.localmotion.initiative.event.CheckListUpdateEvent;
-import io.localmotion.initiative.event.CitizenJoinedInitiativeEvent;
+import io.localmotion.initiative.event.ChecklistUpdateEvent;
+import io.localmotion.initiative.event.MemberJoinedInitiativeEvent;
 import io.localmotion.initiative.projection.InitiativeProjection;
 import io.localmotion.interfacing.graphql.error.ErrorCode;
 import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
@@ -20,7 +20,6 @@ import org.axonframework.modelling.command.AggregateRoot;
 
 import javax.validation.ValidationException;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
@@ -44,16 +43,16 @@ public class Initiative {
     // TODO: Specs mention Phase; Should we rename to Phase and use prepare, execute and sustain as values?
 //    private Status status;  // TODO we need to revive the status in some form
 //    protected Set<String> managers = newHashSet();
-    protected Set<String> citizens = newHashSet();
+    protected Set<String> members = newHashSet();
 
 
     @CommandHandler
     public void joinInitiative(JoinInitiativeCommand cmd, MetaData metaData) {
-        if (citizens.contains(cmd.getCitizenId())) {
-            log.warn("{} already joined {}. Ignoring...", cmd.getCitizenId(), cmd.getInitiativeId());
+        if (members.contains(cmd.getMemberId())) {
+            log.warn("{} already joined {}. Ignoring...", cmd.getMemberId(), cmd.getInitiativeId());
         } else {
             validateMaximumAllowedVolunteers();
-            apply(new CitizenJoinedInitiativeEvent(cmd.getInitiativeId(), cmd.getCitizenId()), metaData);
+            apply(new MemberJoinedInitiativeEvent(cmd.getInitiativeId(), cmd.getMemberId()), metaData);
         }
     }
 
@@ -65,7 +64,7 @@ public class Initiative {
 
         // TODO check for superfluous updates the prevent issuing events for those
 
-        apply(new CheckListUpdateEvent(cmd.getInitiativeId(), cmd.getActor() , cmd.getChecklistItem(), cmd.isChecked()), metaData);
+        apply(new ChecklistUpdateEvent(cmd.getInitiativeId(), cmd.getActor() , cmd.getChecklistItem(), cmd.isChecked()), metaData);
     }
 
     protected Set<String> getChecklistItems() {
@@ -80,12 +79,12 @@ public class Initiative {
      */
 
     @EventSourcingHandler
-    void on(CitizenJoinedInitiativeEvent evt) {
-        citizens.add(evt.getCitizenId());
+    void on(MemberJoinedInitiativeEvent evt) {
+        members.add(evt.getMemberId());
     }
 
     @EventSourcingHandler
-    void on(CheckListUpdateEvent evt) { }
+    void on(ChecklistUpdateEvent evt) { }
 
 
 
@@ -104,8 +103,8 @@ public class Initiative {
 
     protected void assertUserIsInitiativeParticipant(MetaData metaData) {
         String userId = requireUserId(metaData);
-//        if (!citizens.contains(userId) && !managers.contains(userId))
-        if (!citizens.contains(userId))
+//        if (!members.contains(userId) && !managers.contains(userId))
+        if (!members.contains(userId))
             throw new ValidationException("User is not participating in this initiative");
     }
 
@@ -119,7 +118,7 @@ public class Initiative {
     }
 
     private void validateMaximumAllowedVolunteers() {
-        if(citizens.size() >= SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_VOLUNTEERS_ALLOWED) {
+        if(members.size() >= SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_VOLUNTEERS_ALLOWED) {
             throw new DomainException("MAXIMUM_VOLUNTEERS",
                     "No more than " + SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_VOLUNTEERS_ALLOWED + " members can join the initiative" ,
                     "No more than " + SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_VOLUNTEERS_ALLOWED + " members can join the initiative");

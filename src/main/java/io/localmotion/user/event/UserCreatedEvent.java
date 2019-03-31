@@ -8,7 +8,5 @@ import lombok.*;
 @ToString
 public class UserCreatedEvent {
     String userId;
-    String name;
-    String emailAddress;
     long piiRecordId;
 }

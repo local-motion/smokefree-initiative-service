@@ -1,5 +1,8 @@
 package io.localmotion.smokefreeplaygrounds.event;
 
+import io.localmotion.initiative.domain.GeoLocation;
+import io.localmotion.initiative.domain.Status;
+import io.localmotion.initiative.domain.Type;
 import lombok.*;
 
 /**

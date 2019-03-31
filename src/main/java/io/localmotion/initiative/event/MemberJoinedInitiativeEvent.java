@@ -6,7 +6,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
 @ToString
-public class CitizenJoinedInitiativeEvent {
+public class MemberJoinedInitiativeEvent {
     String initiativeId;
-    String citizenId;
+    String memberId;
 }

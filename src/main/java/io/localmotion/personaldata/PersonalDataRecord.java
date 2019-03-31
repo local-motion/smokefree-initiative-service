@@ -14,12 +14,11 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-//@ToString
 @Entity
 public class PersonalDataRecord {
 
     public static final int MAX_PERSON_ID_LENGTH = 255;
-    public static final int MAX_DATA_LENGTH = 10240;
+    public static final int MAX_DATA_LENGTH = 20480;
 
     public PersonalDataRecord(String personId, String data) {
         if (personId.length() > MAX_PERSON_ID_LENGTH)

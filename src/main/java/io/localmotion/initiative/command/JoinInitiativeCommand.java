@@ -14,5 +14,5 @@ public class JoinInitiativeCommand {
     @TargetAggregateIdentifier
     String initiativeId;
     @NotBlank
-    String citizenId;
+    String memberId;
 }

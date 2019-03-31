@@ -1,4 +1,4 @@
-package io.localmotion.initiative.event;
+package io.localmotion.smokefreeplaygrounds.event;
 
 import io.localmotion.initiative.domain.GeoLocation;
 import io.localmotion.initiative.domain.Status;
@@ -9,7 +9,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
 @ToString
-public class InitiativeCreatedEvent {
+public class PlaygroundInitiativeCreatedEvent {
     String initiativeId;
     Type type;
     Status status;

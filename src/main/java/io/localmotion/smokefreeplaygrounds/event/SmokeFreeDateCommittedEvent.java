@@ -13,6 +13,5 @@ import java.time.LocalDate;
 @ToString
 public class SmokeFreeDateCommittedEvent {
     String initiativeId;
-    LocalDate previousDate;
     LocalDate smokeFreeDate;
 }

@@ -5,13 +5,9 @@ import io.localmotion.initiative.command.CreateInitiativeCommand;
 import io.localmotion.initiative.command.JoinInitiativeCommand;
 import io.localmotion.initiative.domain.GeoLocation;
 import io.localmotion.initiative.domain.Status;
-import io.localmotion.initiative.event.CitizenJoinedInitiativeEvent;
-import io.localmotion.initiative.event.InitiativeCreatedEvent;
+import io.localmotion.initiative.event.MemberJoinedInitiativeEvent;
 import io.localmotion.smokefreeplaygrounds.command.*;
-import io.localmotion.smokefreeplaygrounds.event.ManagerJoinedInitiativeEvent;
-import io.localmotion.smokefreeplaygrounds.event.PlaygroundObservationEvent;
-import io.localmotion.smokefreeplaygrounds.event.SmokeFreeDateCommittedEvent;
-import io.localmotion.smokefreeplaygrounds.event.SmokeFreeDecisionEvent;
+import io.localmotion.smokefreeplaygrounds.event.*;
 import org.axonframework.messaging.interceptors.BeanValidationInterceptor;
 import org.axonframework.test.aggregate.AggregateTestFixture;
 import org.axonframework.test.aggregate.FixtureConfiguration;
@@ -56,7 +52,7 @@ class InitiativeTest {
         fixture.given(initiativeCreated("initiative-1", not_started))
                 .when(new JoinInitiativeCommand("initiative-1", "citizen-1"))
                 .expectSuccessfulHandlerExecution()
-                .expectEvents(new CitizenJoinedInitiativeEvent("initiative-1", "citizen-1"));
+                .expectEvents(new MemberJoinedInitiativeEvent("initiative-1", "citizen-1"));
     }
 
 
@@ -65,7 +61,7 @@ class InitiativeTest {
         fixture
                 .given(
                         initiativeCreated("initiative-1", not_started),
-                        new CitizenJoinedInitiativeEvent("initiative-1", "citizen-1"))
+                        new MemberJoinedInitiativeEvent("initiative-1", "citizen-1"))
                 .when(new JoinInitiativeCommand("initiative-1", "citizen-1")) // Attempt to join again!
                 .expectSuccessfulHandlerExecution()
                 .expectNoEvents();
@@ -138,7 +134,7 @@ class InitiativeTest {
                 .when(new CommitToSmokeFreeDateCommand("initiative-1", tomorrow), asManager1())
                 .expectSuccessfulHandlerExecution()
                 .expectEvents(
-                        new SmokeFreeDateCommittedEvent("initiative-1", null, tomorrow));
+                        new SmokeFreeDateCommittedEvent("initiative-1", tomorrow));
     }
 
     @Test
@@ -150,7 +146,7 @@ class InitiativeTest {
                 .given(
                         initiativeCreated("initiative-1", not_started),
                         managerJoined(MANAGER_1),
-                        new SmokeFreeDateCommittedEvent("initiative-1", null, yesterday))
+                        new SmokeFreeDateCommittedEvent("initiative-1", yesterday))
                 .when(new CommitToSmokeFreeDateCommand("initiative-1", today), asManager1())
                 .expectException(ValidationException.class);
     }
@@ -164,7 +160,7 @@ class InitiativeTest {
                 .given(
                         initiativeCreated("initiative-1", not_started),
                         managerJoined(MANAGER_1),
-                        new SmokeFreeDateCommittedEvent("initiative-1", null, yesterday))
+                        new SmokeFreeDateCommittedEvent("initiative-1", yesterday))
                 .when(new RecordPlaygroundObservationCommand("initiative-1", "citizen-1", true, "Dont see anyone smoking"), asManager1())
                 .expectSuccessfulHandlerExecution()
                 .expectEvents(PlaygroundObservationEvent.class
@@ -175,8 +171,8 @@ class InitiativeTest {
         return singletonMap("user_id", MANAGER_1);
     }
 
-    private InitiativeCreatedEvent initiativeCreated(String id, Status status) {
-        return new InitiativeCreatedEvent(id, smokefree, status, "Test initiative", new GeoLocation(null, null));
+    private PlaygroundInitiativeCreatedEvent initiativeCreated(String id, Status status) {
+        return new PlaygroundInitiativeCreatedEvent(id, smokefree, status, "Test initiative", new GeoLocation(null, null));
     }
 
     private ManagerJoinedInitiativeEvent managerJoined(String managerId) {

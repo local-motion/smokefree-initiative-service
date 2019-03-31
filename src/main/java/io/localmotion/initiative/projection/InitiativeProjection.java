@@ -2,13 +2,9 @@ package io.localmotion.initiative.projection;
 
 import io.localmotion.initiative.domain.GeoLocation;
 import io.localmotion.initiative.domain.Status;
-import io.localmotion.initiative.event.CheckListUpdateEvent;
-import io.localmotion.initiative.event.CitizenJoinedInitiativeEvent;
-import io.localmotion.initiative.event.InitiativeCreatedEvent;
-import io.localmotion.smokefreeplaygrounds.event.ManagerJoinedInitiativeEvent;
-import io.localmotion.smokefreeplaygrounds.event.PlaygroundObservationEvent;
-import io.localmotion.smokefreeplaygrounds.event.SmokeFreeDateCommittedEvent;
-import io.localmotion.smokefreeplaygrounds.event.SmokeFreeDecisionEvent;
+import io.localmotion.initiative.event.ChecklistUpdateEvent;
+import io.localmotion.initiative.event.MemberJoinedInitiativeEvent;
+import io.localmotion.smokefreeplaygrounds.event.*;
 import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventhandling.EventHandler;
@@ -37,7 +33,7 @@ public class InitiativeProjection {
      */
 
     @EventHandler
-    public void on(InitiativeCreatedEvent evt, EventMessage<?> eventMessage) {
+    public void on(PlaygroundInitiativeCreatedEvent evt, EventMessage<?> eventMessage) {
         log.info("ON EVENT {}", evt);
         final GeoLocation geoLocation = evt.getGeoLocation();
         if (playgrounds.containsKey(evt.getInitiativeId())) {
@@ -57,10 +53,10 @@ public class InitiativeProjection {
     }
 
     @EventHandler
-    public void on(CitizenJoinedInitiativeEvent evt, MetaData metaData, EventMessage<?> eventMessage) {
+    public void on(MemberJoinedInitiativeEvent evt, MetaData metaData, EventMessage<?> eventMessage) {
         log.info("ON EVENT {}", evt);
         Initiative initiative = playgrounds.get(evt.getInitiativeId());
-        initiative.getVolunteers().add(new Initiative.Volunteer(evt.getCitizenId(), metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME).toString()));
+        initiative.getVolunteers().add(new Initiative.Volunteer(evt.getMemberId(), metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME).toString()));
         initiative.setLastEventMessage(eventMessage);
     }
 
@@ -112,7 +108,7 @@ public class InitiativeProjection {
     }
 
     @EventHandler
-    void on(CheckListUpdateEvent evt, EventMessage<?> eventMessage) {
+    void on(ChecklistUpdateEvent evt, EventMessage<?> eventMessage) {
         log.info("ON EVENT {} AT {}", evt, eventMessage.getTimestamp());
         Initiative initiative = playgrounds.get(evt.getInitiativeId());
         initiative.setChecklistItem(evt.getActor(), evt.getChecklistItem(), evt.isChecked());

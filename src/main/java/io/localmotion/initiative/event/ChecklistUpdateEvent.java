@@ -12,9 +12,9 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
 @ToString
-public class CheckListUpdateEvent {
+public class ChecklistUpdateEvent {
     String initiativeId;
     String actor;                       // The user that checked / unchecked the item
-    String checklistItem;               // Identifies the item on the checklist that is ticked on not
+    String checklistItem;               // Identifies the item on the checklist that is ticked or not
     boolean checked;                    // The new state of the item
 }
