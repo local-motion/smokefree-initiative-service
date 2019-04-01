@@ -1,4 +1,4 @@
-package io.localmotion.initiative.projection;
+package io.localmotion.smokefreeplaygrounds.projection;
 
 import io.localmotion.initiative.domain.GeoLocation;
 import io.localmotion.initiative.domain.Status;
@@ -8,8 +8,6 @@ import io.localmotion.smokefreeplaygrounds.event.ManagerJoinedInitiativeEvent;
 import io.localmotion.smokefreeplaygrounds.event.PlaygroundInitiativeCreatedEvent;
 import io.localmotion.smokefreeplaygrounds.event.PlaygroundObservationEvent;
 import io.localmotion.smokefreeplaygrounds.event.SmokeFreeDateCommittedEvent;
-import io.localmotion.smokefreeplaygrounds.projection.Playground;
-import io.localmotion.smokefreeplaygrounds.projection.PlaygroundProjection;
 import org.axonframework.eventhandling.EventMessage;
 import org.axonframework.eventhandling.GenericEventMessage;
 import org.junit.jupiter.api.Test;
@@ -19,15 +17,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static io.localmotion.initiative.domain.Status.*;
 import static java.time.LocalDate.now;
 import static org.junit.jupiter.api.Assertions.*;
-import static io.localmotion.initiative.domain.Status.*;
 
 class InitiativeProjectionTest {
 
     @Test
     void should_return_created_initiatives() {
-        InitiativeProjection projection = new InitiativeProjection();
+        PlaygroundProjection projection = new PlaygroundProjection();
 
         final PlaygroundInitiativeCreatedEvent initiative1 = triggerInitiativeCreatedEvent(projection, in_progress);
         triggerInitiativeCreatedEvent(projection, in_progress);
@@ -40,7 +38,7 @@ class InitiativeProjectionTest {
         MemberJoinedInitiativeEvent joined2 = new MemberJoinedInitiativeEvent(initiative1.getInitiativeId(), "citizen-2");
         projection.on(joined1, null, getMessageForEvent(joined2));
 
-        final Initiative initiative = projection.playground(initiative1.getInitiativeId(), null);
+        final Playground initiative = projection.playground(initiative1.getInitiativeId(), null);
         assertNotNull(initiative);
         assertEquals(in_progress, initiative.getStatus());
         assertEquals(2, initiative.getVolunteerCount());
@@ -48,12 +46,12 @@ class InitiativeProjectionTest {
 
     @Test
     void should_expose_smokefree_date_when_committed() {
-        InitiativeProjection projection = new InitiativeProjection();
+        PlaygroundProjection projection = new PlaygroundProjection();
 
         triggerInitiativeCreatedEvent(projection, "initiative-1", in_progress);
         assertEquals(in_progress, projection.playground("initiative-1", null).getStatus());
 
-        Initiative initiative = projection.playground("initiative-1", null);
+        Playground initiative = projection.playground("initiative-1", null);
         assertNotNull(initiative);
         assertNull(initiative.getSmokeFreeDate());
 
@@ -70,7 +68,7 @@ class InitiativeProjectionTest {
 
     @Test
     void should_store_managers_per_playground() {
-        InitiativeProjection projection = new InitiativeProjection();
+        PlaygroundProjection projection = new PlaygroundProjection();
         triggerInitiativeCreatedEvent(projection, "initiative-1", in_progress);
 
 
@@ -85,9 +83,9 @@ class InitiativeProjectionTest {
         projection.on(managerjoinedEvent, managerjoinedEventMessage.getMetaData(), managerjoinedEventMessage);
 
 
-        Initiative initiative = projection.playground("initiative-1", null);
+        Playground initiative = projection.playground("initiative-1", null);
         assertEquals(1, initiative.getManagers().size());
-        assertEquals(new Initiative.Manager("manager-1", "Jack Ma"), initiative.getManagers().get(0));
+        assertEquals(new Playground.Manager("manager-1", "Jack Ma"), initiative.getManagers().get(0));
     }
 
     @Test
@@ -112,43 +110,20 @@ class InitiativeProjectionTest {
         assertEquals(1, initiative.getPlaygroundObservations().size());
     }
 
-//    @Test
-//    void should_record_smokefreeplaygroundobservation() {
-//        InitiativeProjection projection = new InitiativeProjection();
-//
-//        PlaygroundInitiativeCreatedEvent initiativeCreatedEvent = initiativeCreated("initiative-1", in_progress, new GeoLocation());
-//        projection.on(initiativeCreatedEvent, getMessageForEvent(initiativeCreatedEvent));
-//        projection.on(initiativeCreatedEvent, getMessageForEvent(initiativeCreatedEvent));
-//
-//        Map<String, String> metadataMap = new HashMap<>();
-//        metadataMap.put("user_id", "manager-1");
-//        metadataMap.put("cognito:username", "Jack Ma");
-//
-//        PlaygroundObservationEvent playgroundObservationEvent =
-//                new PlaygroundObservationEvent("initiative-1", "user_id", true, "I do not see anyone is smoking", LocalDate.now());
-//
-//        EventMessage<?> playgroundObservationEventMessage = getMessageForEvent(playgroundObservationEvent, metadataMap);
-////        projection.on(playgroundObservationEvent, playgroundObservationEventMessage.getMetaData(), playgroundObservationEventMessage);
-//        projection.on(playgroundObservationEvent, playgroundObservationEventMessage);
-//
-//        Initiative initiative = projection.playground("initiative-1", null);
-//        assertEquals(1, initiative.getPlaygroundObservations().size());
-//    }
-//
 
     /*
         Helpers
      */
 
-    private PlaygroundInitiativeCreatedEvent triggerInitiativeCreatedEvent(InitiativeProjection projection, Status status) {
+    private PlaygroundInitiativeCreatedEvent triggerInitiativeCreatedEvent(PlaygroundProjection projection, Status status) {
         return triggerInitiativeCreatedEvent(projection, UUID.randomUUID().toString(), status, new GeoLocation());
     }
-    private PlaygroundInitiativeCreatedEvent triggerInitiativeCreatedEvent(InitiativeProjection projection, String uuid, Status status) {
+    private PlaygroundInitiativeCreatedEvent triggerInitiativeCreatedEvent(PlaygroundProjection projection, String uuid, Status status) {
         PlaygroundInitiativeCreatedEvent event = initiativeCreated(uuid, status, new GeoLocation());
         projection.on(event, getMessageForEvent(event));
         return event;
     }
-    private PlaygroundInitiativeCreatedEvent triggerInitiativeCreatedEvent(InitiativeProjection projection, String uuid, Status status, GeoLocation location) {
+    private PlaygroundInitiativeCreatedEvent triggerInitiativeCreatedEvent(PlaygroundProjection projection, String uuid, Status status, GeoLocation location) {
         PlaygroundInitiativeCreatedEvent event = initiativeCreated(uuid, status,location);
         projection.on(event, getMessageForEvent(event));
         return event;

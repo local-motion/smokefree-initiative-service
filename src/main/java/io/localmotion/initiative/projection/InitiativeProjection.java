@@ -1,13 +1,9 @@
 package io.localmotion.initiative.projection;
 
 import io.localmotion.initiative.domain.GeoLocation;
-import io.localmotion.initiative.domain.Status;
 import io.localmotion.initiative.event.ChecklistUpdateEvent;
 import io.localmotion.initiative.event.MemberJoinedInitiativeEvent;
-import io.localmotion.smokefreeplaygrounds.event.ManagerJoinedInitiativeEvent;
 import io.localmotion.smokefreeplaygrounds.event.PlaygroundInitiativeCreatedEvent;
-import io.localmotion.smokefreeplaygrounds.event.SmokeFreeDateCommittedEvent;
-import io.localmotion.smokefreeplaygrounds.event.SmokeFreeDecisionEvent;
 import io.localmotion.user.projection.ProfileProjection;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventhandling.EventHandler;
@@ -54,7 +50,6 @@ public class InitiativeProjection {
                 geoLocation.getLat(),
                 geoLocation.getLng(),
                 evt.getStatus(),
-                null,
                 0,
                 eventMessage
                 ));
@@ -65,38 +60,6 @@ public class InitiativeProjection {
         log.info("ON EVENT {}", evt);
         Initiative initiative = playgrounds.get(evt.getInitiativeId());
         initiative.getVolunteerIds().add(evt.getMemberId());
-        initiative.setLastEventMessage(eventMessage);
-    }
-
-    @EventHandler
-    public void on(SmokeFreeDecisionEvent evt, EventMessage<?> eventMessage) {
-        log.info("ON EVENT {}", evt);
-        Initiative initiative = playgrounds.get(evt.getInitiativeId());
-        Status oldStatus = initiative.getStatus();
-        Status newStatus = oldStatus == Status.not_started ? Status.in_progress : oldStatus;
-        initiative.setStatus(newStatus);
-        initiative.setLastEventMessage(eventMessage);
-    }
-
-    @EventHandler
-    public void on(SmokeFreeDateCommittedEvent evt, EventMessage<SmokeFreeDateCommittedEvent> eventMessage)  {
-        log.info("ON EVENT {}", evt);
-        Initiative initiative = playgrounds.get(evt.getInitiativeId());
-        initiative.setSmokeFreeDate(evt.getSmokeFreeDate());
-        initiative.setStatus(Status.finished);
-        initiative.setLastEventMessage(eventMessage);
-    }
-
-    @EventHandler
-    public void on(ManagerJoinedInitiativeEvent evt, MetaData metaData, EventMessage<?> eventMessage) {
-        log.info("ON EVENT {}", evt);
-        final String userId = evt.getManagerId();
-        Initiative initiative = playgrounds.get(evt.getInitiativeId());
-        initiative.addManager(userId);
-
-        // Also register the manager as a volunteer
-        initiative.getVolunteerIds().add(userId);
-
         initiative.setLastEventMessage(eventMessage);
     }
 
