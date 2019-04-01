@@ -102,13 +102,12 @@ public class PlaygroundProjection {
     @EventHandler
     public void on(PlaygroundObservationEvent evt, MetaData metaData, EventMessage<?> eventMessage) {
         log.info("ON EVENT {}", evt);
-        final String observerId = evt.getObserver();
+        final String observerId = evt.getObserverId();
 
         Playground.PlaygroundObservationInternal playgroundObservation = new Playground.PlaygroundObservationInternal(observerId, evt.getSmokefree(), evt.getObservationDate(), evt.getComment());
         Playground playground = playgrounds.get(evt.getInitiativeId());
         playground.addPlaygroundObservation(playgroundObservation);
         playground.setLastEventMessage(eventMessage);
-
     }
 
     @EventHandler

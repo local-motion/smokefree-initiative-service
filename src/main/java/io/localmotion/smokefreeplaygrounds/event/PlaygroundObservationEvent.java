@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @ToString
 public class PlaygroundObservationEvent {
     String initiativeId;
-    String observer;
+    String observerId;
     Boolean smokefree;
     String comment;
     LocalDate observationDate;
