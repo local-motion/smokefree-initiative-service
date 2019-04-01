@@ -4,9 +4,10 @@ import io.localmotion.initiative.domain.GeoLocation;
 import io.localmotion.initiative.domain.Status;
 import io.localmotion.initiative.event.ChecklistUpdateEvent;
 import io.localmotion.initiative.event.MemberJoinedInitiativeEvent;
-import io.localmotion.smokefreeplaygrounds.event.*;
-import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
-import io.localmotion.user.projection.Profile;
+import io.localmotion.smokefreeplaygrounds.event.ManagerJoinedInitiativeEvent;
+import io.localmotion.smokefreeplaygrounds.event.PlaygroundInitiativeCreatedEvent;
+import io.localmotion.smokefreeplaygrounds.event.SmokeFreeDateCommittedEvent;
+import io.localmotion.smokefreeplaygrounds.event.SmokeFreeDecisionEvent;
 import io.localmotion.user.projection.ProfileProjection;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventhandling.EventHandler;
@@ -63,11 +64,7 @@ public class InitiativeProjection {
     public void on(MemberJoinedInitiativeEvent evt, MetaData metaData, EventMessage<?> eventMessage) {
         log.info("ON EVENT {}", evt);
         Initiative initiative = playgrounds.get(evt.getInitiativeId());
-//        Profile profile = profileProjection.profile(evt.getMemberId());
-//        initiative.getVolunteers().add(new Initiative.Volunteer(evt.getMemberId(), profileProjection.profile(evt.getMemberId()).getUsername()));
-
         initiative.getVolunteerIds().add(evt.getMemberId());
-
         initiative.setLastEventMessage(eventMessage);
     }
 
@@ -94,15 +91,10 @@ public class InitiativeProjection {
     public void on(ManagerJoinedInitiativeEvent evt, MetaData metaData, EventMessage<?> eventMessage) {
         log.info("ON EVENT {}", evt);
         final String userId = evt.getManagerId();
-//        final String userName = profileProjection.profile(userId).getUsername();
-
         Initiative initiative = playgrounds.get(evt.getInitiativeId());
-//        Initiative.Manager manager = new Initiative.Manager(userId, userName);
-//        initiative.addManager(manager);
         initiative.addManager(userId);
 
         // Also register the manager as a volunteer
-//        initiative.getVolunteers().add(new Initiative.Volunteer(userId, userName));
         initiative.getVolunteerIds().add(userId);
 
         initiative.setLastEventMessage(eventMessage);

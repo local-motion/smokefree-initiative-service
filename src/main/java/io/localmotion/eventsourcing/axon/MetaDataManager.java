@@ -7,10 +7,10 @@ import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 
 import static org.axonframework.common.Assert.assertNonNull;
 
-// TODO migrate all metadata interactions to this class
-
 /**
- * This class manages Axon's metadata object. It can be used to store and retrieve metadata attributes
+ * This class manages Axon's metadata object. It can be used to store and retrieve metadata attributes.
+ * Note that we are not storing any person identifiable information into the metadata as this will end up in the event
+ * store.
  */
 @AllArgsConstructor
 public class MetaDataManager {
@@ -28,23 +28,5 @@ public class MetaDataManager {
                 "You are not logged in"));
         return userId;
     }
-
-//    public String getUserName() {
-//        final String userName = (String) metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME);
-//        assertNonNull(userName, () -> new DomainException(
-//                "UNAUTHENTICATED",
-//                "No userName present",
-//                "You are not logged in"));
-//        return userName;
-//    }
-
-//    public String getEmailAddress() {
-//        final String emailAddress = (String) metaData.get(SmokefreeConstants.JWTClaimSet.EMAIL_ADDRESS);
-//        assertNonNull(emailAddress, () -> new DomainException(
-//                "UNAUTHENTICATED",
-//                "No emailAddress present",
-//                "You are not logged in"));
-//        return emailAddress;
-//    }
 
 }

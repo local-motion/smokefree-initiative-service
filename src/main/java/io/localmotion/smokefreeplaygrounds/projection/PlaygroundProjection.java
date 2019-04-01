@@ -62,8 +62,6 @@ public class PlaygroundProjection {
     public void on(MemberJoinedInitiativeEvent evt, MetaData metaData, EventMessage<?> eventMessage) {
         log.info("ON EVENT {}", evt);
         Playground playground = playgrounds.get(evt.getInitiativeId());
-//        playground.getVolunteers().add(new Playground.Volunteer(evt.getMemberId(), profileProjection.profile(evt.getMemberId()).getUsername()));
-
         playground.getVolunteerIds().add(evt.getMemberId());
         playground.setLastEventMessage(eventMessage);
     }
@@ -91,15 +89,10 @@ public class PlaygroundProjection {
     public void on(ManagerJoinedInitiativeEvent evt, MetaData metaData, EventMessage<?> eventMessage) {
         log.info("ON EVENT {}", evt);
         final String userId = evt.getManagerId();
-//        final String userName = profileProjection.profile(userId).getUsername();
-
         Playground playground = playgrounds.get(evt.getInitiativeId());
-//        Playground.Manager manager = new Playground.Manager(userId, userName);
-//        playground.addManager(manager);
         playground.addManager(userId);
 
         // Also register the manager as a volunteer
-//        playground.getVolunteers().add(new Playground.Volunteer(userId, userName));
         playground.getVolunteerIds().add(userId);
 
         playground.setLastEventMessage(eventMessage);

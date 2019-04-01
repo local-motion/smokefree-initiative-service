@@ -47,7 +47,6 @@ public class PlaygroundImportController {
         SecurityContext context = new SecurityContext(authentication);
 
         return new GenericCommandMessage<>(cmd, MetaData
-                .with(SmokefreeConstants.JWTClaimSet.USER_ID, context.requireUserId())
-                .and(SmokefreeConstants.JWTClaimSet.USER_NAME, context.requireUserName()));
+                .with(SmokefreeConstants.JWTClaimSet.USER_ID, context.requireUserId()));
     }
 }

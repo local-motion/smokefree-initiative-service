@@ -2,6 +2,7 @@ package io.localmotion.initiative.aggregate;
 
 import io.localmotion.application.Application;
 import io.localmotion.application.DomainException;
+import io.localmotion.eventsourcing.axon.MetaDataManager;
 import io.localmotion.initiative.command.JoinInitiativeCommand;
 import io.localmotion.initiative.command.UpdateChecklistCommand;
 import io.localmotion.initiative.event.ChecklistUpdateEvent;
@@ -92,22 +93,11 @@ public class Initiative {
                Validations
      */
 
-    private String requireUserId(MetaData metaData) {
-        final String userId = (String) metaData.get(SmokefreeConstants.JWTClaimSet.USER_ID);
-        assertNonNull(userId, () -> new DomainException(
-                ErrorCode.UNAUTHENTICATED.toString(),
-                "User ID must be set",
-                "You are not logged in"));
-        return userId;
-    }
-
     protected void assertUserIsInitiativeParticipant(MetaData metaData) {
-        String userId = requireUserId(metaData);
-//        if (!members.contains(userId) && !managers.contains(userId))
+        String userId = new MetaDataManager(metaData).getUserId();
         if (!members.contains(userId))
             throw new ValidationException("User is not participating in this initiative");
     }
-
 
     private void validateMaximumPlaygroundCapacity() {
         if(initiativeProjection.getAllPlaygrounds().size() >= SmokefreeConstants.MAXIMUM_PLAYGROUNDS_ALLOWED) {

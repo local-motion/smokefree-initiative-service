@@ -27,10 +27,7 @@ public class Playground {
     private LocalDate smokeFreeDate;
     private int votes;
     private Set<String> volunteerIds = new HashSet<>();
-    //    private Set<Volunteer> volunteers = new HashSet<>();
     private List<String> managerIds = newArrayList();
-    //    private List<Manager> managers = newArrayList();
-//    private List<PlaygroundObservation> playgroundObservations = newArrayList();
     private List<PlaygroundObservationInternal> playgroundObservationsInternal = newArrayList();
 
     // Checklists are maintained both on user level and on the overall level
@@ -45,9 +42,6 @@ public class Playground {
     private EventMessage<?> lastEventMessage = null;
 
     // Deduced properties
-//    public int getVolunteerCount() {
-//        return volunteers.size();
-//    }
     public int getVolunteerCount() {
         return volunteerIds.size();
     }
@@ -148,33 +142,10 @@ public class Playground {
         this.lastEventMessage = lastEventMessage;
     }
 
-//    public Playground(String id, String name, Double lat, Double lng, Status status, LocalDate smokeFreeDate, int votes,
-//                      Set<Volunteer> volunteers, List<Manager> managers, List<PlaygroundObservation> playgroundObservations,
-//                      Set<String> jointChecklistItems, Set<String> ownChecklistItems, EventMessage<?> lastEventMessage) {
-//        this.id = id;
-//        this.name = name;
-//        this.lat = lat;
-//        this.lng = lng;
-//        this.status = status;
-//        this.smokeFreeDate = smokeFreeDate;
-//        this.votes = votes;
-//        this.volunteers = volunteers;
-//        this.managers = managers;
-//        this.playgroundObservations = playgroundObservations;
-//        this.jointChecklistItems = jointChecklistItems;
-//        this.ownChecklistItems = ownChecklistItems;
-//        this.lastEventMessage = lastEventMessage;
-//    }
-//
 
     /*
         Update methods
      */
-
-//    Playground addManager(Manager manager) {
-//        managers.add(manager);
-//        return this;
-//    }
 
     Playground addManager(String managerId) {
         managerIds.add(managerId);
@@ -209,13 +180,6 @@ public class Playground {
         Retrieval methods
      */
 
-//    public boolean isVolunteer(String userId) {
-//        return volunteers.stream().anyMatch(volunteer -> volunteer.userId.equals(userId));
-//    }
-//
-//    public boolean isManager(String userId) {
-//        return managers.stream().anyMatch(manager -> manager.id.equals(userId));
-//    }
     public boolean isVolunteer(String userId) {
         return volunteerIds.contains(userId);
     }
@@ -242,10 +206,4 @@ public class Playground {
         return new Playground(profileProjection, id, name, lat, lng, status, smokeFreeDate, votes, volunteerIds, managerIds,
                                 playgroundObservationsInternal, jointChecklistItems, usersChecklistItems, lastEventMessage);
     }
-//    public Playground getPlaygroundForUser(@Nullable String userId) {
-//        Set<String> usersChecklistItems = userId != null && individualChecklistItems.containsKey(userId) ?
-//                                                    individualChecklistItems.get(userId) : Collections.emptySet();
-//        return new Playground(id, name, lat, lng, status, smokeFreeDate, votes, volunteers, managers,
-//                                playgroundObservations, jointChecklistItems, usersChecklistItems, lastEventMessage);
-//    }
 }
