@@ -44,18 +44,6 @@ public class User {
      */
     @CommandHandler
     public User(CreateUserCommand cmd, MetaData metaData) {
-        // Verify that the data attributes in the command comply with the session data as users are only allowed to create
-        // a user record on their own behalf. (Note that a new user will first enroll into Cognito and then fire off
-        // the CreateUserCommand, so some user details will already be contained in the JWT token and passed on in the metadata.
-
-        MetaDataManager metaDataManager = new MetaDataManager(metaData);
-
-        Assert.isTrue(
-                cmd.getUserId().equals(metaDataManager.getUserId()) &&
-                cmd.getName().equals(metaDataManager.getUserName()) &&
-                cmd.getEmailAddress().equals(metaDataManager.getEmailAddress())
-        ,      () -> "ILLEGAL_UPDATE, CreateUserCommand invoked with attributes that do not match the user's attributes");
-
         UserPII userPII = new UserPII(cmd.getName(), cmd.getEmailAddress());
         Gson gson = new Gson();
         String piiString = gson.toJson(userPII);

@@ -3,7 +3,7 @@ package io.localmotion.initiative.event;
 import lombok.*;
 
 /**
- * The checklist is used to keep track of various event / activities within an initiative update.
+ * The checklist is used to keep track of various events / activities within an initiative.
  * This eliminates the need to have separate events (and commands and other handlers) for each item.
  * The actor is explicitly included (as opposed to just keeping it in the metadata) because some items
  * are tracked per actor as opposed to per initiative.

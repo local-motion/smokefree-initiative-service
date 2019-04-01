@@ -1,16 +1,18 @@
 package io.localmotion.smokefreeplaygrounds.projection;
 
+import io.localmotion.eventsourcing.axon.MetaDataManager;
 import io.localmotion.initiative.domain.GeoLocation;
 import io.localmotion.initiative.domain.Status;
 import io.localmotion.initiative.event.ChecklistUpdateEvent;
 import io.localmotion.initiative.event.MemberJoinedInitiativeEvent;
 import io.localmotion.smokefreeplaygrounds.event.*;
-import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
+import io.localmotion.user.projection.ProfileProjection;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.eventhandling.EventMessage;
 import org.axonframework.messaging.MetaData;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Collection;
 import java.util.Map;
@@ -24,6 +26,9 @@ import static com.google.common.collect.Maps.newConcurrentMap;
 @Slf4j
 @Singleton
 public class PlaygroundProjection {
+
+    @Inject
+    private ProfileProjection profileProjection;
 
     private final Map<String, Playground> playgrounds = newConcurrentMap();
 
@@ -56,7 +61,7 @@ public class PlaygroundProjection {
     public void on(MemberJoinedInitiativeEvent evt, MetaData metaData, EventMessage<?> eventMessage) {
         log.info("ON EVENT {}", evt);
         Playground playground = playgrounds.get(evt.getInitiativeId());
-        playground.getVolunteers().add(new Playground.Volunteer(evt.getMemberId(), metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME).toString()));
+        playground.getVolunteers().add(new Playground.Volunteer(evt.getMemberId(), profileProjection.profile(evt.getMemberId()).getUsername()));
         playground.setLastEventMessage(eventMessage);
     }
 
@@ -83,14 +88,14 @@ public class PlaygroundProjection {
     public void on(ManagerJoinedInitiativeEvent evt, MetaData metaData, EventMessage<?> eventMessage) {
         log.info("ON EVENT {}", evt);
         final String userId = evt.getManagerId();
-        final String userName = (String) metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME);             // TODO should this data not be extracted from the event itself?
+        final String userName = profileProjection.profile(userId).getUsername();
 
         Playground playground = playgrounds.get(evt.getInitiativeId());
         Playground.Manager manager = new Playground.Manager(userId, userName);
         playground.addManager(manager);
 
         // Also register the manager as a volunteer
-        playground.getVolunteers().add(new Playground.Volunteer(evt.getManagerId(), metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME).toString()));
+        playground.getVolunteers().add(new Playground.Volunteer(userId, userName));
 
         playground.setLastEventMessage(eventMessage);
     }
@@ -98,9 +103,9 @@ public class PlaygroundProjection {
     @EventHandler
     public void on(PlaygroundObservationEvent evt, MetaData metaData, EventMessage<?> eventMessage) {
         log.info("ON EVENT {}", evt);
-        final String userId = (String) metaData.get(SmokefreeConstants.JWTClaimSet.USER_ID);
-        final String userName = (String) metaData.get(SmokefreeConstants.JWTClaimSet.USER_NAME);
-        Playground.PlaygroundObservation playgroundObservation = new Playground.PlaygroundObservation(evt.getObserver(), metaData.get(SmokefreeConstants.JWTClaimSet.COGNITO_USER_NAME).toString(), evt.getSmokefree(), evt.getObservationDate(), evt.getComment());
+        final String observerId = evt.getObserver();
+        final String observerName = profileProjection.profile(observerId).getUsername();
+        Playground.PlaygroundObservation playgroundObservation = new Playground.PlaygroundObservation(observerId, observerName, evt.getSmokefree(), evt.getObservationDate(), evt.getComment());
         Playground playground = playgrounds.get(evt.getInitiativeId());
         playground.addPlaygroundObservation(playgroundObservation);
         playground.setLastEventMessage(eventMessage);
@@ -110,6 +115,8 @@ public class PlaygroundProjection {
     @EventHandler
     void on(ChecklistUpdateEvent evt, EventMessage<?> eventMessage) {
         log.info("ON EVENT {} AT {}", evt, eventMessage.getTimestamp());
+        final String userId = new MetaDataManager(eventMessage.getMetaData()).getUserId();
+        log.info("CHECKLIST ACTOR: {}", userId);
         Playground playground = playgrounds.get(evt.getInitiativeId());
         playground.setChecklistItem(evt.getActor(), evt.getChecklistItem(), evt.isChecked());
         playground.setLastEventMessage(eventMessage);
