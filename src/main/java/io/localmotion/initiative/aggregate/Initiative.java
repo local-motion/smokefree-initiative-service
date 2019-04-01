@@ -65,7 +65,7 @@ public class Initiative {
 
         // TODO check for superfluous updates the prevent issuing events for those
 
-        apply(new ChecklistUpdateEvent(cmd.getInitiativeId(), cmd.getActor() , cmd.getChecklistItem(), cmd.isChecked()), metaData);
+        apply(new ChecklistUpdateEvent(cmd.getInitiativeId(), cmd.getChecklistItem(), cmd.isChecked()), metaData);
     }
 
     protected Set<String> getChecklistItems() {

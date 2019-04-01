@@ -1,5 +1,6 @@
 package io.localmotion.initiative.projection;
 
+import io.localmotion.eventsourcing.axon.MetaDataManager;
 import io.localmotion.smokefreeplaygrounds.domain.GeoLocation;
 import io.localmotion.initiative.event.ChecklistUpdateEvent;
 import io.localmotion.initiative.event.MemberJoinedInitiativeEvent;
@@ -66,8 +67,9 @@ public class InitiativeProjection {
     @EventHandler
     void on(ChecklistUpdateEvent evt, EventMessage<?> eventMessage) {
         log.info("ON EVENT {} AT {}", evt, eventMessage.getTimestamp());
+        String actorId = new MetaDataManager(eventMessage.getMetaData()).getUserId();
         Initiative initiative = playgrounds.get(evt.getInitiativeId());
-        initiative.setChecklistItem(evt.getActor(), evt.getChecklistItem(), evt.isChecked());
+        initiative.setChecklistItem(actorId, evt.getChecklistItem(), evt.isChecked());
         initiative.setLastEventMessage(eventMessage);
     }
 

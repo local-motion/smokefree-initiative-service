@@ -54,8 +54,6 @@ public class InitiativeMutation implements GraphQLMutationResolver {
 
     @SneakyThrows
     public InputAcceptedResponse updateChecklist(UpdateChecklistCommand input, DataFetchingEnvironment env) {
-        if(!(input.getActor().equals(toContext(env).requireUserId())))
-            throw new ValidationException("Actor must be equal to the userId");
         gateway.sendAndWait(decorateWithMetaData(input, env));
         return new InputAcceptedResponse(input.getInitiativeId());
     }

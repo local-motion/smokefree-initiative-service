@@ -155,7 +155,6 @@ input RecordPlaygroundObservationCommand {
 }
 input UpdateChecklistCommand {
     initiativeId: String!
-    actor: String!
     checklistItem: String!
     checked: Boolean!
 }

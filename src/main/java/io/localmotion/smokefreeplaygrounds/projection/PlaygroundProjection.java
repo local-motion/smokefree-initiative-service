@@ -114,10 +114,9 @@ public class PlaygroundProjection {
     @EventHandler
     void on(ChecklistUpdateEvent evt, EventMessage<?> eventMessage) {
         log.info("ON EVENT {} AT {}", evt, eventMessage.getTimestamp());
-        final String userId = new MetaDataManager(eventMessage.getMetaData()).getUserId();
-        log.info("CHECKLIST ACTOR: {}", userId);
+        String actorId = new MetaDataManager(eventMessage.getMetaData()).getUserId();
         Playground playground = playgrounds.get(evt.getInitiativeId());
-        playground.setChecklistItem(evt.getActor(), evt.getChecklistItem(), evt.isChecked());
+        playground.setChecklistItem(actorId, evt.getChecklistItem(), evt.isChecked());
         playground.setLastEventMessage(eventMessage);
     }
 
