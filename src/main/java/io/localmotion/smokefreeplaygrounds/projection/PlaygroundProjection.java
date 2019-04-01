@@ -1,10 +1,11 @@
 package io.localmotion.smokefreeplaygrounds.projection;
 
 import io.localmotion.eventsourcing.axon.MetaDataManager;
-import io.localmotion.initiative.domain.GeoLocation;
-import io.localmotion.initiative.domain.Status;
 import io.localmotion.initiative.event.ChecklistUpdateEvent;
 import io.localmotion.initiative.event.MemberJoinedInitiativeEvent;
+import io.localmotion.smokefreeplaygrounds.domain.CreationStatus;
+import io.localmotion.smokefreeplaygrounds.domain.GeoLocation;
+import io.localmotion.smokefreeplaygrounds.domain.Status;
 import io.localmotion.smokefreeplaygrounds.event.*;
 import io.localmotion.user.projection.ProfileProjection;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +52,7 @@ public class PlaygroundProjection {
                 evt.getName(),
                 geoLocation.getLat(),
                 geoLocation.getLng(),
-                evt.getStatus(),
+                evt.getCreationStatus() == CreationStatus.IMPORT_FINISHED ? Status.FINISHED : Status.NOT_STARTED,
                 null,
                 0,
                 eventMessage
@@ -71,7 +72,7 @@ public class PlaygroundProjection {
         log.info("ON EVENT {}", evt);
         Playground playground = playgrounds.get(evt.getInitiativeId());
         Status oldStatus = playground.getStatus();
-        Status newStatus = oldStatus == Status.not_started ? Status.in_progress : oldStatus;
+        Status newStatus = oldStatus == Status.NOT_STARTED ? Status.IN_PROGRESS : oldStatus;
         playground.setStatus(newStatus);
         playground.setLastEventMessage(eventMessage);
     }
@@ -81,7 +82,7 @@ public class PlaygroundProjection {
         log.info("ON EVENT {}", evt);
         Playground playground = playgrounds.get(evt.getInitiativeId());
         playground.setSmokeFreeDate(evt.getSmokeFreeDate());
-        playground.setStatus(Status.finished);
+        playground.setStatus(Status.FINISHED);
         playground.setLastEventMessage(eventMessage);
     }
 

@@ -1,8 +1,7 @@
 package io.localmotion.smokefreeplaygrounds.event;
 
-import io.localmotion.initiative.domain.GeoLocation;
-import io.localmotion.initiative.domain.Status;
-import io.localmotion.initiative.domain.Type;
+import io.localmotion.smokefreeplaygrounds.domain.GeoLocation;
+import io.localmotion.smokefreeplaygrounds.domain.CreationStatus;
 import lombok.*;
 
 @Getter
@@ -11,8 +10,7 @@ import lombok.*;
 @ToString
 public class PlaygroundInitiativeCreatedEvent {
     String initiativeId;
-    Type type;
-    Status status;
     String name;
+    CreationStatus creationStatus;
     GeoLocation geoLocation;
 }

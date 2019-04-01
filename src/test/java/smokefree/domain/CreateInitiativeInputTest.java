@@ -1,9 +1,8 @@
 package smokefree.domain;
 
-import io.localmotion.initiative.domain.Status;
-import io.localmotion.initiative.domain.Type;
-import org.junit.jupiter.api.Test;
 import io.localmotion.initiative.controller.CreateInitiativeInput;
+import io.localmotion.smokefreeplaygrounds.domain.Status;
+import org.junit.jupiter.api.Test;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -20,8 +19,6 @@ public class CreateInitiativeInputTest {
 	void should_haveConstraintViolation_when_playgroundNameHasLessThan3Characters() {
 		CreateInitiativeInput cmd = new CreateInitiativeInput(
 				"initiative-1",
-				Type.smokefree,
-				Status.not_started,
 				"Hi",
 				22223.32,
 				32.322
@@ -36,8 +33,6 @@ public class CreateInitiativeInputTest {
 	void should_haveConstraintViolation_when_playgroundNameHasMoreThan40Characters() {
 		CreateInitiativeInput cmd = new CreateInitiativeInput(
 				"initiative-1",
-				Type.smokefree,
-				Status.not_started,
 				"Happy DiemenHappy DiemenHappy DiemenHappy DiemenHappy Diemen",
 				22223.32,
 				32.322
@@ -52,8 +47,6 @@ public class CreateInitiativeInputTest {
 	void should_NotHaveConstraintViolation_when_playgroundNameHas3To40Characters() {
 		CreateInitiativeInput cmd = new CreateInitiativeInput(
 				"initiative-1",
-				Type.smokefree,
-				Status.not_started,
 				"Happy Diemen",
 				22223.32,
 				32.322
@@ -67,8 +60,6 @@ public class CreateInitiativeInputTest {
 	void should_haveConstraintViolation_when_playgroundInitiativeIdIsNull() {
 		CreateInitiativeInput cmd = new CreateInitiativeInput(
 				null,
-				Type.smokefree,
-				Status.not_started,
 				"Happy Diemen",
 				22223.32,
 				32.322
@@ -81,8 +72,6 @@ public class CreateInitiativeInputTest {
 	void should_haveConstraintViolation_when_playgroundInitiativeIdIsBlank() {
 		CreateInitiativeInput cmd = new CreateInitiativeInput(
 				"",
-				Type.smokefree,
-				Status.not_started,
 				"Happy Diemen",
 				22223.32,
 				32.322
@@ -92,27 +81,24 @@ public class CreateInitiativeInputTest {
 		assertEquals("The initiativeId must not be blank", violations.iterator().next().getMessage());
 	}
 
-	@Test
-	void should_haveConstraintViolation_when_playgroundStatusIsNull() {
-		CreateInitiativeInput cmd = new CreateInitiativeInput(
-				"Name",
-				Type.smokefree,
-				null,
-				"Happy Diemen",
-				22223.32,
-				32.322
-		);
-		Set<ConstraintViolation<CreateInitiativeInput>> violations = validatorFactory.getValidator().validate(cmd);
-		assertEquals(1, violations.size());
-		assertEquals("The status must not be blank", violations.iterator().next().getMessage());
-	}
+//	@Test
+//	void should_haveConstraintViolation_when_playgroundStatusIsNull() {
+//		CreateInitiativeInput cmd = new CreateInitiativeInput(
+//				"Name",
+//				null,
+//				"Happy Diemen",
+//				22223.32,
+//				32.322
+//		);
+//		Set<ConstraintViolation<CreateInitiativeInput>> violations = validatorFactory.getValidator().validate(cmd);
+//		assertEquals(1, violations.size());
+//		assertEquals("The status must not be blank", violations.iterator().next().getMessage());
+//	}
 
 	@Test
 	void should_haveConstraintViolation_whenPlaygroundLongitudeIsNull() {
 		CreateInitiativeInput cmd = new CreateInitiativeInput(
 				"Name",
-				Type.smokefree,
-				Status.not_started,
 				"Happy Diemen",
 				32.234566,
 				null
@@ -127,8 +113,6 @@ public class CreateInitiativeInputTest {
 	void should_haveConstraintViolation_whenPlaygroundLatitudeIsNull() {
 		CreateInitiativeInput cmd = new CreateInitiativeInput(
 				"Name",
-				Type.smokefree,
-				Status.not_started,
 				"Happy Diemen",
 				null,
 				32.234566

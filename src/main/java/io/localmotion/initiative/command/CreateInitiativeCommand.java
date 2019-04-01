@@ -1,13 +1,12 @@
 package io.localmotion.initiative.command;
 
-import io.localmotion.initiative.domain.Status;
-import io.localmotion.initiative.domain.Type;
+import io.localmotion.smokefreeplaygrounds.domain.CreationStatus;
+import io.localmotion.smokefreeplaygrounds.domain.GeoLocation;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
 import org.hibernate.validator.constraints.SafeHtml;
-import io.localmotion.initiative.domain.GeoLocation;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -22,8 +21,6 @@ public class CreateInitiativeCommand {
     @NotBlank
     String name;
     @NotNull
-    Type type;
-    @NotNull
-    Status status;
+    CreationStatus creationStatus;
     GeoLocation geoLocation;
 }

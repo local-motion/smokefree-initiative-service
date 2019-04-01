@@ -2,11 +2,16 @@ package io.localmotion.smokefreeplaygrounds.controller;
 
 import com.coxautodev.graphql.tools.GraphQLMutationResolver;
 import graphql.schema.DataFetchingEnvironment;
+import io.localmotion.initiative.command.CreateInitiativeCommand;
+import io.localmotion.initiative.command.JoinInitiativeCommand;
+import io.localmotion.initiative.controller.CreateInitiativeInput;
 import io.localmotion.initiative.controller.InputAcceptedResponse;
-import io.localmotion.initiative.domain.Status;
+import io.localmotion.initiative.controller.JoinInitiativeInput;
 import io.localmotion.initiative.projection.InitiativeProjection;
 import io.localmotion.interfacing.graphql.SecurityContext;
 import io.localmotion.smokefreeplaygrounds.command.*;
+import io.localmotion.smokefreeplaygrounds.domain.CreationStatus;
+import io.localmotion.smokefreeplaygrounds.domain.GeoLocation;
 import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 import io.localmotion.user.projection.ProfileProjection;
 import io.micronaut.validation.Validated;
@@ -19,7 +24,9 @@ import org.axonframework.messaging.MetaData;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.validation.Valid;
 import javax.validation.ValidationException;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Singleton
@@ -37,6 +44,21 @@ public class PlaygroundMutation implements GraphQLMutationResolver {
     private ProfileProjection profileProjection;
 
 
+    @SneakyThrows
+    public InputAcceptedResponse createInitiative(@Valid CreateInitiativeInput input, DataFetchingEnvironment env) {
+        final CreateInitiativeCommand command = new CreateInitiativeCommand(
+                input.getInitiativeId(),
+                input.getName(),
+                CreationStatus.ONLINE_NOT_STARTED,
+                new GeoLocation(input.getLat(), input.getLng()));
+        final CompletableFuture<String> result = gateway.send(decorateWithMetaData(command, env));
+        final String playgroundId = result.get();
+
+        String memberId = toContext(env).requireUserId();
+        JoinInitiativeCommand cmd = new JoinInitiativeCommand(input.getInitiativeId(), memberId);
+        gateway.sendAndWait(decorateWithMetaData(cmd, env));
+        return new InputAcceptedResponse(playgroundId);
+    }
 
     public InputAcceptedResponse claimManagerRole(ClaimManagerRoleCommand cmd, DataFetchingEnvironment env) {
         gateway.sendAndWait(decorateWithMetaData(cmd, env));

@@ -57,9 +57,9 @@ type Playground {
 }
 
 enum Status {
-    not_started
-    in_progress
-    finished
+    NOT_STARTED
+    IN_PROGRESS
+    FINISHED
 }
 
 type Manager {
@@ -70,11 +70,6 @@ type Manager {
 type Volunteer {
     userId: String!
     userName: String!
-}
-
-type Stat {
-    count : Int
-    percentage : Int
 }
 
 type PlaygroundObservation {
@@ -93,11 +88,11 @@ type PlaygroundObservation {
 type Mutation {
 
 # Initiative
-    createInitiative(input: CreateInitiativeInput!): InputAcceptedResponse!
     joinInitiative(input: JoinInitiativeInput!): InputAcceptedResponse!
     updateChecklist(input: UpdateChecklistCommand!): InputAcceptedResponse!
 
-# Initiative
+# Playground
+    createInitiative(input: CreateInitiativeInput!): InputAcceptedResponse!
     claimManagerRole(input: ClaimManagerRoleCommand!): InputAcceptedResponse!
     decideToBecomeSmokeFree(input: DecideToBecomeSmokeFreeCommand!): InputAcceptedResponse!
     commitToSmokeFreeDate(input: CommitToSmokeFreeDateCommand!): InputAcceptedResponse!
@@ -130,19 +125,9 @@ type UserMutation {
 type InputAcceptedResponse {
     id : String!
 }
-enum Status {
-    not_started
-    in_progress
-    finished
-}
-enum Type {
-    smokefree
-}
 
 input CreateInitiativeInput {
     initiativeId: String!
-    type: Type!
-    status: Status!
     name: String!
     lat: Float!
     lng: Float!

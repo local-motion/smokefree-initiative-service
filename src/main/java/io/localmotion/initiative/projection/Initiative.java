@@ -1,6 +1,5 @@
 package io.localmotion.initiative.projection;
 
-import io.localmotion.initiative.domain.Status;
 import io.localmotion.user.projection.ProfileProjection;
 import lombok.Data;
 import lombok.Value;
@@ -21,7 +20,7 @@ public class Initiative {
     private String name;
     private Double lat;
     private Double lng;
-    private Status status;
+    private String status;
     private int votes;
     private Set<String> volunteerIds = new HashSet<>();
 
@@ -66,7 +65,7 @@ public class Initiative {
         Constructors
      */
 
-    public Initiative(ProfileProjection profileProjection, String id, String name, Double lat, Double lng, Status status, int votes, EventMessage<?> lastEventMessage) {
+    public Initiative(ProfileProjection profileProjection, String id, String name, Double lat, Double lng, String status, int votes, EventMessage<?> lastEventMessage) {
         this.profileProjection = profileProjection;
         this.id = id;
         this.name = name;
@@ -78,7 +77,7 @@ public class Initiative {
     }
 
     public Initiative(ProfileProjection profileProjection,
-                      String id, String name, Double lat, Double lng, Status status, int votes,
+                      String id, String name, Double lat, Double lng, String status, int votes,
                       Set<String> volunteerIds,
                       Set<String> jointChecklistItems, Set<String> ownChecklistItems, EventMessage<?> lastEventMessage) {
         this.profileProjection = profileProjection;

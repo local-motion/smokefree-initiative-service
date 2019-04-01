@@ -5,10 +5,7 @@ import graphql.schema.DataFetchingEnvironment;
 import io.localmotion.initiative.command.CreateInitiativeCommand;
 import io.localmotion.initiative.command.JoinInitiativeCommand;
 import io.localmotion.initiative.command.UpdateChecklistCommand;
-import io.localmotion.initiative.controller.CreateInitiativeInput;
-import io.localmotion.initiative.controller.InputAcceptedResponse;
-import io.localmotion.initiative.controller.JoinInitiativeInput;
-import io.localmotion.initiative.domain.GeoLocation;
+import io.localmotion.smokefreeplaygrounds.domain.GeoLocation;
 import io.localmotion.initiative.projection.InitiativeProjection;
 import io.localmotion.interfacing.graphql.SecurityContext;
 import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
@@ -43,18 +40,7 @@ public class InitiativeMutation implements GraphQLMutationResolver {
     private ProfileProjection profileProjection;
 
 
-    @SneakyThrows
-    public InputAcceptedResponse createInitiative(@Valid CreateInitiativeInput input, DataFetchingEnvironment env) {
-        final CreateInitiativeCommand command = new CreateInitiativeCommand(
-                input.getInitiativeId(),
-                input.getName(),
-                input.getType(),
-                input.getStatus(),
-                new GeoLocation(input.getLat(), input.getLng()));
-        final CompletableFuture<String> result = gateway.send(decorateWithMetaData(command, env));
-        final String playgroundId = result.get();
-        return joinInitiative(new JoinInitiativeInput(playgroundId), env);
-    }
+
 
     @SneakyThrows
     public InputAcceptedResponse joinInitiative(JoinInitiativeInput input, DataFetchingEnvironment env) {

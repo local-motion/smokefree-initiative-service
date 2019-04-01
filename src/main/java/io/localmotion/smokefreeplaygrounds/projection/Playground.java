@@ -1,6 +1,6 @@
 package io.localmotion.smokefreeplaygrounds.projection;
 
-import io.localmotion.initiative.domain.Status;
+import io.localmotion.smokefreeplaygrounds.domain.Status;
 import io.localmotion.user.projection.ProfileProjection;
 import lombok.Data;
 import lombok.Value;

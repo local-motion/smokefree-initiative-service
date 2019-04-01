@@ -1,6 +1,6 @@
 package io.localmotion.initiative.projection;
 
-import io.localmotion.initiative.domain.GeoLocation;
+import io.localmotion.smokefreeplaygrounds.domain.GeoLocation;
 import io.localmotion.initiative.event.ChecklistUpdateEvent;
 import io.localmotion.initiative.event.MemberJoinedInitiativeEvent;
 import io.localmotion.smokefreeplaygrounds.event.PlaygroundInitiativeCreatedEvent;
@@ -49,7 +49,7 @@ public class InitiativeProjection {
                 evt.getName(),
                 geoLocation.getLat(),
                 geoLocation.getLng(),
-                evt.getStatus(),
+                "todo determine status",
                 0,
                 eventMessage
                 ));

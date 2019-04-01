@@ -1,4 +1,4 @@
-package io.localmotion.initiative.domain;
+package io.localmotion.smokefreeplaygrounds.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;

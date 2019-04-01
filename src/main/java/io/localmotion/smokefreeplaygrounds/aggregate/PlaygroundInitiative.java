@@ -4,14 +4,15 @@ import io.localmotion.application.Application;
 import io.localmotion.application.DomainException;
 import io.localmotion.initiative.aggregate.Initiative;
 import io.localmotion.initiative.command.CreateInitiativeCommand;
-import io.localmotion.initiative.domain.GeoLocation;
-import io.localmotion.initiative.domain.Status;
 import io.localmotion.initiative.projection.InitiativeProjection;
 import io.localmotion.interfacing.graphql.error.ErrorCode;
 import io.localmotion.smokefreeplaygrounds.command.ClaimManagerRoleCommand;
 import io.localmotion.smokefreeplaygrounds.command.CommitToSmokeFreeDateCommand;
 import io.localmotion.smokefreeplaygrounds.command.DecideToBecomeSmokeFreeCommand;
 import io.localmotion.smokefreeplaygrounds.command.RecordPlaygroundObservationCommand;
+import io.localmotion.smokefreeplaygrounds.domain.CreationStatus;
+import io.localmotion.smokefreeplaygrounds.domain.GeoLocation;
+import io.localmotion.smokefreeplaygrounds.domain.Status;
 import io.localmotion.smokefreeplaygrounds.event.*;
 import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 import lombok.NoArgsConstructor;
@@ -30,7 +31,6 @@ import java.time.LocalDate;
 import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
-import static io.localmotion.initiative.domain.Status.*;
 import static org.axonframework.common.Assert.assertNonNull;
 import static org.axonframework.modelling.command.AggregateLifecycle.apply;
 
@@ -67,7 +67,7 @@ public class PlaygroundInitiative extends Initiative {
         validateMaximumPlaygroundCapacity();
         validateDuplicatePlaygroundNames(cmd.getName());
         validatePlaygroundsRange(cmd.getGeoLocation(), SmokefreeConstants.MAXIMUM_PLAYGROUNDS_DISTANCE);
-        apply(new PlaygroundInitiativeCreatedEvent(cmd.getInitiativeId(), cmd.getType(), cmd.getStatus(), cmd.getName(), cmd.getGeoLocation()), metaData);
+        apply(new PlaygroundInitiativeCreatedEvent(cmd.getInitiativeId(), cmd.getName(), cmd.getCreationStatus(), cmd.getGeoLocation()), metaData);
     }
 
     @Override
@@ -91,8 +91,8 @@ public class PlaygroundInitiative extends Initiative {
     public void decideToBecomeSmokeFree(DecideToBecomeSmokeFreeCommand cmd, MetaData metaData) {
         assertCurrentUserIsManager(metaData);
 
-        if (status != not_started && status != stopped) {
-            log.warn("Status is already {}, cannot change to {}. Ignoring...", status, in_progress);
+        if (status != Status.NOT_STARTED) {
+            log.warn("Status is already {}, Ignoring DecideToBecomeSmokeFreeCommand ...", status);
         } else {
             apply(new SmokeFreeDecisionEvent(cmd.getInitiativeId(), true), metaData);
         }
@@ -123,7 +123,7 @@ public class PlaygroundInitiative extends Initiative {
     @EventSourcingHandler
     void on(PlaygroundInitiativeCreatedEvent evt) {
         this.id = evt.getInitiativeId();
-        this.status = evt.getStatus();
+        this.status = evt.getCreationStatus() == CreationStatus.IMPORT_FINISHED ? Status.FINISHED : Status.NOT_STARTED;
     }
 
     @EventSourcingHandler
@@ -134,7 +134,7 @@ public class PlaygroundInitiative extends Initiative {
 
     @EventSourcingHandler
     void on(SmokeFreeDecisionEvent evt) {
-        status = status == not_started ? in_progress : status;
+        status = status == Status.NOT_STARTED ? Status.IN_PROGRESS : status;
     }
 
     @EventSourcingHandler

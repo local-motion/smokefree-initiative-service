@@ -1,12 +1,11 @@
 package io.localmotion.initiative.controller;
 
+import io.localmotion.smokefreeplaygrounds.domain.Status;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
-import io.localmotion.initiative.domain.Status;
-import io.localmotion.initiative.domain.Type;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -21,10 +20,8 @@ class CreateInitiativeInput {
     @Size(min = 1, message = "The initiativeId must not be blank")
     String initiativeId;
 
-    Type type;
-
-    @NotNull(message = "The status must not be blank")
-    Status status;
+//    @NotNull(message = "The status must not be blank")
+//    Status status;
 
     @Length(min = 3, message = "The name must be at least 3 characters")
     @Length(max = 40, message = "The name must be less than 40 characters")
