@@ -8,6 +8,8 @@ import io.localmotion.smokefreeplaygrounds.event.ManagerJoinedInitiativeEvent;
 import io.localmotion.smokefreeplaygrounds.event.PlaygroundInitiativeCreatedEvent;
 import io.localmotion.smokefreeplaygrounds.event.PlaygroundObservationEvent;
 import io.localmotion.smokefreeplaygrounds.event.SmokeFreeDateCommittedEvent;
+import io.localmotion.smokefreeplaygrounds.projection.Playground;
+import io.localmotion.smokefreeplaygrounds.projection.PlaygroundProjection;
 import org.axonframework.eventhandling.EventMessage;
 import org.axonframework.eventhandling.GenericEventMessage;
 import org.junit.jupiter.api.Test;
@@ -90,7 +92,7 @@ class InitiativeProjectionTest {
 
     @Test
     void should_record_smokefreeplaygroundobservation() {
-        InitiativeProjection projection = new InitiativeProjection();
+        PlaygroundProjection projection = new PlaygroundProjection();
 
         PlaygroundInitiativeCreatedEvent initiativeCreatedEvent = initiativeCreated("initiative-1", in_progress, new GeoLocation());
         projection.on(initiativeCreatedEvent, getMessageForEvent(initiativeCreatedEvent));
@@ -106,10 +108,33 @@ class InitiativeProjectionTest {
         EventMessage<?> playgroundObservationEventMessage = getMessageForEvent(playgroundObservationEvent, metadataMap);
         projection.on(playgroundObservationEvent, playgroundObservationEventMessage.getMetaData(), playgroundObservationEventMessage);
 
-        Initiative initiative = projection.playground("initiative-1", null);
+        Playground initiative = projection.playground("initiative-1", null);
         assertEquals(1, initiative.getPlaygroundObservations().size());
     }
 
+//    @Test
+//    void should_record_smokefreeplaygroundobservation() {
+//        InitiativeProjection projection = new InitiativeProjection();
+//
+//        PlaygroundInitiativeCreatedEvent initiativeCreatedEvent = initiativeCreated("initiative-1", in_progress, new GeoLocation());
+//        projection.on(initiativeCreatedEvent, getMessageForEvent(initiativeCreatedEvent));
+//        projection.on(initiativeCreatedEvent, getMessageForEvent(initiativeCreatedEvent));
+//
+//        Map<String, String> metadataMap = new HashMap<>();
+//        metadataMap.put("user_id", "manager-1");
+//        metadataMap.put("cognito:username", "Jack Ma");
+//
+//        PlaygroundObservationEvent playgroundObservationEvent =
+//                new PlaygroundObservationEvent("initiative-1", "user_id", true, "I do not see anyone is smoking", LocalDate.now());
+//
+//        EventMessage<?> playgroundObservationEventMessage = getMessageForEvent(playgroundObservationEvent, metadataMap);
+////        projection.on(playgroundObservationEvent, playgroundObservationEventMessage.getMetaData(), playgroundObservationEventMessage);
+//        projection.on(playgroundObservationEvent, playgroundObservationEventMessage);
+//
+//        Initiative initiative = projection.playground("initiative-1", null);
+//        assertEquals(1, initiative.getPlaygroundObservations().size());
+//    }
+//
 
     /*
         Helpers

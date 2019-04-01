@@ -46,6 +46,7 @@ public class PlaygroundProjection {
             return;
         }
         playgrounds.put(evt.getInitiativeId(), new Playground(
+                profileProjection,
                 evt.getInitiativeId(),
                 evt.getName(),
                 geoLocation.getLat(),
@@ -61,7 +62,9 @@ public class PlaygroundProjection {
     public void on(MemberJoinedInitiativeEvent evt, MetaData metaData, EventMessage<?> eventMessage) {
         log.info("ON EVENT {}", evt);
         Playground playground = playgrounds.get(evt.getInitiativeId());
-        playground.getVolunteers().add(new Playground.Volunteer(evt.getMemberId(), profileProjection.profile(evt.getMemberId()).getUsername()));
+//        playground.getVolunteers().add(new Playground.Volunteer(evt.getMemberId(), profileProjection.profile(evt.getMemberId()).getUsername()));
+
+        playground.getVolunteerIds().add(evt.getMemberId());
         playground.setLastEventMessage(eventMessage);
     }
 
@@ -88,14 +91,16 @@ public class PlaygroundProjection {
     public void on(ManagerJoinedInitiativeEvent evt, MetaData metaData, EventMessage<?> eventMessage) {
         log.info("ON EVENT {}", evt);
         final String userId = evt.getManagerId();
-        final String userName = profileProjection.profile(userId).getUsername();
+//        final String userName = profileProjection.profile(userId).getUsername();
 
         Playground playground = playgrounds.get(evt.getInitiativeId());
-        Playground.Manager manager = new Playground.Manager(userId, userName);
-        playground.addManager(manager);
+//        Playground.Manager manager = new Playground.Manager(userId, userName);
+//        playground.addManager(manager);
+        playground.addManager(userId);
 
         // Also register the manager as a volunteer
-        playground.getVolunteers().add(new Playground.Volunteer(userId, userName));
+//        playground.getVolunteers().add(new Playground.Volunteer(userId, userName));
+        playground.getVolunteerIds().add(userId);
 
         playground.setLastEventMessage(eventMessage);
     }
@@ -104,8 +109,8 @@ public class PlaygroundProjection {
     public void on(PlaygroundObservationEvent evt, MetaData metaData, EventMessage<?> eventMessage) {
         log.info("ON EVENT {}", evt);
         final String observerId = evt.getObserver();
-        final String observerName = profileProjection.profile(observerId).getUsername();
-        Playground.PlaygroundObservation playgroundObservation = new Playground.PlaygroundObservation(observerId, observerName, evt.getSmokefree(), evt.getObservationDate(), evt.getComment());
+
+        Playground.PlaygroundObservationInternal playgroundObservation = new Playground.PlaygroundObservationInternal(observerId, evt.getSmokefree(), evt.getObservationDate(), evt.getComment());
         Playground playground = playgrounds.get(evt.getInitiativeId());
         playground.addPlaygroundObservation(playgroundObservation);
         playground.setLastEventMessage(eventMessage);

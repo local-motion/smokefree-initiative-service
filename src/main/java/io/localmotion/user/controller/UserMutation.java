@@ -95,11 +95,7 @@ public class UserMutation implements GraphQLMutationResolver {
 
     private GenericCommandMessage<?> decorateWithMetaData(Object cmd, DataFetchingEnvironment env) {
         MetaData metaData = MetaData
-                .with(SmokefreeConstants.JWTClaimSet.USER_ID, toContext(env).requireUserId())
-                .and(SmokefreeConstants.JWTClaimSet.USER_NAME, toContext(env).requireUserName())
-                .and(SmokefreeConstants.JWTClaimSet.EMAIL_ADDRESS, toContext(env).emailId())
-                // Added this so support both USER_NAME and COGNITO_USER_NAME, both returns same, will be refactor later
-                .and(SmokefreeConstants.JWTClaimSet.COGNITO_USER_NAME, toContext(env).requireUserName());
+                .with(SmokefreeConstants.JWTClaimSet.USER_ID, toContext(env).requireUserId());
         return new GenericCommandMessage<>(cmd, metaData);
     }
 

@@ -1,18 +1,24 @@
 package io.localmotion.smokefreeplaygrounds.projection;
 
 import io.localmotion.initiative.domain.Status;
+import io.localmotion.user.projection.ProfileProjection;
 import lombok.Data;
 import lombok.Value;
 import org.axonframework.eventhandling.EventMessage;
 
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.google.common.collect.Lists.newArrayList;
 
 @Data
 public class Playground {
+
+    private final ProfileProjection profileProjection;
+
     private final String id;
     private String name;
     private Double lat;
@@ -20,9 +26,12 @@ public class Playground {
     private Status status;
     private LocalDate smokeFreeDate;
     private int votes;
-    private Set<Volunteer> volunteers = new HashSet<>();
-    private List<Manager> managers = newArrayList();
-    private List<PlaygroundObservation> playgroundObservations = newArrayList();
+    private Set<String> volunteerIds = new HashSet<>();
+    //    private Set<Volunteer> volunteers = new HashSet<>();
+    private List<String> managerIds = newArrayList();
+    //    private List<Manager> managers = newArrayList();
+//    private List<PlaygroundObservation> playgroundObservations = newArrayList();
+    private List<PlaygroundObservationInternal> playgroundObservationsInternal = newArrayList();
 
     // Checklists are maintained both on user level and on the overall level
     // For both goes that the last update counts
@@ -36,13 +45,28 @@ public class Playground {
     private EventMessage<?> lastEventMessage = null;
 
     // Deduced properties
+//    public int getVolunteerCount() {
+//        return volunteers.size();
+//    }
     public int getVolunteerCount() {
-        return volunteers.size();
+        return volunteerIds.size();
     }
+
     public Date getLastUpdateTimestamp() {
         return lastEventMessage != null ? new Date(lastEventMessage.getTimestamp().toEpochMilli()) : new Date();    // TODO this will be a required field, so remove the null check after DB is cleared
     }
 
+    public Set<Volunteer> getVolunteers() {
+        return volunteerIds.stream().map(id -> new Volunteer(id, profileProjection.profile(id) != null ? profileProjection.profile(id).getUsername() : " ** onbekend **" )).collect(Collectors.toSet());
+    }
+
+    public List<Manager> getManagers() {
+        return managerIds.stream().map(id -> new Manager(id, profileProjection.profile(id) != null ? profileProjection.profile(id).getUsername() : " ** onbekend **" )).collect(Collectors.toList());
+    }
+
+    public List<PlaygroundObservation> getPlaygroundObservations() {
+        return playgroundObservationsInternal.stream().map(playgroundObservationInternal -> playgroundObservationInternal.toPlaygroundObservation(profileProjection)).collect(Collectors.toList());
+    }
 
     /*
         Value classes
@@ -69,12 +93,31 @@ public class Playground {
         String comment;
     }
 
+    @Value
+    public static class PlaygroundObservationInternal {
+        String observerId;
+        Boolean smokefree;
+        LocalDate observationDate;
+        String comment;
+
+        PlaygroundObservation toPlaygroundObservation(ProfileProjection profileProjection) {
+            return  new PlaygroundObservation(
+                    observerId,
+                    profileProjection.profile(observerId) != null ? profileProjection.profile(observerId).getUsername() : "** onbekend **",
+                    smokefree,
+                    observationDate,
+                    comment);
+        }
+    }
+
 
     /*
         Constructors
      */
 
-    public Playground(String id, String name, Double lat, Double lng, Status status, LocalDate smokeFreeDate, int votes, EventMessage<?> lastEventMessage) {
+    public Playground(ProfileProjection profileProjection,
+                      String id, String name, Double lat, Double lng, Status status, LocalDate smokeFreeDate, int votes, EventMessage<?> lastEventMessage) {
+        this.profileProjection = profileProjection;
         this.id = id;
         this.name = name;
         this.lat = lat;
@@ -85,9 +128,11 @@ public class Playground {
         this.lastEventMessage = lastEventMessage;
     }
 
-    public Playground(String id, String name, Double lat, Double lng, Status status, LocalDate smokeFreeDate, int votes,
-                      Set<Volunteer> volunteers, List<Manager> managers, List<PlaygroundObservation> playgroundObservations,
+    public Playground(ProfileProjection profileProjection,
+                      String id, String name, Double lat, Double lng, Status status, LocalDate smokeFreeDate, int votes,
+                      Set<String> volunteerIds, List<String> managerIds, List<PlaygroundObservationInternal> playgroundObservationsInternal,
                       Set<String> jointChecklistItems, Set<String> ownChecklistItems, EventMessage<?> lastEventMessage) {
+        this.profileProjection = profileProjection;
         this.id = id;
         this.name = name;
         this.lat = lat;
@@ -95,26 +140,49 @@ public class Playground {
         this.status = status;
         this.smokeFreeDate = smokeFreeDate;
         this.votes = votes;
-        this.volunteers = volunteers;
-        this.managers = managers;
-        this.playgroundObservations = playgroundObservations;
+        this.volunteerIds = volunteerIds;
+        this.managerIds = managerIds;
+        this.playgroundObservationsInternal = playgroundObservationsInternal;
         this.jointChecklistItems = jointChecklistItems;
         this.ownChecklistItems = ownChecklistItems;
         this.lastEventMessage = lastEventMessage;
     }
 
+//    public Playground(String id, String name, Double lat, Double lng, Status status, LocalDate smokeFreeDate, int votes,
+//                      Set<Volunteer> volunteers, List<Manager> managers, List<PlaygroundObservation> playgroundObservations,
+//                      Set<String> jointChecklistItems, Set<String> ownChecklistItems, EventMessage<?> lastEventMessage) {
+//        this.id = id;
+//        this.name = name;
+//        this.lat = lat;
+//        this.lng = lng;
+//        this.status = status;
+//        this.smokeFreeDate = smokeFreeDate;
+//        this.votes = votes;
+//        this.volunteers = volunteers;
+//        this.managers = managers;
+//        this.playgroundObservations = playgroundObservations;
+//        this.jointChecklistItems = jointChecklistItems;
+//        this.ownChecklistItems = ownChecklistItems;
+//        this.lastEventMessage = lastEventMessage;
+//    }
+//
 
     /*
         Update methods
      */
 
-    Playground addManager(Manager manager) {
-        managers.add(manager);
+//    Playground addManager(Manager manager) {
+//        managers.add(manager);
+//        return this;
+//    }
+
+    Playground addManager(String managerId) {
+        managerIds.add(managerId);
         return this;
     }
 
-    Playground addPlaygroundObservation(PlaygroundObservation playgroundObservation) {
-        playgroundObservations.add(playgroundObservation);
+    Playground addPlaygroundObservation(PlaygroundObservationInternal playgroundObservation) {
+        playgroundObservationsInternal.add(playgroundObservation);
         return this;
     }
 
@@ -141,13 +209,21 @@ public class Playground {
         Retrieval methods
      */
 
+//    public boolean isVolunteer(String userId) {
+//        return volunteers.stream().anyMatch(volunteer -> volunteer.userId.equals(userId));
+//    }
+//
+//    public boolean isManager(String userId) {
+//        return managers.stream().anyMatch(manager -> manager.id.equals(userId));
+//    }
     public boolean isVolunteer(String userId) {
-        return volunteers.stream().anyMatch(volunteer -> volunteer.userId.equals(userId));
+        return volunteerIds.contains(userId);
     }
 
     public boolean isManager(String userId) {
-        return managers.stream().anyMatch(manager -> manager.id.equals(userId));
+        return managerIds.contains(userId);
     }
+
 
     public boolean isParticipant(String userId) {
         return isVolunteer(userId) || isManager(userId);
@@ -163,7 +239,13 @@ public class Playground {
     public Playground getPlaygroundForUser(@Nullable String userId) {
         Set<String> usersChecklistItems = userId != null && individualChecklistItems.containsKey(userId) ?
                                                     individualChecklistItems.get(userId) : Collections.emptySet();
-        return new Playground(id, name, lat, lng, status, smokeFreeDate, votes, volunteers, managers,
-                                playgroundObservations, jointChecklistItems, usersChecklistItems, lastEventMessage);
+        return new Playground(profileProjection, id, name, lat, lng, status, smokeFreeDate, votes, volunteerIds, managerIds,
+                                playgroundObservationsInternal, jointChecklistItems, usersChecklistItems, lastEventMessage);
     }
+//    public Playground getPlaygroundForUser(@Nullable String userId) {
+//        Set<String> usersChecklistItems = userId != null && individualChecklistItems.containsKey(userId) ?
+//                                                    individualChecklistItems.get(userId) : Collections.emptySet();
+//        return new Playground(id, name, lat, lng, status, smokeFreeDate, votes, volunteers, managers,
+//                                playgroundObservations, jointChecklistItems, usersChecklistItems, lastEventMessage);
+//    }
 }
