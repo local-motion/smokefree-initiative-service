@@ -6,6 +6,7 @@ import io.localmotion.initiative.controller.InputAcceptedResponse;
 import io.localmotion.initiative.projection.InitiativeProjection;
 import io.localmotion.interfacing.graphql.SecurityContext;
 import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
+import io.localmotion.user.command.CheckUserCommand;
 import io.localmotion.user.command.CreateUserCommand;
 import io.localmotion.user.command.DeleteUserCommand;
 import io.localmotion.user.command.ReviveUserCommand;
@@ -17,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.GenericCommandMessage;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.messaging.MetaData;
+import org.axonframework.modelling.command.AggregateNotFoundException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -37,15 +39,14 @@ public class UserMutation implements GraphQLMutationResolver {
     private ProfileProjection profileProjection;
 
 
-    public Profile createUser(String input, DataFetchingEnvironment env) {
+    public InputAcceptedResponse createUser(String input, DataFetchingEnvironment env) {
         String userId = toContext(env).requireUserId();
         String userName = toContext(env).requireUserName();
         String emailAddress = toContext(env).emailId();
 
-        // First check if the user is not already present. If so just ignore the request and return the profile.
-        Profile profile = profileProjection.profile(userId);
-        if (profile != null)
-            return profile;
+        // First check if the user is not already present. If so just ignore the request and return.
+        if (userExists(userId))
+            return new InputAcceptedResponse(userId);
 
         // Next check if the user has been logically deleted, in which case we will revive the user
         if (profileProjection.getDeletedProfile(userId) != null) {
@@ -59,10 +60,9 @@ public class UserMutation implements GraphQLMutationResolver {
             }
             catch (Exception e) {
                 if (e.getMessage().endsWith(" was already inserted")) {
-                    // The user may have
                     // Ignore exception, duplicate createUser request or profile was not up to date resulting in an unnecessary createUser call
                     // Anyhow the user is present, so we can return a success response.
-                    // Note that it is possible to due the race conditional as the profiles are updated a-synchronously, that the user is present,
+                    // Note that it is possible to due the race condition as the profiles are updated a-synchronously, that the user is present,
                     // but logically deleted, but the profile was not yet loaded before to detect this. In this, rare case, the end user will just
                     // have to refresh.
                 }
@@ -70,7 +70,7 @@ public class UserMutation implements GraphQLMutationResolver {
                     throw(e);
             }
         }
-        return new Profile(userId, userName, emailAddress);
+        return new InputAcceptedResponse(userId);
     }
 
     public InputAcceptedResponse deleteUser(String input, DataFetchingEnvironment env) {
@@ -84,6 +84,16 @@ public class UserMutation implements GraphQLMutationResolver {
     /***********
      * Utility functions
      ************/
+
+    private boolean userExists(String userId) {
+        try {
+            gateway.sendAndWait(new CheckUserCommand(userId));
+            return true;
+        }
+        catch (AggregateNotFoundException e) {
+            return false;
+        }
+    }
 
     private SecurityContext toContext(DataFetchingEnvironment environment) {
         return environment.getContext();

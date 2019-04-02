@@ -2,10 +2,8 @@ package io.localmotion.initiative.controller;
 
 import com.coxautodev.graphql.tools.GraphQLMutationResolver;
 import graphql.schema.DataFetchingEnvironment;
-import io.localmotion.initiative.command.CreateInitiativeCommand;
 import io.localmotion.initiative.command.JoinInitiativeCommand;
 import io.localmotion.initiative.command.UpdateChecklistCommand;
-import io.localmotion.smokefreeplaygrounds.domain.GeoLocation;
 import io.localmotion.initiative.projection.InitiativeProjection;
 import io.localmotion.interfacing.graphql.SecurityContext;
 import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
@@ -20,9 +18,6 @@ import org.axonframework.messaging.MetaData;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.validation.Valid;
-import javax.validation.ValidationException;
-import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Singleton

@@ -1,4 +1,4 @@
-package io.localmotion.initiative.command;
+package io.localmotion.smokefreeplaygrounds.command;
 
 import io.localmotion.smokefreeplaygrounds.domain.CreationStatus;
 import io.localmotion.smokefreeplaygrounds.domain.GeoLocation;
@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateInitiativeCommand {
+public class CreatePlaygroundInitiativeCommand {
     @TargetAggregateIdentifier
     String initiativeId;
     @SafeHtml(whitelistType = SafeHtml.WhiteListType.NONE)

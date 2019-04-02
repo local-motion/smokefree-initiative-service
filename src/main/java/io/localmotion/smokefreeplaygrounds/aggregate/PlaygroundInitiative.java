@@ -3,7 +3,7 @@ package io.localmotion.smokefreeplaygrounds.aggregate;
 import io.localmotion.application.Application;
 import io.localmotion.application.DomainException;
 import io.localmotion.initiative.aggregate.Initiative;
-import io.localmotion.initiative.command.CreateInitiativeCommand;
+import io.localmotion.smokefreeplaygrounds.command.CreatePlaygroundInitiativeCommand;
 import io.localmotion.initiative.projection.InitiativeProjection;
 import io.localmotion.interfacing.graphql.error.ErrorCode;
 import io.localmotion.smokefreeplaygrounds.command.ClaimManagerRoleCommand;
@@ -63,7 +63,7 @@ public class PlaygroundInitiative extends Initiative {
 
 
     @CommandHandler
-    public PlaygroundInitiative(CreateInitiativeCommand cmd, MetaData metaData) {
+    public PlaygroundInitiative(CreatePlaygroundInitiativeCommand cmd, MetaData metaData) {
         validateMaximumPlaygroundCapacity();
         validateDuplicatePlaygroundNames(cmd.getName());
         validatePlaygroundsRange(cmd.getGeoLocation(), SmokefreeConstants.MAXIMUM_PLAYGROUNDS_DISTANCE);

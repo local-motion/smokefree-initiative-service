@@ -2,6 +2,7 @@ package io.localmotion.user.aggregate;
 
 import com.google.gson.Gson;
 import io.localmotion.eventsourcing.axon.MetaDataManager;
+import io.localmotion.user.command.CheckUserCommand;
 import io.localmotion.user.command.CreateUserCommand;
 import io.localmotion.user.command.DeleteUserCommand;
 import io.localmotion.user.command.ReviveUserCommand;
@@ -9,6 +10,7 @@ import io.localmotion.user.domain.UserPII;
 import io.localmotion.user.event.UserCreatedEvent;
 import io.localmotion.user.event.UserDeletedEvent;
 import io.localmotion.user.event.UserRevivedEvent;
+import io.micronaut.context.ApplicationContext;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
@@ -22,6 +24,8 @@ import io.localmotion.personaldata.PersonalDataRecord;
 import io.localmotion.personaldata.PersonalDataRepository;
 import io.localmotion.application.Application;
 
+
+import javax.inject.Inject;
 
 import static org.axonframework.modelling.command.AggregateLifecycle.apply;
 
@@ -38,7 +42,8 @@ public class User {
     
     // 'Injecting' using the application context
     private PersonalDataRepository personalDataRepository = Application.getApplicationContext().getBean(PersonalDataRepository.class);
-  
+
+
     /*
                Commands
      */
@@ -54,6 +59,14 @@ public class User {
         long recordId = personalDataRecord.getRecordId();
         log.info("created pii record " + recordId + " for " + cmd.getUserId() + " with data " + piiString);
         apply(new UserCreatedEvent(cmd.getUserId(), recordId), metaData);
+    }
+
+    /**
+     * Check for the existence of a user (to avoid race conditions when checking using a projection)
+     */
+    @CommandHandler
+    public boolean checkUser(CheckUserCommand cmd, MetaData metaData) {
+        return true;
     }
 
     /**

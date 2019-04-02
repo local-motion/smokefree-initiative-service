@@ -2,11 +2,10 @@ package io.localmotion.smokefreeplaygrounds.controller;
 
 import com.coxautodev.graphql.tools.GraphQLMutationResolver;
 import graphql.schema.DataFetchingEnvironment;
-import io.localmotion.initiative.command.CreateInitiativeCommand;
+import io.localmotion.smokefreeplaygrounds.command.CreatePlaygroundInitiativeCommand;
 import io.localmotion.initiative.command.JoinInitiativeCommand;
 import io.localmotion.initiative.controller.CreateInitiativeInput;
 import io.localmotion.initiative.controller.InputAcceptedResponse;
-import io.localmotion.initiative.controller.JoinInitiativeInput;
 import io.localmotion.initiative.projection.InitiativeProjection;
 import io.localmotion.interfacing.graphql.SecurityContext;
 import io.localmotion.smokefreeplaygrounds.command.*;
@@ -46,7 +45,7 @@ public class PlaygroundMutation implements GraphQLMutationResolver {
 
     @SneakyThrows
     public InputAcceptedResponse createInitiative(@Valid CreateInitiativeInput input, DataFetchingEnvironment env) {
-        final CreateInitiativeCommand command = new CreateInitiativeCommand(
+        final CreatePlaygroundInitiativeCommand command = new CreatePlaygroundInitiativeCommand(
                 input.getInitiativeId(),
                 input.getName(),
                 CreationStatus.ONLINE_NOT_STARTED,

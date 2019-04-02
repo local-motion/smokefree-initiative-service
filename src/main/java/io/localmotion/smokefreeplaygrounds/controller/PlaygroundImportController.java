@@ -12,7 +12,7 @@ import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.config.Configuration;
 import org.axonframework.messaging.MetaData;
 import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
-import io.localmotion.initiative.command.CreateInitiativeCommand;
+import io.localmotion.smokefreeplaygrounds.command.CreatePlaygroundInitiativeCommand;
 import io.localmotion.initiative.projection.InitiativeProjection;
 import io.localmotion.initiative.projection.Initiative;
 
@@ -34,7 +34,7 @@ public class PlaygroundImportController {
     InitiativeProjection initiativeProjection;
 
     @Post
-    public String importPlayground(Authentication authentication, @Size(max=4096) @Body CreateInitiativeCommand cmd) {
+    public String importPlayground(Authentication authentication, @Size(max=4096) @Body CreatePlaygroundInitiativeCommand cmd) {
         return commandGateway.sendAndWait(decorateWithUserId(cmd, authentication));
     }
 

@@ -2,7 +2,7 @@ package smokefree.domain;
 
 import io.localmotion.application.DomainException;
 import io.localmotion.initiative.aggregate.Initiative;
-import io.localmotion.initiative.command.CreateInitiativeCommand;
+import io.localmotion.smokefreeplaygrounds.command.CreatePlaygroundInitiativeCommand;
 import io.localmotion.initiative.command.JoinInitiativeCommand;
 import io.localmotion.smokefreeplaygrounds.domain.CreationStatus;
 import io.localmotion.smokefreeplaygrounds.domain.GeoLocation;
@@ -44,7 +44,7 @@ class InitiativeTest {
     @Test
     void should_allow_create_initiative() {
         fixture.givenNoPriorActivity()
-                .when(new CreateInitiativeCommand("initiative-1", "Test initiative", ONLINE_NOT_STARTED, new GeoLocation(null, null)), metadataWithUser())
+                .when(new CreatePlaygroundInitiativeCommand("initiative-1", "Test initiative", ONLINE_NOT_STARTED, new GeoLocation(null, null)), metadataWithUser())
                 .expectSuccessfulHandlerExecution()
                 .expectEvents(initiativeCreated("initiative-1", ONLINE_NOT_STARTED));
     }

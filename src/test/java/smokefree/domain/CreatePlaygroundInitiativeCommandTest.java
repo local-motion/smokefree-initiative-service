@@ -1,6 +1,6 @@
 package smokefree.domain;
 
-import io.localmotion.initiative.command.CreateInitiativeCommand;
+import io.localmotion.smokefreeplaygrounds.command.CreatePlaygroundInitiativeCommand;
 import io.localmotion.initiative.controller.CreateInitiativeInput;
 import org.junit.jupiter.api.Test;
 
@@ -12,20 +12,20 @@ import java.util.Set;
 import static io.localmotion.smokefreeplaygrounds.domain.CreationStatus.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class CreateInitiativeCommandTest {
+class CreatePlaygroundInitiativeCommandTest {
 
     private ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
 
     @Test
     void when_html_input_should_fail() {
-        CreateInitiativeCommand cmd = new CreateInitiativeCommand(
+        CreatePlaygroundInitiativeCommand cmd = new CreatePlaygroundInitiativeCommand(
                 "initiative-1",
                 "<script>alert('hello');</script>",
                 ONLINE_NOT_STARTED,
                 null
         );
 
-        Set<ConstraintViolation<CreateInitiativeCommand>> violations = validatorFactory.getValidator().validate(cmd);
+        Set<ConstraintViolation<CreatePlaygroundInitiativeCommand>> violations = validatorFactory.getValidator().validate(cmd);
         assertEquals(1, violations.size());
         assertEquals("may have unsafe html content", violations.iterator().next().getMessage());
     }

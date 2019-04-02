@@ -99,7 +99,7 @@ type Mutation {
     recordPlaygroundObservation(input: RecordPlaygroundObservationCommand!): InputAcceptedResponse!
 
 # User
-    createUser(doesNotMatter: String!): Profile!
+    createUser(doesNotMatter: String!): InputAcceptedResponse!
     deleteUser(doesNotMatter: String!): InputAcceptedResponse!
 
 }
