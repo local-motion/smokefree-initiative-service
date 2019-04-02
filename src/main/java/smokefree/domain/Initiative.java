@@ -8,14 +8,9 @@ import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.messaging.MetaData;
 import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateRoot;
-import org.gavaghan.geodesy.Ellipsoid;
-import org.gavaghan.geodesy.GeodeticCalculator;
-import org.gavaghan.geodesy.GlobalPosition;
-import smokefree.Application;
 import smokefree.DomainException;
 import smokefree.aws.rds.secretmanager.SmokefreeConstants;
 import smokefree.graphql.error.ErrorCode;
-import smokefree.projection.InitiativeProjection;
 
 import javax.validation.ValidationException;
 import java.time.LocalDate;
@@ -41,7 +36,7 @@ public class Initiative {
     });
 
 
-    InitiativeProjection initiativeProjection = Application.getApplicationContext().getBean(InitiativeProjection.class);
+    // InitiativeProjection initiativeProjection = Application.getApplicationContext().getBean(InitiativeProjection.class);
 
     // Instance properties
 
@@ -54,12 +49,13 @@ public class Initiative {
 
     private LocalDate smokeFreeDate;
     private LocalDate lastObservationDate;
+    private int totalObservationsCount;
 
     @CommandHandler
     public Initiative(CreateInitiativeCommand cmd, MetaData metaData) {
-        validateMaximumPlaygroundCapacity();
+        /*validateMaximumPlaygroundCapacity();
         validateDuplicatePlaygroundNames(cmd.getName());
-        validatePlaygroundsRange(cmd.getGeoLocation(), SmokefreeConstants.MAXIMUM_PLAYGROUNDS_DISTANCE);
+        validatePlaygroundsRange(cmd.getGeoLocation(), SmokefreeConstants.MAXIMUM_PLAYGROUNDS_DISTANCE);*/
         apply(new InitiativeCreatedEvent(cmd.initiativeId, cmd.type, cmd.status, cmd.name, cmd.geoLocation), metaData);
     }
 
@@ -119,6 +115,7 @@ public class Initiative {
         LocalDate today = LocalDate.now();
         if (lastObservationDate != null && lastObservationDate.isEqual(today))
             throw new ValidationException("Only one playground observation can be registered per day");
+        validateMaximumAllowedObservations();
         apply(new PlaygroundObservationEvent(cmd.getInitiativeId(), cmd.getObserver() , cmd.getSmokefree(), cmd.getComment(), today), metaData);
     }
 
@@ -185,6 +182,7 @@ public class Initiative {
     @EventSourcingHandler
     void on(PlaygroundObservationEvent evt) {
         lastObservationDate = evt.getObservationDate();
+        totalObservationsCount++;
     }
 
     @EventSourcingHandler
@@ -218,43 +216,9 @@ public class Initiative {
                 "You are not a manager of this playground"));
     }
 
-    private void validateMaximumPlaygroundCapacity() {
-        if(initiativeProjection.getAllPlaygrounds().size() >= SmokefreeConstants.MAXIMUM_PLAYGROUNDS_ALLOWED) {
-            throw new DomainException(ErrorCode.MAXIMUM_PLAYGROUNDS_CAPACITY_REACHED.toString(),
-                    "Can not add more than " + SmokefreeConstants.MAXIMUM_PLAYGROUNDS_ALLOWED + " playgrounds",
-                    "Sorry, Maximum playgrounds capacity is reached, please contact helpline");
-        }
-    }
 
-    private void validateDuplicatePlaygroundNames(String playgroundName) {
-        initiativeProjection.getAllPlaygrounds().stream()
-                .filter( playground -> playground.getName().equals(playgroundName))
-                .findFirst()
-                .ifPresent( p -> {
-                    throw new DomainException(ErrorCode.DUPLICATE_PLAYGROUND_NAME.toString(),
-                            "Playground " + playgroundName + " does already exist, please choose a different name",
-                            "Playground name does already exist");
-                });
 
-    }
 
-    private void validatePlaygroundsRange(GeoLocation newPlaygroundLocation, long distance) {
-        GeodeticCalculator geodeticCalculator = new GeodeticCalculator();
-        final Ellipsoid ellipsoidsReference = Ellipsoid.WGS84;
-        final GlobalPosition newPlaygroundPosition = new GlobalPosition(newPlaygroundLocation.getLat(), newPlaygroundLocation.getLng(), 0.0);
-        initiativeProjection.getAllPlaygrounds().stream()
-                .filter( playground -> {
-                    GlobalPosition currentPlaygroundPosition = new GlobalPosition(playground.getLat() , playground.getLng(), 0.0);
-                    double playgroundsDistance = geodeticCalculator.calculateGeodeticCurve(ellipsoidsReference, currentPlaygroundPosition, newPlaygroundPosition).getEllipsoidalDistance();
-                    return  playgroundsDistance < distance;
-                })
-                .findFirst()
-                .ifPresent(p -> {
-                    throw new DomainException(ErrorCode.PLAYGROUNS_LOCATED_CLOSELY.toString(),
-                            "Two playgrounds can not exist within " + SmokefreeConstants.MAXIMUM_PLAYGROUNDS_DISTANCE+ " Meters",
-                            "playground does already exists within "+ SmokefreeConstants.MAXIMUM_PLAYGROUNDS_DISTANCE+ " Meters");
-                });
-    }
     private void validateMaximumAllowedVolunteers() {
         if(citizens.size() >= SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_VOLUNTEERS_ALLOWED) {
             throw new DomainException("MAXIMUM_VOLUNTEERS",
@@ -269,6 +233,14 @@ public class Initiative {
                     "No more than " + SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_MANAGERS_ALLOWED + " volunteers can claim for manager role",
                     "No more than " + SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_MANAGERS_ALLOWED + " volunteers can claim for manager role");
         }
+    }
+
+    private void validateMaximumAllowedObservations() {
+       if(totalObservationsCount > SmokefreeConstants.PlaygroundObservation.MAXIMUM_NR_OF_OBSERVATIONS) {
+           throw new DomainException("MAXIMUM_OBSERVATIONS",
+                   "No more than " + SmokefreeConstants.PlaygroundObservation.MAXIMUM_NR_OF_OBSERVATIONS + " observations can be recorded",
+                   "No more than " + SmokefreeConstants.PlaygroundObservation.MAXIMUM_NR_OF_OBSERVATIONS + " observations can be recorded");
+       }
     }
 
 }

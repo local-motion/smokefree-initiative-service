@@ -169,8 +169,7 @@ class InitiativeTest {
                         new SmokeFreeDateCommittedEvent("initiative-1", null, yesterday))
                 .when(new RecordPlaygroundObservationCommand("initiative-1", "citizen-1", true, "Dont see anyone smoking"), asManager1())
                 .expectSuccessfulHandlerExecution()
-                .expectEvents(PlaygroundObservationEvent.class
-                );
+                .expectEvents(new PlaygroundObservationEvent("initiative-1", "citizen-1", true , "Dont see anyone smoking", LocalDate.now()));
     }
 
     private Map<String, ?> asManager1() {

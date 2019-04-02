@@ -74,7 +74,7 @@ public class AxonFactory {
     }
 
     @Singleton
-    public EventBus eventBus(@Named("axon") DataSource dataSource, Serializer serializer) {
+    public EventBus eventBus(DataSource dataSource, Serializer serializer) {
 //    public EventBus eventBus(DataSource dataSource, Serializer serializer) {
         JdbcEventStorageEngine engine = JdbcEventStorageEngine.builder()
                 .connectionProvider(new DataSourceConnectionProvider(dataSource))

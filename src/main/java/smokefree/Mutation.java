@@ -9,13 +9,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.GenericCommandMessage;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.messaging.MetaData;
+import org.gavaghan.geodesy.Ellipsoid;
+import org.gavaghan.geodesy.GeodeticCalculator;
+import org.gavaghan.geodesy.GlobalPosition;
 import smokefree.aws.rds.secretmanager.SmokefreeConstants;
 import smokefree.domain.*;
 import smokefree.graphql.CreateInitiativeInput;
 import smokefree.graphql.InputAcceptedResponse;
 import smokefree.graphql.JoinInitiativeInput;
+import smokefree.graphql.error.ErrorCode;
 import smokefree.projection.InitiativeProjection;
-import smokefree.projection.Playground;
 import smokefree.projection.Profile;
 import smokefree.projection.ProfileProjection;
 
@@ -49,6 +52,9 @@ public class Mutation implements GraphQLMutationResolver {
                 input.getType(),
                 input.getStatus(),
                 new GeoLocation(input.getLat(), input.getLng()));
+        validateMaximumPlaygroundCapacity();
+        validateDuplicatePlaygroundNames(input.getName());
+        validatePlaygroundsRange(new GeoLocation(input.getLat(), input.getLng()), SmokefreeConstants.MAXIMUM_PLAYGROUNDS_DISTANCE);
         final CompletableFuture<String> result = gateway.send(decorateWithMetaData(command, env));
         final InputAcceptedResponse response = InputAcceptedResponse.fromFuture(result);
 
@@ -66,7 +72,7 @@ public class Mutation implements GraphQLMutationResolver {
     }
 
     @SneakyThrows
-    public InputAcceptedResponse recordPlaygroundObservation(RecordPlaygroundObservationCommand input, DataFetchingEnvironment env) {
+    public InputAcceptedResponse recordPlaygroundObservation(@Valid RecordPlaygroundObservationCommand input, DataFetchingEnvironment env) {
         if(!(input.getObserver().equals(toContext(env).requireUserId()))) {
             throw new ValidationException("Observer must be equal to the userId");
         }
@@ -180,6 +186,47 @@ public class Mutation implements GraphQLMutationResolver {
                 // Added this so support both USER_NAME and COGNITO_USER_NAME, both returns same, will be refactor later
                 .and(SmokefreeConstants.JWTClaimSet.COGNITO_USER_NAME, toContext(env).requireUserName());
         return new GenericCommandMessage<>(cmd, metaData);
+    }
+
+    // validation for Name, maximum capacity and range
+    // To-Do - need to figure out that How to Inject projections into Aggregates
+
+    private void validateMaximumPlaygroundCapacity() {
+        if(initiativeProjection.getAllPlaygrounds().size() >= SmokefreeConstants.MAXIMUM_PLAYGROUNDS_ALLOWED) {
+            throw new DomainException(ErrorCode.MAXIMUM_PLAYGROUNDS_CAPACITY_REACHED.toString(),
+                    "Can not add more than " + SmokefreeConstants.MAXIMUM_PLAYGROUNDS_ALLOWED + " playgrounds",
+                    "Sorry, Maximum playgrounds capacity is reached, please contact helpline");
+        }
+    }
+
+    private void validateDuplicatePlaygroundNames(String playgroundName) {
+        initiativeProjection.getAllPlaygrounds().stream()
+                .filter( playground -> playground.getName().equals(playgroundName))
+                .findFirst()
+                .ifPresent( p -> {
+                    throw new DomainException(ErrorCode.DUPLICATE_PLAYGROUND_NAME.toString(),
+                            "Playground " + playgroundName + " does already exist, please choose a different name",
+                            "Playground name does already exist");
+                });
+
+    }
+
+    private void validatePlaygroundsRange(GeoLocation newPlaygroundLocation, long distance) {
+        GeodeticCalculator geodeticCalculator = new GeodeticCalculator();
+        final Ellipsoid ellipsoidsReference = Ellipsoid.WGS84;
+        final GlobalPosition newPlaygroundPosition = new GlobalPosition(newPlaygroundLocation.getLat(), newPlaygroundLocation.getLng(), 0.0);
+        initiativeProjection.getAllPlaygrounds().stream()
+                .filter( playground -> {
+                    GlobalPosition currentPlaygroundPosition = new GlobalPosition(playground.getLat() , playground.getLng(), 0.0);
+                    double playgroundsDistance = geodeticCalculator.calculateGeodeticCurve(ellipsoidsReference, currentPlaygroundPosition, newPlaygroundPosition).getEllipsoidalDistance();
+                    return  playgroundsDistance < distance;
+                })
+                .findFirst()
+                .ifPresent(p -> {
+                    throw new DomainException(ErrorCode.PLAYGROUNS_LOCATED_CLOSELY.toString(),
+                            "Two playgrounds can not exist within " + SmokefreeConstants.MAXIMUM_PLAYGROUNDS_DISTANCE+ " Meters",
+                            "playground does already exists within "+ SmokefreeConstants.MAXIMUM_PLAYGROUNDS_DISTANCE+ " Meters");
+                });
     }
 
 }
