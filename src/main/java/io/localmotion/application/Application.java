@@ -45,15 +45,6 @@ public class Application {
         return new ObjectMapper();
     }
 
-    /*@Bean
-    public PlaygroundProjection initiativeProjection() {
-        return new PlaygroundProjection();
-    }
-
-    @Bean
-    public ProfileProjection profileProjection() {
-        return new ProfileProjection();
-    }*/
 
     @Error(global = true)
     public HttpResponse<JsonError> error(HttpRequest request, Throwable e) {
@@ -74,8 +65,4 @@ public class Application {
                 .body(error);
     }
 
-//    @Override
-//    public void close() throws Exception {
-//
-//    }
 }

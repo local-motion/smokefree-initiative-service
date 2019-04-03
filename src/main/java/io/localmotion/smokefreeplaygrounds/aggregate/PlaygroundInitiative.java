@@ -4,7 +4,6 @@ import io.localmotion.application.Application;
 import io.localmotion.application.DomainException;
 import io.localmotion.initiative.aggregate.Initiative;
 import io.localmotion.smokefreeplaygrounds.command.CreatePlaygroundInitiativeCommand;
-import io.localmotion.initiative.projection.InitiativeProjection;
 import io.localmotion.interfacing.graphql.error.ErrorCode;
 import io.localmotion.smokefreeplaygrounds.command.ClaimManagerRoleCommand;
 import io.localmotion.smokefreeplaygrounds.command.CommitToSmokeFreeDateCommand;
@@ -14,6 +13,7 @@ import io.localmotion.smokefreeplaygrounds.domain.CreationStatus;
 import io.localmotion.smokefreeplaygrounds.domain.GeoLocation;
 import io.localmotion.smokefreeplaygrounds.domain.Status;
 import io.localmotion.smokefreeplaygrounds.event.*;
+import io.localmotion.smokefreeplaygrounds.projection.PlaygroundProjection;
 import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,12 +49,10 @@ public class PlaygroundInitiative extends Initiative {
     });
 
 
-    InitiativeProjection initiativeProjection = Application.getApplicationContext().getBean(InitiativeProjection.class);
+    private PlaygroundProjection playgroundProjection = Application.getApplicationContext().getBean(PlaygroundProjection.class);
 
     // Instance properties
 
-
-    // TODO: Specs mention Phase; Should we rename to Phase and use prepare, execute and sustain as values?
     private Status status;
     private Set<String> managers = newHashSet();
 
@@ -73,6 +71,11 @@ public class PlaygroundInitiative extends Initiative {
     @Override
     protected Set<String> getChecklistItems() {
         return CHECKLIST_ITEMS;
+    }
+
+    @Override
+    protected int getMaximumNumberOfMembers() {
+        return SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_VOLUNTEERS_ALLOWED;
     }
 
     @CommandHandler
@@ -170,7 +173,7 @@ public class PlaygroundInitiative extends Initiative {
     }
 
     private void validateMaximumPlaygroundCapacity() {
-        if(initiativeProjection.getAllPlaygrounds().size() >= SmokefreeConstants.MAXIMUM_PLAYGROUNDS_ALLOWED) {
+        if(playgroundProjection.getAllPlaygrounds().size() >= SmokefreeConstants.MAXIMUM_PLAYGROUNDS_ALLOWED) {
             throw new DomainException(ErrorCode.MAXIMUM_PLAYGROUNDS_CAPACITY_REACHED.toString(),
                     "Can not add more than " + SmokefreeConstants.MAXIMUM_PLAYGROUNDS_ALLOWED + " playgrounds",
                     "Sorry, Maximum playgrounds capacity is reached, please contact helpline");
@@ -178,7 +181,7 @@ public class PlaygroundInitiative extends Initiative {
     }
 
     private void validateDuplicatePlaygroundNames(String playgroundName) {
-        initiativeProjection.getAllPlaygrounds().stream()
+        playgroundProjection.getAllPlaygrounds().stream()
                 .filter( playground -> playground.getName().equals(playgroundName))
                 .findFirst()
                 .ifPresent( p -> {
@@ -192,7 +195,7 @@ public class PlaygroundInitiative extends Initiative {
         GeodeticCalculator geodeticCalculator = new GeodeticCalculator();
         final Ellipsoid ellipsoidsReference = Ellipsoid.WGS84;
         final GlobalPosition newPlaygroundPosition = new GlobalPosition(newPlaygroundLocation.getLat(), newPlaygroundLocation.getLng(), 0.0);
-        initiativeProjection.getAllPlaygrounds().stream()
+        playgroundProjection.getAllPlaygrounds().stream()
                 .filter( playground -> {
                     GlobalPosition currentPlaygroundPosition = new GlobalPosition(playground.getLat() , playground.getLng(), 0.0);
                     double playgroundsDistance = geodeticCalculator.calculateGeodeticCurve(ellipsoidsReference, currentPlaygroundPosition, newPlaygroundPosition).getEllipsoidalDistance();
@@ -204,13 +207,6 @@ public class PlaygroundInitiative extends Initiative {
                             "Two playgrounds can not exist within " + SmokefreeConstants.MAXIMUM_PLAYGROUNDS_DISTANCE+ " Meters",
                             "playground does already exists within "+ SmokefreeConstants.MAXIMUM_PLAYGROUNDS_DISTANCE+ " Meters");
                 });
-    }
-    private void validateMaximumAllowedVolunteers() {
-        if(members.size() >= SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_VOLUNTEERS_ALLOWED) {
-            throw new DomainException("MAXIMUM_VOLUNTEERS",
-                    "No more than " + SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_VOLUNTEERS_ALLOWED + " members can join the initiative" ,
-                    "No more than " + SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_VOLUNTEERS_ALLOWED + " members can join the initiative");
-        }
     }
 
     private void validateMaximumAllowedManagers() {

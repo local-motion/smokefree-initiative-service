@@ -1,6 +1,8 @@
 package io.localmotion.smokefreeplaygrounds.controller;
 
 import io.localmotion.interfacing.graphql.SecurityContext;
+import io.localmotion.smokefreeplaygrounds.projection.Playground;
+import io.localmotion.smokefreeplaygrounds.projection.PlaygroundProjection;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
@@ -13,8 +15,6 @@ import org.axonframework.config.Configuration;
 import org.axonframework.messaging.MetaData;
 import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 import io.localmotion.smokefreeplaygrounds.command.CreatePlaygroundInitiativeCommand;
-import io.localmotion.initiative.projection.InitiativeProjection;
-import io.localmotion.initiative.projection.Initiative;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
@@ -31,7 +31,7 @@ public class PlaygroundImportController {
     @Inject
     CommandGateway commandGateway;
     @Inject
-    InitiativeProjection initiativeProjection;
+    PlaygroundProjection playgroundProjection;
 
     @Post
     public String importPlayground(Authentication authentication, @Size(max=4096) @Body CreatePlaygroundInitiativeCommand cmd) {
@@ -39,8 +39,8 @@ public class PlaygroundImportController {
     }
 
     @Get
-    public Collection<Initiative> playgrounds() {
-        return initiativeProjection.playgrounds(null);
+    public Collection<Playground> playgrounds() {
+        return playgroundProjection.playgrounds(null);
     }
 
     private GenericCommandMessage<?> decorateWithUserId(Object cmd, Authentication authentication) {

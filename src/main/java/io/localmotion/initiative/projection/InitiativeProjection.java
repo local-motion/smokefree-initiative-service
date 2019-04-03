@@ -1,11 +1,14 @@
 package io.localmotion.initiative.projection;
 
+import io.localmotion.eventsourcing.axon.EventHandlerPlugin;
 import io.localmotion.eventsourcing.axon.MetaDataManager;
 import io.localmotion.smokefreeplaygrounds.domain.GeoLocation;
 import io.localmotion.initiative.event.ChecklistUpdateEvent;
 import io.localmotion.initiative.event.MemberJoinedInitiativeEvent;
 import io.localmotion.smokefreeplaygrounds.event.PlaygroundInitiativeCreatedEvent;
+import io.localmotion.smokefreeplaygrounds.projection.PlaygroundEventHandlerPlugin;
 import io.localmotion.user.projection.ProfileProjection;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.eventhandling.EventMessage;
@@ -13,21 +16,30 @@ import org.axonframework.messaging.MetaData;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.google.common.collect.Maps.newConcurrentMap;
 
 
-// TODO refactor playground updates to the wither pattern so playground can be immutable and updates atomic (including metadata)
 
 @Slf4j
 @Singleton
 public class InitiativeProjection {
 
-    @Inject
+    @Inject @Getter
     private ProfileProjection profileProjection;
+
+
+    private final List<EventHandlerPlugin<InitiativeProjection>> eventHandlerPlugins = new ArrayList<>();
+
+    // for now just register the handler here. In the future their should be a mechanism for the handlers to register themselves
+    {
+        eventHandlerPlugins.add(new PlaygroundEventHandlerPlugin());
+    }
 
     private final Map<String, Initiative> playgrounds = newConcurrentMap();
 
@@ -37,23 +49,15 @@ public class InitiativeProjection {
      */
 
     @EventHandler
-    public void on(PlaygroundInitiativeCreatedEvent evt, EventMessage<?> eventMessage) {
-        log.info("ON EVENT {}", evt);
-        final GeoLocation geoLocation = evt.getGeoLocation();
-        if (playgrounds.containsKey(evt.getInitiativeId())) {
-            log.warn("Received initiative creation for {} {} multiple times", evt.getInitiativeId(), evt.getName());
-            return;
-        }
-        playgrounds.put(evt.getInitiativeId(), new Initiative(
-                profileProjection,
-                evt.getInitiativeId(),
-                evt.getName(),
-                geoLocation.getLat(),
-                geoLocation.getLng(),
-                "todo determine status",
-                0,
-                eventMessage
-                ));
+    public void on(EventMessage<?> eventMessage) {
+        log.info("ON EVENTMESSAGE {}", eventMessage);
+        for (EventHandlerPlugin<InitiativeProjection> i : eventHandlerPlugins)
+            if (i.handleEventMessage(this, eventMessage))
+                return;
+    }
+
+    public void onNewInitiative(Initiative initiative) {
+        playgrounds.put(initiative.getId(), initiative);
     }
 
     @EventHandler

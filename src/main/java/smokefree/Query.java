@@ -21,8 +21,6 @@ import java.util.Collection;
 @NoArgsConstructor
 @SuppressWarnings("unused")
 public class Query implements GraphQLQueryResolver {
-//    @Inject
-//    private InitiativeProjection initiatives;
     @Inject
     private ProfileProjection profiles;
 

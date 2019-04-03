@@ -4,10 +4,8 @@ import com.coxautodev.graphql.tools.GraphQLMutationResolver;
 import graphql.schema.DataFetchingEnvironment;
 import io.localmotion.initiative.command.JoinInitiativeCommand;
 import io.localmotion.initiative.command.UpdateChecklistCommand;
-import io.localmotion.initiative.projection.InitiativeProjection;
 import io.localmotion.interfacing.graphql.SecurityContext;
 import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
-import io.localmotion.user.projection.ProfileProjection;
 import io.micronaut.validation.Validated;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
@@ -27,14 +25,6 @@ import javax.inject.Singleton;
 public class InitiativeMutation implements GraphQLMutationResolver {
     @Inject
     private CommandGateway gateway;
-
-    @Inject
-    private InitiativeProjection initiativeProjection;
-
-    @Inject
-    private ProfileProjection profileProjection;
-
-
 
 
     @SneakyThrows

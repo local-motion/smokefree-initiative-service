@@ -3,14 +3,12 @@ package io.localmotion.user.controller;
 import com.coxautodev.graphql.tools.GraphQLMutationResolver;
 import graphql.schema.DataFetchingEnvironment;
 import io.localmotion.initiative.controller.InputAcceptedResponse;
-import io.localmotion.initiative.projection.InitiativeProjection;
 import io.localmotion.interfacing.graphql.SecurityContext;
 import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 import io.localmotion.user.command.CheckUserCommand;
 import io.localmotion.user.command.CreateUserCommand;
 import io.localmotion.user.command.DeleteUserCommand;
 import io.localmotion.user.command.ReviveUserCommand;
-import io.localmotion.user.projection.Profile;
 import io.localmotion.user.projection.ProfileProjection;
 import io.micronaut.validation.Validated;
 import lombok.NoArgsConstructor;
@@ -31,9 +29,6 @@ import javax.inject.Singleton;
 public class UserMutation implements GraphQLMutationResolver {
     @Inject
     private CommandGateway gateway;
-
-    @Inject
-    private InitiativeProjection initiativeProjection;
 
     @Inject
     private ProfileProjection profileProjection;

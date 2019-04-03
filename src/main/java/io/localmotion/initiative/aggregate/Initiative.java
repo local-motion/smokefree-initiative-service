@@ -1,15 +1,11 @@
 package io.localmotion.initiative.aggregate;
 
-import io.localmotion.application.Application;
 import io.localmotion.application.DomainException;
 import io.localmotion.eventsourcing.axon.MetaDataManager;
 import io.localmotion.initiative.command.JoinInitiativeCommand;
 import io.localmotion.initiative.command.UpdateChecklistCommand;
 import io.localmotion.initiative.event.ChecklistUpdateEvent;
 import io.localmotion.initiative.event.MemberJoinedInitiativeEvent;
-import io.localmotion.initiative.projection.InitiativeProjection;
-import io.localmotion.interfacing.graphql.error.ErrorCode;
-import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +20,6 @@ import java.util.Collections;
 import java.util.Set;
 
 import static com.google.common.collect.Sets.newHashSet;
-import static org.axonframework.common.Assert.assertNonNull;
 import static org.axonframework.modelling.command.AggregateLifecycle.apply;
 
 @Slf4j
@@ -34,16 +29,13 @@ public class Initiative {
 
     // Constants
 
-    private  InitiativeProjection initiativeProjection = Application.getApplicationContext().getBean(InitiativeProjection.class);
+    public static  final int DEFAULT_MAXIMUM_NUMBER_OF_MEMBERS = 100;
 
     // Instance properties
 
     @Setter
     @AggregateIdentifier
     protected String id;
-    // TODO: Specs mention Phase; Should we rename to Phase and use prepare, execute and sustain as values?
-//    private Status status;  // TODO we need to revive the status in some form
-//    protected Set<String> managers = newHashSet();
     protected Set<String> members = newHashSet();
 
 
@@ -68,9 +60,18 @@ public class Initiative {
         apply(new ChecklistUpdateEvent(cmd.getInitiativeId(), cmd.getChecklistItem(), cmd.isChecked()), metaData);
     }
 
+
+    /*
+            Methods for subclasses
+     */
+
     protected Set<String> getChecklistItems() {
         // Override to implement
         return Collections.emptySet();
+    }
+
+    protected int getMaximumNumberOfMembers() {
+        return DEFAULT_MAXIMUM_NUMBER_OF_MEMBERS;
     }
 
 
@@ -99,19 +100,11 @@ public class Initiative {
             throw new ValidationException("User is not participating in this initiative");
     }
 
-    private void validateMaximumPlaygroundCapacity() {
-        if(initiativeProjection.getAllPlaygrounds().size() >= SmokefreeConstants.MAXIMUM_PLAYGROUNDS_ALLOWED) {
-            throw new DomainException(ErrorCode.MAXIMUM_PLAYGROUNDS_CAPACITY_REACHED.toString(),
-                    "Can not add more than " + SmokefreeConstants.MAXIMUM_PLAYGROUNDS_ALLOWED + " playgrounds",
-                    "Sorry, Maximum playgrounds capacity is reached, please contact helpline");
-        }
-    }
-
     private void validateMaximumAllowedVolunteers() {
-        if(members.size() >= SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_VOLUNTEERS_ALLOWED) {
-            throw new DomainException("MAXIMUM_VOLUNTEERS",
-                    "No more than " + SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_VOLUNTEERS_ALLOWED + " members can join the initiative" ,
-                    "No more than " + SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_VOLUNTEERS_ALLOWED + " members can join the initiative");
+        if(members.size() >= getMaximumNumberOfMembers()) {
+            throw new DomainException("MAXIMUM_MEMBERS",
+                    "No more than " + getMaximumNumberOfMembers() + " members can join the initiative" ,
+                    "No more than " + getMaximumNumberOfMembers() + " members can join the initiative");
         }
     }
 

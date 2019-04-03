@@ -10,7 +10,6 @@ import io.localmotion.user.domain.UserPII;
 import io.localmotion.user.event.UserCreatedEvent;
 import io.localmotion.user.event.UserDeletedEvent;
 import io.localmotion.user.event.UserRevivedEvent;
-import io.micronaut.context.ApplicationContext;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
@@ -23,6 +22,8 @@ import org.axonframework.modelling.command.AggregateRoot;
 import io.localmotion.personaldata.PersonalDataRecord;
 import io.localmotion.personaldata.PersonalDataRepository;
 import io.localmotion.application.Application;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 
 import javax.inject.Inject;
@@ -42,6 +43,7 @@ public class User {
     
     // 'Injecting' using the application context
     private PersonalDataRepository personalDataRepository = Application.getApplicationContext().getBean(PersonalDataRepository.class);
+
 
 
     /*

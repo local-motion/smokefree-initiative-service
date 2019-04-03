@@ -18,7 +18,7 @@ import static io.localmotion.smokefreeplaygrounds.domain.CreationStatus.*;
 import static java.time.LocalDate.now;
 import static org.junit.jupiter.api.Assertions.*;
 
-class InitiativeProjectionTest {
+class PlaygroundProjectionTest {
 
     @Test
     void should_return_created_initiatives() {
@@ -130,7 +130,6 @@ class InitiativeProjectionTest {
 
 
     private static final String PLAYGROUND_NAME_INITIATIVE_1 = "Happy Smokefree";
-    private static final String PLAYGROUND_NAME_INITIATIVE_2 = "Happy Smokefree 2";
 
     PlaygroundInitiativeCreatedEvent initiativeCreated(CreationStatus creationStatus) {
         return initiativeCreated(UUID.randomUUID().toString(), creationStatus, new GeoLocation());
