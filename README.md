@@ -18,7 +18,7 @@ AWS_COGNITO_USERPOOLID  eu-west-1_WsTxYUHyC
 ## Running Graphql Playground
 
 ```
-brew cask install graphql-initiative
+brew cask install graphql-playground
 ```
 
 Open the installed "GraphQL Playground" OSX application
@@ -30,9 +30,9 @@ Open the installed "GraphQL Playground" OSX application
 
 ### Mutation
 
-In order to test a initiativeMutation, use the following query:
+In order to test a mutation, use the following query:
 ```
-initiativeMutation CreateArticle($input: CreateArticleInput!) {
+mutation CreateArticle($input: CreateArticleInput!) {
   createArticle(input: $input) {
     id
   }
