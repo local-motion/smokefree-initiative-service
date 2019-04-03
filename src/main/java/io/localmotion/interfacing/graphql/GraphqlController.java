@@ -38,7 +38,7 @@ public class GraphqlController {
 
     @Post(consumes = MediaType.APPLICATION_JSON)
     public Map<String, Object> graphql(@Nullable Authentication authentication, @Size(max=4096) /* TODO Validation not yet enabled */  @Body GraphqlQuery query) throws Exception {
-        log.trace("Query: {}", query.getQuery());
+        log.trace("PlaygroundQuery: {}", query.getQuery());
 
         Assert.assertNotNull(query.getQuery());
 

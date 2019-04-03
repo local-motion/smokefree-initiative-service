@@ -18,6 +18,8 @@ import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.idl.SchemaDirectiveWiring;
 import graphql.schema.idl.SchemaDirectiveWiringEnvironment;
+import io.localmotion.initiative.controller.InitiativeQuery;
+import io.localmotion.user.controller.UserQuery;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.core.io.IOUtils;
@@ -27,7 +29,7 @@ import lombok.NoArgsConstructor;
 import io.localmotion.application.DomainException;
 import io.localmotion.initiative.controller.InitiativeMutation;
 import io.localmotion.smokefreeplaygrounds.controller.PlaygroundMutation;
-import smokefree.Query;
+import io.localmotion.smokefreeplaygrounds.controller.PlaygroundQuery;
 import io.localmotion.interfacing.graphql.error.ConfigurableDataFetcherExceptionHandler;
 import io.localmotion.interfacing.graphql.error.ErrorCode;
 import io.localmotion.interfacing.graphql.error.ErrorExtensions;
@@ -84,8 +86,8 @@ public class GraphqlFactory {
 
     @Bean
     @Singleton
-//    public GraphQL graphQL(Query query, InitiativeMutation initiativeMutation, SecurityService securityService, ObjectMapper objectMapper, DataFetcherExceptionHandler exceptionHandler) throws IOException {
-    public GraphQL graphQL(Query query, InitiativeMutation initiativeMutation, PlaygroundMutation playgroundMutation, UserMutation userMutation,
+    public GraphQL graphQL(InitiativeQuery initiativeQuery, PlaygroundQuery playgroundQuery, UserQuery userQuery,
+                           InitiativeMutation initiativeMutation, PlaygroundMutation playgroundMutation, UserMutation userMutation,
                            SecurityService securityService, ObjectMapper objectMapper, DataFetcherExceptionHandler exceptionHandler) throws IOException {
         /*
          * More information can be found at https://www.graphql-java-kickstart.com/tools/schema-definition/
@@ -94,7 +96,10 @@ public class GraphqlFactory {
         final String schemaString = IOUtils.readText(new BufferedReader(new InputStreamReader(input)));
         final SchemaParserBuilder builder = SchemaParser.newParser()
                 .options(SchemaParserOptions.newOptions().objectMapperProvider(fieldDefinition -> objectMapper).build())
-                .resolvers(query, initiativeMutation, playgroundMutation, userMutation)
+                .resolvers(
+                            initiativeQuery, playgroundQuery, userQuery,
+                            initiativeMutation, playgroundMutation, userMutation
+                )
                 .schemaString(schemaString)
                 .directive("auth", new AuthenticationDirective(securityService))
                 .scalars(
