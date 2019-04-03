@@ -59,6 +59,11 @@ public class ConfigurableDataFetcherExceptionHandler implements DataFetcherExcep
         SourceLocation sourceLocation = handlerParameters.getField().getSourceLocation();
         ExecutionPath path = handlerParameters.getPath();
 
+        log.warn(" *** Error caught in ConfigurableDataFetcherExceptionHandler ***");
+        log.warn("Execution path: " + path);
+        exception.printStackTrace();
+        log.warn(" *** End error ***");
+
         Throwable throwableWithErrorExtensions = toThrowableWithExtensions(exception);
         ExceptionWhileDataFetching error = new ExceptionWhileDataFetching(path, throwableWithErrorExtensions, sourceLocation);
         handlerParameters.getExecutionContext().addError(error);
