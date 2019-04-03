@@ -8,7 +8,7 @@ import org.axonframework.modelling.command.TargetAggregateIdentifier;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CheckUserCommand {
+public class RetrieveUserCommand {
     @TargetAggregateIdentifier
     String userId;
 }

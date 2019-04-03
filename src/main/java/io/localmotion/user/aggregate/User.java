@@ -1,8 +1,7 @@
 package io.localmotion.user.aggregate;
 
 import com.google.gson.Gson;
-import io.localmotion.eventsourcing.axon.MetaDataManager;
-import io.localmotion.user.command.CheckUserCommand;
+import io.localmotion.user.command.RetrieveUserCommand;
 import io.localmotion.user.command.CreateUserCommand;
 import io.localmotion.user.command.DeleteUserCommand;
 import io.localmotion.user.command.ReviveUserCommand;
@@ -13,7 +12,6 @@ import io.localmotion.user.event.UserRevivedEvent;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
-import org.axonframework.common.Assert;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.messaging.MetaData;
@@ -22,11 +20,7 @@ import org.axonframework.modelling.command.AggregateRoot;
 import io.localmotion.personaldata.PersonalDataRecord;
 import io.localmotion.personaldata.PersonalDataRepository;
 import io.localmotion.application.Application;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
-
-import javax.inject.Inject;
 
 import static org.axonframework.modelling.command.AggregateLifecycle.apply;
 
@@ -66,11 +60,11 @@ public class User {
     }
 
     /**
-     * Check for the existence of a user (to avoid race conditions when checking using a projection)
+     * Return this aggregate
      */
     @CommandHandler
-    public boolean checkUser(CheckUserCommand cmd, MetaData metaData) {
-        return true;
+    public User retrieveUser(RetrieveUserCommand cmd, MetaData metaData) {
+        return this;
     }
 
     /**

@@ -5,7 +5,7 @@ import graphql.schema.DataFetchingEnvironment;
 import io.localmotion.initiative.controller.InputAcceptedResponse;
 import io.localmotion.interfacing.graphql.SecurityContext;
 import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
-import io.localmotion.user.command.CheckUserCommand;
+import io.localmotion.user.command.RetrieveUserCommand;
 import io.localmotion.user.command.CreateUserCommand;
 import io.localmotion.user.command.DeleteUserCommand;
 import io.localmotion.user.command.ReviveUserCommand;
@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.GenericCommandMessage;
 import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.eventsourcing.IncompatibleAggregateException;
 import org.axonframework.messaging.MetaData;
 import org.axonframework.modelling.command.AggregateNotFoundException;
 
@@ -80,12 +81,19 @@ public class UserMutation implements GraphQLMutationResolver {
      * Utility functions
      ************/
 
+    /**
+     * Check for the existence of a user (to avoid race conditions when checking using a projection)
+     * @param userId of the user to check
+     * @return true if user exists
+     */
     private boolean userExists(String userId) {
         try {
-            gateway.sendAndWait(new CheckUserCommand(userId));
+            gateway.sendAndWait(new RetrieveUserCommand(userId));
             return true;
         }
-        catch (AggregateNotFoundException e) {
+        catch (AggregateNotFoundException | IncompatibleAggregateException e) {
+            // Note: including IncompatibleAggregateException is a patch as this should not (?) occur, but sometimes still does
+            log.info("Caught exception " + e.getClass() + " when checking for existance of user " + userId);
             return false;
         }
     }
