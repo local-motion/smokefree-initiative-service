@@ -35,7 +35,7 @@ public class Playground {
     // Note that the checklist are actually sets containing those items that have been check. All other items are considered not to be checked.
     private Set<String> jointChecklistItems = new HashSet<>();
     private Map<String,Set<String>> individualChecklistItems = new HashMap<>();         // key = user
-    private Set<String> ownChecklistItems = null;                                       // see getPlaygroundForUser
+    private Set<String> ownChecklistItems = null;                                       // see getInitiativeForUser
 
 
     // Internal fields

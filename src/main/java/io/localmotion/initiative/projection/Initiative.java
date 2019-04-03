@@ -6,7 +6,6 @@ import lombok.Value;
 import org.axonframework.eventhandling.EventMessage;
 
 import javax.annotation.Nullable;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -22,14 +21,14 @@ public class Initiative {
     private Double lng;
     private String status;
     private int votes;
-    private Set<String> volunteerIds = new HashSet<>();
+    private Set<String> memberIds = new HashSet<>();
 
     // Checklists are maintained both on user level and on the overall level
     // For both goes that the last update counts
     // Note that the checklist are actually sets containing those items that have been check. All other items are considered not to be checked.
     private Set<String> jointChecklistItems = new HashSet<>();
     private Map<String,Set<String>> individualChecklistItems = new HashMap<>();         // key = user
-    private Set<String> ownChecklistItems = null;                                       // see getPlaygroundForUser
+    private Set<String> ownChecklistItems = null;                                       // see getInitiativeForUser
 
 
     // Internal fields
@@ -37,15 +36,15 @@ public class Initiative {
 
     // Deduced properties
     public int getVolunteerCount() {
-        return volunteerIds.size();
+        return memberIds.size();
     }
 
     public Date getLastUpdateTimestamp() {
         return lastEventMessage != null ? new Date(lastEventMessage.getTimestamp().toEpochMilli()) : new Date();    // TODO this will be a required field, so remove the null check after DB is cleared
     }
 
-    public Set<Volunteer> getVolunteers() {
-        return volunteerIds.stream().map(id -> new Volunteer(id, profileProjection.profile(id) != null ? profileProjection.profile(id).getUsername() : " ** onbekend **" )).collect(Collectors.toSet());
+    public Set<Member> getMembers() {
+        return memberIds.stream().map(id -> new Member(id, profileProjection.profile(id) != null ? profileProjection.profile(id).getUsername() : " ** onbekend **" )).collect(Collectors.toSet());
     }
 
 
@@ -54,7 +53,7 @@ public class Initiative {
      */
 
     @Value
-    public static class Volunteer {
+    public static class Member {
         String userId;
         String userName;
     }
@@ -78,7 +77,7 @@ public class Initiative {
 
     public Initiative(ProfileProjection profileProjection,
                       String id, String name, Double lat, Double lng, String status, int votes,
-                      Set<String> volunteerIds,
+                      Set<String> memberIds,
                       Set<String> jointChecklistItems, Set<String> ownChecklistItems, EventMessage<?> lastEventMessage) {
         this.profileProjection = profileProjection;
         this.id = id;
@@ -87,7 +86,7 @@ public class Initiative {
         this.lng = lng;
         this.status = status;
         this.votes = votes;
-        this.volunteerIds = volunteerIds;
+        this.memberIds = memberIds;
         this.jointChecklistItems = jointChecklistItems;
         this.ownChecklistItems = ownChecklistItems;
         this.lastEventMessage = lastEventMessage;
@@ -122,22 +121,22 @@ public class Initiative {
         Retrieval methods
      */
 
-    public boolean isVolunteer(String userId) {
-        return volunteerIds.contains(userId);
+    public boolean isMember(String userId) {
+        return memberIds.contains(userId);
     }
 
 
     /**
-     * Some information in the playground should not be exposed to all users, such as the checkboxes of each individual user.
-     * Therefore use this method to compute a playground object suitable to expose to a particular user
+     * Some information in the initiative should not be exposed to all users, such as the checkboxes of each individual user.
+     * Therefore use this method to compute a initiative object suitable to expose to a particular user
      *
      * @param userId id of the user to create the perspective for (leave null for unauthenticated users)
-     * @return playground with a subset of the properties of this playground
+     * @return initiative with a subset of the properties of this initiative
      */
-    public Initiative getPlaygroundForUser(@Nullable String userId) {
+    public Initiative getInitiativeForUser(@Nullable String userId) {
         Set<String> usersChecklistItems = userId != null && individualChecklistItems.containsKey(userId) ?
                                                     individualChecklistItems.get(userId) : Collections.emptySet();
-        return new Initiative(  profileProjection, id, name, lat, lng, status, votes, volunteerIds,
+        return new Initiative(  profileProjection, id, name, lat, lng, status, votes, memberIds,
                                 jointChecklistItems, usersChecklistItems, lastEventMessage);
     }
 }

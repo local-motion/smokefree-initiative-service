@@ -24,12 +24,10 @@ public class InitiativeQuery implements GraphQLQueryResolver {
      * @return total volunteers count
      */
     public long totalVolunteers() {
-        return initiativeProjection.playgrounds(null).stream()
-                .flatMap(playground -> playground.getVolunteers().stream())
+        return initiativeProjection.getInitiatives(null).stream()
+                .flatMap(playground -> playground.getMembers().stream())
                 .distinct()
                 .count();
     }
-
-
 
 }

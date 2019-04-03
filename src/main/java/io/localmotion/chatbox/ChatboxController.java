@@ -66,7 +66,7 @@ public class ChatboxController {
     }
 
     private Initiative getPlayground(String playgroundId) {
-        for (Initiative i: initiativeProjection.playgrounds(null))
+        for (Initiative i: initiativeProjection.getInitiatives(null))
             if (i.getId().equals(playgroundId))
                 return i;
         return null;
@@ -75,7 +75,7 @@ public class ChatboxController {
     private boolean isUserAuthorisedForChatbox(String userId, String chatboxId) {
         final Initiative initiative = getPlayground(chatboxId);
         if (initiative != null)
-            return initiative.getVolunteers().stream().anyMatch(volunteer -> volunteer.getUserId().equals(userId));
+            return initiative.getMembers().stream().anyMatch(volunteer -> volunteer.getUserId().equals(userId));
         return false;
     }
 }

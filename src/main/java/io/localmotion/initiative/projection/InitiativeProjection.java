@@ -2,10 +2,8 @@ package io.localmotion.initiative.projection;
 
 import io.localmotion.eventsourcing.axon.EventHandlerPlugin;
 import io.localmotion.eventsourcing.axon.MetaDataManager;
-import io.localmotion.smokefreeplaygrounds.domain.GeoLocation;
 import io.localmotion.initiative.event.ChecklistUpdateEvent;
 import io.localmotion.initiative.event.MemberJoinedInitiativeEvent;
-import io.localmotion.smokefreeplaygrounds.event.PlaygroundInitiativeCreatedEvent;
 import io.localmotion.smokefreeplaygrounds.projection.PlaygroundEventHandlerPlugin;
 import io.localmotion.user.projection.ProfileProjection;
 import lombok.Getter;
@@ -36,12 +34,12 @@ public class InitiativeProjection {
 
     private final List<EventHandlerPlugin<InitiativeProjection>> eventHandlerPlugins = new ArrayList<>();
 
-    // for now just register the handler here. In the future their should be a mechanism for the handlers to register themselves
+    // for now just register the handler here. In the future there should be a mechanism for the handlers to register themselves
     {
         eventHandlerPlugins.add(new PlaygroundEventHandlerPlugin());
     }
 
-    private final Map<String, Initiative> playgrounds = newConcurrentMap();
+    private final Map<String, Initiative> initiatives = newConcurrentMap();
 
 
     /*
@@ -57,14 +55,14 @@ public class InitiativeProjection {
     }
 
     public void onNewInitiative(Initiative initiative) {
-        playgrounds.put(initiative.getId(), initiative);
+        initiatives.put(initiative.getId(), initiative);
     }
 
     @EventHandler
     public void on(MemberJoinedInitiativeEvent evt, MetaData metaData, EventMessage<?> eventMessage) {
         log.info("ON EVENT {}", evt);
-        Initiative initiative = playgrounds.get(evt.getInitiativeId());
-        initiative.getVolunteerIds().add(evt.getMemberId());
+        Initiative initiative = initiatives.get(evt.getInitiativeId());
+        initiative.getMemberIds().add(evt.getMemberId());
         initiative.setLastEventMessage(eventMessage);
     }
 
@@ -72,7 +70,7 @@ public class InitiativeProjection {
     void on(ChecklistUpdateEvent evt, EventMessage<?> eventMessage) {
         log.info("ON EVENT {} AT {}", evt, eventMessage.getTimestamp());
         String actorId = new MetaDataManager(eventMessage.getMetaData()).getUserId();
-        Initiative initiative = playgrounds.get(evt.getInitiativeId());
+        Initiative initiative = initiatives.get(evt.getInitiativeId());
         initiative.setChecklistItem(actorId, evt.getChecklistItem(), evt.isChecked());
         initiative.setLastEventMessage(eventMessage);
     }
@@ -82,17 +80,17 @@ public class InitiativeProjection {
             Serving the projections
      */
 
-    public Collection<Initiative> playgrounds(String userId) {
-        return playgrounds.values().stream().map(playground -> playground.getPlaygroundForUser(userId)).collect(Collectors.toList());
+    public Collection<Initiative> getInitiatives(String userId) {
+        return initiatives.values().stream().map(playground -> playground.getInitiativeForUser(userId)).collect(Collectors.toList());
     }
 
-    public Initiative playground(String id, String userId) {
-        Initiative initiative = playgrounds.containsKey(id) ? playgrounds.get(id).getPlaygroundForUser(userId) : null;
+    public Initiative getInitiative(String id, String userId) {
+        Initiative initiative = initiatives.containsKey(id) ? initiatives.get(id).getInitiativeForUser(userId) : null;
         return initiative;
     }
 
-    public Collection<Initiative> getAllPlaygrounds() {
-        return playgrounds.values();
+    public Collection<Initiative> getAllInitiatives() {
+        return initiatives.values();
     }
 
 }

@@ -1,8 +1,7 @@
 package io.localmotion.smokefreeplaygrounds.event;
 
-import io.localmotion.initiative.event.InitiativeCreatedEvent;
-import io.localmotion.smokefreeplaygrounds.domain.GeoLocation;
 import io.localmotion.smokefreeplaygrounds.domain.CreationStatus;
+import io.localmotion.smokefreeplaygrounds.domain.GeoLocation;
 import lombok.*;
 
 @Getter
