@@ -20,9 +20,6 @@ class CreateInitiativeInput {
     @Size(min = 1, message = "The initiativeId must not be blank")
     String initiativeId;
 
-//    @NotNull(message = "The status must not be blank")
-//    Status status;
-
     @Length(min = 3, message = "The name must be at least 3 characters")
     @Length(max = 40, message = "The name must be less than 40 characters")
     @NotNull

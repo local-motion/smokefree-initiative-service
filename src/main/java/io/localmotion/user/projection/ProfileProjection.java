@@ -23,6 +23,8 @@ import static com.google.common.collect.Maps.newConcurrentMap;
 @Singleton
 public class ProfileProjection {
 
+    public static final String PROPERTY_REMOVED = "removed";
+
     private final Map<String, Profile> profilesById = newConcurrentMap();
     private final Map<String, Profile> profilesByName = newConcurrentMap();
 
@@ -49,7 +51,7 @@ public class ProfileProjection {
             log.info("User profile retrieved pii record " + evt.getPiiRecordId() + " for " + evt.getUserId() + " with data " + userPII);
         }
         else {
-            profile = new Profile(evt.getUserId(), "removed", "removed");
+            profile = new Profile(evt.getUserId(), "PROPERTY_REMOVED", "PROPERTY_REMOVED");
         }
 
         profilesById.put(profile.getId(), profile);

@@ -20,8 +20,8 @@ public class InitiativeQuery implements GraphQLQueryResolver {
 
 
     /**
-     * Compute and return the total number of volunteers.
-     * @return total volunteers count
+     * Compute and return the total number of members.
+     * @return total member count
      */
     public long totalVolunteers() {
         return initiativeProjection.getInitiatives(null).stream()
