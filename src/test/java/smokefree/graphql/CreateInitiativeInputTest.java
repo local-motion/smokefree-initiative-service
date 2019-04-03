@@ -1,7 +1,8 @@
-package smokefree.domain;
+package smokefree.graphql;
 
 import org.junit.Test;
-import smokefree.graphql.CreateInitiativeInput;
+import smokefree.domain.Status;
+import smokefree.domain.Type;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -10,23 +11,24 @@ import java.util.Set;
 
 import static org.junit.Assert.*;
 
-public class CreateInitiativeCommandTest {
+public class CreateInitiativeInputTest {
 
 	private ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
 
 	@Test
-	public void when_html_input_should_fail() {
-		CreateInitiativeCommand cmd = new CreateInitiativeCommand(
+	public void should_haveConstraintViolation_when_playgroundNameHasLessThan3Characters() {
+		CreateInitiativeInput cmd = new CreateInitiativeInput(
 				"initiative-1",
-				"<script>alert('hello');</script>",
 				Type.smokefree,
 				Status.not_started,
-				null
+				"Hi",
+				22223.32,
+				32.322
 		);
 
-		Set<ConstraintViolation<CreateInitiativeCommand>> violations = validatorFactory.getValidator().validate(cmd);
+		Set<ConstraintViolation<CreateInitiativeInput>> violations = validatorFactory.getValidator().validate(cmd);
 		assertEquals(1, violations.size());
-		assertEquals("may have unsafe html content", violations.iterator().next().getMessage());
+		assertEquals("The name must be at least 3 characters", violations.iterator().next().getMessage());
 	}
 
 	@Test
@@ -39,6 +41,7 @@ public class CreateInitiativeCommandTest {
 				22223.32,
 				32.322
 		);
+
 		Set<ConstraintViolation<CreateInitiativeInput>> violations = validatorFactory.getValidator().validate(cmd);
 		assertEquals(1, violations.size());
 		assertEquals("The name must be less than 40 characters", violations.iterator().next().getMessage());
@@ -54,6 +57,7 @@ public class CreateInitiativeCommandTest {
 				22223.32,
 				32.322
 		);
+
 		Set<ConstraintViolation<CreateInitiativeInput>> violations = validatorFactory.getValidator().validate(cmd);
 		assertEquals(0, violations.size());
 	}

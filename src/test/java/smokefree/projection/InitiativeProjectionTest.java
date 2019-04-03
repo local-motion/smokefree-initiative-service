@@ -2,7 +2,8 @@ package smokefree.projection;
 
 import org.axonframework.eventhandling.EventMessage;
 import org.axonframework.eventhandling.GenericEventMessage;
-import org.junit.jupiter.api.Test;
+import org.axonframework.messaging.MetaData;
+import org.junit.Test;
 import smokefree.domain.*;
 
 import java.time.LocalDate;
@@ -11,13 +12,15 @@ import java.util.Map;
 import java.util.UUID;
 
 import static java.time.LocalDate.now;
-import static org.junit.jupiter.api.Assertions.*;
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertNull;
+import static org.junit.Assert.assertEquals;
 import static smokefree.domain.Status.*;
 
-class InitiativeProjectionTest {
+public class InitiativeProjectionTest {
 
     @Test
-    void should_return_created_initiatives() {
+    public void should_return_created_initiatives() {
         InitiativeProjection projection = new InitiativeProjection();
 
         final InitiativeCreatedEvent initiative1 = triggerInitiativeCreatedEvent(projection, in_progress);
@@ -25,20 +28,28 @@ class InitiativeProjectionTest {
         triggerInitiativeCreatedEvent(projection, not_started);
         triggerInitiativeCreatedEvent(projection, finished);
 
+        Map<String, String> metadataMap = new HashMap<>();
+        metadataMap.put("user_id", "citizen-1");
+        metadataMap.put("user_name", "Jack Ma");
+
         CitizenJoinedInitiativeEvent joined1 = new CitizenJoinedInitiativeEvent(initiative1.getInitiativeId(), "citizen-1");
-        projection.on(joined1, null, getMessageForEvent(joined1));
+        projection.on(joined1, new MetaData(metadataMap), getMessageForEvent(joined1));
+
+        Map<String, String> citizen2metadataMap = new HashMap<>();
+        citizen2metadataMap.put("user_id", "citizen-2");
+        citizen2metadataMap.put("user_name", "Citizen 2");
 
         CitizenJoinedInitiativeEvent joined2 = new CitizenJoinedInitiativeEvent(initiative1.getInitiativeId(), "citizen-2");
-        projection.on(joined1, null, getMessageForEvent(joined2));
+        projection.on(joined2, new MetaData(citizen2metadataMap), getMessageForEvent(joined2));
 
-        final Playground playground = projection.playground(initiative1.getInitiativeId(), null);
+        final Playground playground = projection.playground(initiative1.getInitiativeId(), "citizen-1");
         assertNotNull(playground);
         assertEquals(in_progress, playground.getStatus());
         assertEquals(2, playground.getVolunteerCount());
     }
 
     @Test
-    void should_calculate_percentage_and_absolute_numbers_based_on_status() {
+    public void should_calculate_percentage_and_absolute_numbers_based_on_status() {
         InitiativeProjection projection = new InitiativeProjection();
 
 
@@ -78,7 +89,7 @@ class InitiativeProjectionTest {
     }
 
     @Test
-    void should_reflect_decisions_in_status_progression() {
+    public void should_reflect_decisions_in_status_progression() {
         InitiativeProjection projection = new InitiativeProjection();
 
         triggerInitiativeCreatedEvent(projection, "initiative-1", not_started);
@@ -95,7 +106,7 @@ class InitiativeProjectionTest {
     }
 
     @Test
-    void should_expose_smokefree_date_when_committed() {
+    public void should_expose_smokefree_date_when_committed() {
         InitiativeProjection projection = new InitiativeProjection();
 
         triggerInitiativeCreatedEvent(projection, "initiative-1", in_progress);
@@ -122,7 +133,7 @@ class InitiativeProjectionTest {
     }
 
     @Test
-    void should_store_managers_per_playground() {
+    public void should_store_managers_per_playground() {
         InitiativeProjection projection = new InitiativeProjection();
 //        projection.on(initiativeCreated("initiative-1", in_progress));
         triggerInitiativeCreatedEvent(projection, "initiative-1", in_progress);
@@ -133,7 +144,7 @@ class InitiativeProjectionTest {
         metadataMap.put("user_name", "Jack Ma");
 
         ManagerJoinedInitiativeEvent managerjoinedEvent =
-                new ManagerJoinedInitiativeEvent("initiative-1", "citizen-1");
+                new ManagerJoinedInitiativeEvent("initiative-1", "manager-1");
 
         EventMessage<?> managerjoinedEventMessage = getMessageForEvent(managerjoinedEvent, metadataMap);
         projection.on(managerjoinedEvent, managerjoinedEventMessage.getMetaData(), managerjoinedEventMessage);
@@ -149,7 +160,7 @@ class InitiativeProjectionTest {
     }
 
     @Test
-    void should_record_smokefreeplaygroundobservation() {
+    public void should_record_smokefreeplaygroundobservation() {
         InitiativeProjection projection = new InitiativeProjection();
 
         InitiativeCreatedEvent initiativeCreatedEvent = initiativeCreated("initiative-1", in_progress, new GeoLocation());
