@@ -1,0 +1,12 @@
+package io.localmotion.interfacing.graphql.error;
+
+public enum ErrorCode {
+    UNAUTHENTICATED,
+    UNAUTHORIZED,
+    VALIDATION,
+    MAXIMUM_PLAYGROUNDS_CAPACITY_REACHED,
+    DUPLICATE_PLAYGROUND_NAME,
+    PLAYGROUNS_LOCATED_CLOSELY,
+    UNKNOWNITEM,
+    OTHER
+}

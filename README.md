@@ -2,7 +2,7 @@
 
 ## Running in Intellij
 
-Simply run `smokefree.Application` with following environment variables
+Simply run `io.localmotion.application.Application` with following environment variables
 
 ```
 MICRONAUT_SERVER_PORT	8086

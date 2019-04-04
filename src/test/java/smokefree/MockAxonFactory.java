@@ -1,5 +1,6 @@
 package smokefree;
 
+import io.localmotion.eventsourcing.axon.AxonFactory;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Replaces;
@@ -11,7 +12,6 @@ import org.axonframework.config.Configuration;
 import org.axonframework.config.DefaultConfigurer;
 import org.axonframework.eventhandling.SimpleEventBus;
 import org.axonframework.eventsourcing.eventstore.inmemory.InMemoryEventStorageEngine;
-import org.axonframework.modelling.command.*;
 import org.axonframework.queryhandling.SimpleQueryBus;
 
 import javax.inject.Singleton;

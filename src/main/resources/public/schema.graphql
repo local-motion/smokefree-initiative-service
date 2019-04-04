@@ -17,7 +17,6 @@ schema {
 type Query {
     profile: Profile
     playgrounds: [Playground]
-    progress: Progress
     playground(id: String!): Playground
     totalVolunteers: Long
 }
@@ -28,14 +27,26 @@ type Profile {
     emailAddress : String!
 }
 
+type Initiative {
+    id : String!
+    lng : Float
+    lat : Float
+    status: Status
+    volunteerCount: Int
+    volunteers: [Volunteer!]!
+    jointChecklistItems: [String!]!
+    ownChecklistItems: [String!]!
+    lastUpdateTimestamp: Date!
+}
+
 type Playground {
     id : String!
-    name : String
+    name : String!
     lng : Float
     lat : Float
     status: Status
     smokeFreeDate: LocalDate
-    volunteerCount: Int #@auth(role : "manager")
+    volunteerCount: Int
     votes: Int
     managers: [Manager!]!
     playgroundObservations: [PlaygroundObservation!]!
@@ -46,17 +57,9 @@ type Playground {
 }
 
 enum Status {
-    not_started
-    in_progress
-    finished
-}
-
-type Progress {
-    total: Int
-    remaining: Int
-    smokeFree: Stat
-    workingOnIt: Stat
-    smoking: Stat
+    NOT_STARTED
+    IN_PROGRESS
+    FINISHED
 }
 
 type Manager {
@@ -67,11 +70,6 @@ type Manager {
 type Volunteer {
     userId: String!
     userName: String!
-}
-
-type Stat {
-    count : Int
-    percentage : Int
 }
 
 type PlaygroundObservation {
@@ -88,19 +86,38 @@ type PlaygroundObservation {
 #
 
 type Mutation {
-    createInitiative(input: CreateInitiativeInput!): InputAcceptedResponse!
+
+# Initiative
     joinInitiative(input: JoinInitiativeInput!): InputAcceptedResponse!
-
-    claimManagerRole(input: ClaimManagerRoleCommand!): InputAcceptedResponse!
-
-    decideToBecomeSmokeFree(input: DecideToBecomeSmokeFreeCommand!): InputAcceptedResponse!
-    decideToNotBecomeSmokeFree(input: DecideToNotBecomeSmokeFreeCommand!): InputAcceptedResponse!
-
-    commitToSmokeFreeDate(input: CommitToSmokeFreeDateCommand!): InputAcceptedResponse!
-
-    recordPlaygroundObservation(input: RecordPlaygroundObservationCommand!): InputAcceptedResponse!
     updateChecklist(input: UpdateChecklistCommand!): InputAcceptedResponse!
 
+# Playground
+    createInitiative(input: CreateInitiativeInput!): InputAcceptedResponse!
+    claimManagerRole(input: ClaimManagerRoleCommand!): InputAcceptedResponse!
+    decideToBecomeSmokeFree(input: DecideToBecomeSmokeFreeCommand!): InputAcceptedResponse!
+    commitToSmokeFreeDate(input: CommitToSmokeFreeDateCommand!): InputAcceptedResponse!
+    recordPlaygroundObservation(input: RecordPlaygroundObservationCommand!): InputAcceptedResponse!
+
+# User
+    createUser(doesNotMatter: String!): InputAcceptedResponse!
+    deleteUser(doesNotMatter: String!): InputAcceptedResponse!
+
+}
+
+type InitiativeMutation {
+    createInitiative(input: CreateInitiativeInput!): InputAcceptedResponse!
+    joinInitiative(input: JoinInitiativeInput!): InputAcceptedResponse!
+    updateChecklist(input: UpdateChecklistCommand!): InputAcceptedResponse!
+}
+
+type PlaygroundMutation {
+    claimManagerRole(input: ClaimManagerRoleCommand!): InputAcceptedResponse!
+    decideToBecomeSmokeFree(input: DecideToBecomeSmokeFreeCommand!): InputAcceptedResponse!
+    commitToSmokeFreeDate(input: CommitToSmokeFreeDateCommand!): InputAcceptedResponse!
+    recordPlaygroundObservation(input: RecordPlaygroundObservationCommand!): InputAcceptedResponse!
+}
+
+type UserMutation {
     createUser(doesNotMatter: String!): Profile!
     deleteUser(doesNotMatter: String!): InputAcceptedResponse!
 }
@@ -108,19 +125,9 @@ type Mutation {
 type InputAcceptedResponse {
     id : String!
 }
-enum Status {
-    not_started
-    in_progress
-    finished
-}
-enum Type {
-    smokefree
-}
 
 input CreateInitiativeInput {
     initiativeId: String!
-    type: Type!
-    status: Status!
     name: String!
     lat: Float!
     lng: Float!
@@ -132,10 +139,6 @@ input JoinInitiativeInput {
 
 input DecideToBecomeSmokeFreeCommand {
     initiativeId: String!
-}
-input DecideToNotBecomeSmokeFreeCommand {
-    initiativeId: String!
-    reason: String
 }
 input ClaimManagerRoleCommand {
     initiativeId: String!
@@ -152,7 +155,6 @@ input RecordPlaygroundObservationCommand {
 }
 input UpdateChecklistCommand {
     initiativeId: String!
-    actor: String!
     checklistItem: String!
     checked: Boolean!
 }

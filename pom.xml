@@ -6,7 +6,7 @@
     <artifactId>smokefree-initiative-service</artifactId>
     <version>0.1</version>
     <properties>
-        <exec.mainClass>smokefree.Application</exec.mainClass>
+        <exec.mainClass>io.localmotion.application.Application</exec.mainClass>
         <jdk.version>10</jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <lombok.version>1.18.2</lombok.version>
