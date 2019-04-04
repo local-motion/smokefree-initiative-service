@@ -10,7 +10,7 @@
         <jdk.version>10</jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <lombok.version>1.18.2</lombok.version>
-        <axon.version>4.0</axon.version>
+        <axon.version>4.1.1</axon.version>
         <micronaut.version>1.0.1</micronaut.version>
         <aws.version>1.11.461</aws.version>
         <jackson.version>2.9.8</jackson.version>
