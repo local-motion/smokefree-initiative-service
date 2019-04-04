@@ -45,12 +45,10 @@ public class User {
      */
     @CommandHandler
     public User(CreateUserCommand cmd, MetaData metaData) {
-        log.info("Receiving createUser command: " + cmd);
         UserPII userPII = new UserPII(cmd.getName(), cmd.getEmailAddress());
         Gson gson = new Gson();
         String piiString = gson.toJson(userPII);
 
-        log.info("attempting to create pii record for " + cmd.getUserId() + " with data " + piiString);
         PersonalDataRecord personalDataRecord = new PersonalDataRecord(cmd.getUserId(), piiString);
         personalDataRepository.storeRecord(personalDataRecord);
 

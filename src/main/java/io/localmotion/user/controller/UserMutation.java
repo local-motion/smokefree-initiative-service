@@ -91,9 +91,7 @@ public class UserMutation implements GraphQLMutationResolver {
             gateway.sendAndWait(new RetrieveUserCommand(userId));
             return true;
         }
-        catch (AggregateNotFoundException | IncompatibleAggregateException e) {
-            // Note: including IncompatibleAggregateException is a patch as this should not (?) occur, but sometimes still does
-            log.info("Caught exception " + e.getClass() + " when checking for existance of user " + userId);
+        catch (AggregateNotFoundException e) {
             return false;
         }
     }
