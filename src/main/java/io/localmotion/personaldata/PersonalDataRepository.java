@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 /**
@@ -27,7 +28,7 @@ import javax.persistence.Query;
 @Singleton
 public class PersonalDataRepository {
 
-    @Inject
+    @PersistenceContext
     private EntityManager entityManager;
   
     @Transactional

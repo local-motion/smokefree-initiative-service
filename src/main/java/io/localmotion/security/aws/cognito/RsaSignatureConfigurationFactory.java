@@ -5,6 +5,7 @@ import com.nimbusds.jose.util.IOUtils;
 import com.nimbusds.jose.util.JSONObjectUtils;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
+import io.micronaut.context.annotation.Requires;
 import io.micronaut.context.annotation.Value;
 import io.micronaut.security.token.jwt.signature.SignatureConfiguration;
 import io.micronaut.security.token.jwt.signature.rsa.RSASignature;
@@ -24,6 +25,7 @@ import javax.inject.Singleton;
 @Slf4j
 @Factory
 @NoArgsConstructor
+@Requires(notEnv = {"test"})
 public class RsaSignatureConfigurationFactory {
 	@Value("${aws.cognito.region}")
 	private String region;
