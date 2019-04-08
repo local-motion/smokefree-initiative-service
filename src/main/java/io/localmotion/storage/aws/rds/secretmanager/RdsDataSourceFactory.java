@@ -2,9 +2,7 @@ package io.localmotion.storage.aws.rds.secretmanager;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import io.micronaut.context.annotation.Factory;
-import io.micronaut.context.annotation.Replaces;
-import io.micronaut.context.annotation.Requires;
+import io.micronaut.context.annotation.*;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import io.localmotion.storage.database.DataSourceFactory;
@@ -16,16 +14,17 @@ import javax.sql.DataSource;
 @Slf4j
 @Factory
 @NoArgsConstructor
-@Replaces(factory = DataSourceFactory.class)
+@Replaces(bean = DataSourceFactory.class)
+//@Requires(env = {"dev","ta","prod"})
 public class RdsDataSourceFactory {
     /**
      * It returns a {@code javax.sql.DataSource} by fetching data source details from AWS Secret Manager.
      * Sooner or later, If we change AWS Secret Manager and RDS instance, corresponding details must go in {@code bootstrap/application YAML file}
      */
-    @Singleton
-    @Named("axon")
-    @Requires(env = "aws")
+    @Bean
+    @Context
     @Requires(beans = RDSSecretManager.class)
+    @Named("default")
     public DataSource dataSource(RDSSecretManager rdsSecretManager) {
         log.info("RDS datasource is being initialized...");
         HikariConfig config = new HikariConfig();

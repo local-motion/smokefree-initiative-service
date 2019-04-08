@@ -2,7 +2,6 @@ package io.localmotion.smokefreeplaygrounds.command;
 
 import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 import lombok.*;
-import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
 import javax.validation.constraints.NotBlank;

@@ -1,20 +1,12 @@
 package io.localmotion.smokefreeplaygrounds.aggregate;
 
-import io.localmotion.application.Application;
 import io.localmotion.application.DomainException;
 import io.localmotion.initiative.aggregate.Initiative;
-import io.localmotion.smokefreeplaygrounds.command.CreatePlaygroundInitiativeCommand;
 import io.localmotion.interfacing.graphql.error.ErrorCode;
-import io.localmotion.smokefreeplaygrounds.command.ClaimManagerRoleCommand;
-import io.localmotion.smokefreeplaygrounds.command.CommitToSmokeFreeDateCommand;
-import io.localmotion.smokefreeplaygrounds.command.DecideToBecomeSmokeFreeCommand;
-import io.localmotion.smokefreeplaygrounds.command.RecordPlaygroundObservationCommand;
+import io.localmotion.smokefreeplaygrounds.command.*;
 import io.localmotion.smokefreeplaygrounds.domain.CreationStatus;
-import io.localmotion.smokefreeplaygrounds.domain.GeoLocation;
 import io.localmotion.smokefreeplaygrounds.domain.Status;
 import io.localmotion.smokefreeplaygrounds.event.*;
-import io.localmotion.smokefreeplaygrounds.projection.Playground;
-import io.localmotion.smokefreeplaygrounds.projection.PlaygroundProjection;
 import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,16 +15,10 @@ import org.axonframework.common.Assert;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.messaging.MetaData;
 import org.axonframework.modelling.command.AggregateRoot;
-import org.gavaghan.geodesy.Ellipsoid;
-import org.gavaghan.geodesy.GeodeticCalculator;
-import org.gavaghan.geodesy.GlobalPosition;
 
-import javax.validation.Valid;
 import javax.validation.ValidationException;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.axonframework.common.Assert.assertNonNull;
@@ -53,7 +39,7 @@ public class PlaygroundInitiative extends Initiative {
     });
 
 
-    private PlaygroundProjection playgroundProjection = Application.getApplicationContext().getBean(PlaygroundProjection.class);
+    // private PlaygroundProjection playgroundProjection = Application.getApplicationContext().getBean(PlaygroundProjection.class);
 
     // Instance properties
 
@@ -62,13 +48,14 @@ public class PlaygroundInitiative extends Initiative {
 
     private LocalDate smokeFreeDate;
     private LocalDate lastObservationDate;
+    private int totalObservationsCount;
 
 
     @CommandHandler
     public PlaygroundInitiative(CreatePlaygroundInitiativeCommand cmd, MetaData metaData) {
-        validateMaximumPlaygroundCapacity();
+        /*validateMaximumPlaygroundCapacity();
         validateDuplicatePlaygroundNames(cmd.getName());
-        validatePlaygroundsRange(cmd.getGeoLocation(), SmokefreeConstants.MAXIMUM_PLAYGROUNDS_DISTANCE);
+        validatePlaygroundsRange(cmd.getGeoLocation(), SmokefreeConstants.MAXIMUM_PLAYGROUNDS_DISTANCE);*/
         apply(new PlaygroundInitiativeCreatedEvent(cmd.getInitiativeId(), cmd.getName(), cmd.getCreationStatus(), cmd.getGeoLocation()), metaData);
     }
 
@@ -177,8 +164,8 @@ public class PlaygroundInitiative extends Initiative {
                 "You are not a manager of this playground"));
     }
 
-    private void validateMaximumPlaygroundCapacity() {
-        if(playgroundProjection.getAllPlaygrounds().size() >= SmokefreeConstants.MAXIMUM_NR_OF_PLAYGROUNDS) {
+    /*private void validateMaximumPlaygroundCapacity() {
+        if(playgroundProjection.getAllPlaygrounds().size() >= SmokefreeConstants.MAXIMUM_PLAYGROUNDS_ALLOWED) {
             throw new DomainException(ErrorCode.MAXIMUM_PLAYGROUNDS_CAPACITY_REACHED.toString(),
                     "Can not add more than " + SmokefreeConstants.MAXIMUM_NR_OF_PLAYGROUNDS + " playgrounds",
                     "Sorry, Maximum playgrounds capacity is reached, please contact helpline");
@@ -212,7 +199,7 @@ public class PlaygroundInitiative extends Initiative {
                             "Two playgrounds can not exist within " + SmokefreeConstants.MAXIMUM_PLAYGROUNDS_DISTANCE+ " Meters",
                             "playground does already exists within "+ SmokefreeConstants.MAXIMUM_PLAYGROUNDS_DISTANCE+ " Meters");
                 });
-    }
+    }*/
 
     private void validateMaximumAllowedManagers() {
         if(managers.size() >= SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_NR_OF_MANAGERS) {
@@ -223,19 +210,11 @@ public class PlaygroundInitiative extends Initiative {
     }
 
     private void validateMaximumAllowedObservations() {
-        if(getPlaygroundObservations(id).size() > SmokefreeConstants.PlaygroundObservation.MAXIMUM_NR_OF_OBSERVATIONS) {
+        if(totalObservationsCount > SmokefreeConstants.PlaygroundObservation.MAXIMUM_NR_OF_OBSERVATIONS) {
             throw new DomainException("MAXIMUM_OBSERVATIONS",
                     "No more than " + SmokefreeConstants.PlaygroundObservation.MAXIMUM_NR_OF_OBSERVATIONS + " observations can be recorded",
                     "No more than " + SmokefreeConstants.PlaygroundObservation.MAXIMUM_NR_OF_OBSERVATIONS + " observations can be recorded");
         }
-    }
-
-    private List<Playground.PlaygroundObservation> getPlaygroundObservations(String id) {
-        return playgroundProjection.getAllPlaygrounds()
-                .stream()
-                .filter(playground -> playground.getId().equals(id))
-                .flatMap(playground -> playground.getPlaygroundObservations().stream())
-                .collect(Collectors.toList());
     }
 
 }

@@ -1,9 +1,8 @@
 package io.localmotion.configuration;
 
 
-import io.micronaut.context.annotation.Bean;
+import io.micronaut.context.annotation.Value;
 import lombok.Getter;
-import lombok.Value;
 
 import javax.inject.Singleton;
 
@@ -13,17 +12,38 @@ import javax.inject.Singleton;
 
 @Singleton
 @Getter
-public class CognitoSettings {
-    @io.micronaut.context.annotation.Value("${aws.cognito.region}")
-    String region;
+public class CognitoSettings implements CloudUserManagement {
 
-    @io.micronaut.context.annotation.Value("${aws.cognito.userpoolid}")
-    String userPoolId;
+    @Value("${aws.cognito.region}")
+    private String region;
 
-    @io.micronaut.context.annotation.Value("${aws.cognito.userpoolwebclientid}")
-    String userPoolWebClientId;
+    @Value("${aws.cognito.userpoolid}")
+    private String userPoolId;
 
-    @io.micronaut.context.annotation.Value("${aws.cognito.domain}")
-    String domain;
+    @Value("${aws.cognito.userpoolwebclientid}")
+    private String userPoolWebClientId;
+
+    @Value("${aws.cognito.domain}")
+    private String domain;
+
+    @Override
+    public String getRegion() {
+        return this.region;
+    }
+
+    @Override
+    public String getUserPoolId() {
+        return this.userPoolId;
+    }
+
+    @Override
+    public String getUserPoolWebClientId() {
+        return this.userPoolWebClientId;
+    }
+
+    @Override
+    public String getDomain() {
+        return this.domain;
+    }
 }
 

@@ -1,11 +1,8 @@
 package io.localmotion.application;
 
-import io.localmotion.chatbox.ChatDataSourceFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zaxxer.hikari.HikariDataSource;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Bean;
-import io.micronaut.core.util.CollectionUtils;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -26,17 +23,7 @@ public class Application {
 
     public static void main(String[] args) {
 
-        HikariDataSource dataSource = new ChatDataSourceFactory().dataSource();
-        applicationContext =
-            Micronaut.build(new String[] {})
-                .mainClass(Application.class)
-                .properties(
-                        CollectionUtils.mapOf(
-                                "datasources.default.data-source", dataSource,
-                                "datasources.default.url", dataSource.getJdbcUrl()
-                        )
-                )
-                .start();
+        applicationContext = Micronaut.run(Application.class);
     }
 
 

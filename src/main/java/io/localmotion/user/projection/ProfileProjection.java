@@ -1,6 +1,7 @@
 package io.localmotion.user.projection;
 
 import com.google.gson.Gson;
+import io.micronaut.context.annotation.Context;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
@@ -13,6 +14,7 @@ import io.localmotion.user.event.UserDeletedEvent;
 import io.localmotion.user.domain.UserPII;
 import io.localmotion.user.event.UserRevivedEvent;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Collection;
 import java.util.Map;
@@ -31,8 +33,9 @@ public class ProfileProjection {
     private final Map<String, Profile> deletedProfilesById = newConcurrentMap();
 
     // 'Injecting' using the application context
-    private PersonalDataRepository personalDataRepository = Application.getApplicationContext().getBean(PersonalDataRepository.class);
-
+    // private PersonalDataRepository personalDataRepository = Application.getApplicationContext().getBean(PersonalDataRepository.class);
+    @Inject
+    PersonalDataRepository personalDataRepository;
 
     /*
             Event handlers

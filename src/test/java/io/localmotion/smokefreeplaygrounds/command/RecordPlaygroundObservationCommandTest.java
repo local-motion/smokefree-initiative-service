@@ -3,6 +3,7 @@ package io.localmotion.smokefreeplaygrounds.command;
 import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
+import io.micronaut.test.annotation.MicronautTest;
 import org.junit.jupiter.api.Test;
 
 import javax.validation.ConstraintViolation;
@@ -12,6 +13,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@MicronautTest
 class RecordPlaygroundObservationCommandTest {
 
 	private ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();

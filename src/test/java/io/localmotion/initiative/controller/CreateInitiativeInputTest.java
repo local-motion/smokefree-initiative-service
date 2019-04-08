@@ -1,7 +1,6 @@
-package smokefree.domain;
+package io.localmotion.initiative.controller;
 
-import io.localmotion.initiative.controller.CreateInitiativeInput;
-import io.localmotion.smokefreeplaygrounds.domain.Status;
+import io.micronaut.test.annotation.MicronautTest;
 import org.junit.jupiter.api.Test;
 
 import javax.validation.ConstraintViolation;
@@ -9,9 +8,10 @@ import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class CreateInitiativeInputTest {
+@MicronautTest
+class CreateInitiativeInputTest {
 
 	private ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
 
@@ -122,4 +122,5 @@ public class CreateInitiativeInputTest {
 		assertEquals("The lat must not be blank", violations.iterator().next().getMessage());
 
 	}
+
 }
