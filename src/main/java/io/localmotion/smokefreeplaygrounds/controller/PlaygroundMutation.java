@@ -110,9 +110,9 @@ public class PlaygroundMutation implements GraphQLMutationResolver {
     // To-Do - need to figure out that How to Inject projections into Aggregates
 
     private void validateMaximumPlaygroundCapacity() {
-        if(playgroundProjection.getAllPlaygrounds().size() >= SmokefreeConstants.MAXIMUM_PLAYGROUNDS_ALLOWED) {
+        if(playgroundProjection.getAllPlaygrounds().size() >= SmokefreeConstants.MAXIMUM_NR_OF_PLAYGROUNDS) {
             throw new DomainException(ErrorCode.MAXIMUM_PLAYGROUNDS_CAPACITY_REACHED.toString(),
-                    "Can not add more than " + SmokefreeConstants.MAXIMUM_PLAYGROUNDS_ALLOWED + " playgrounds",
+                    "Can not add more than " + SmokefreeConstants.MAXIMUM_NR_OF_PLAYGROUNDS + " playgrounds",
                     "Sorry, Maximum playgrounds capacity is reached, please contact helpline");
         }
     }

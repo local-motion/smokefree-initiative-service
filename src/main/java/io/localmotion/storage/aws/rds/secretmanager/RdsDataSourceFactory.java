@@ -15,7 +15,7 @@ import javax.sql.DataSource;
 @Factory
 @NoArgsConstructor
 @Replaces(bean = DataSourceFactory.class)
-//@Requires(env = {"dev","ta","prod"})
+@Requires(env = "aws")
 public class RdsDataSourceFactory {
     /**
      * It returns a {@code javax.sql.DataSource} by fetching data source details from AWS Secret Manager.

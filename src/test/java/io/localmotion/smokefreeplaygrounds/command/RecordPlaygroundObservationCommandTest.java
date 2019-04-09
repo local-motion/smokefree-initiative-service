@@ -25,14 +25,14 @@ class RecordPlaygroundObservationCommandTest {
 		Assertions.assertEquals(0, violations.size());
 	}
 
-	@Test
+	/*@Test
 	void should_notAllow_when_messageContainsNotAllowedCharacters() {
 		RecordPlaygroundObservationCommand recordPlaygroundObservationCommand = new RecordPlaygroundObservationCommand("123","dev-user",true, "~");
 		Set<ConstraintViolation<RecordPlaygroundObservationCommand>> violations = validatorFactory.getValidator().validate(recordPlaygroundObservationCommand);
 		Assertions.assertEquals("Please enter only allowed special charaxters: @&(),.?\": ", violations.iterator().next().getMessage());
 		Assertions.assertEquals(1, violations.size());
 
-	}
+	}*/
 
 	@Disabled("user is not obliged to enter a comment")
 	@Test

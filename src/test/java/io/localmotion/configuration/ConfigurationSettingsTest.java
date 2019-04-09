@@ -6,8 +6,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
-
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,7 +31,7 @@ class ConfigurationSettingsTest {
 		when(cognitoUserPool.getUserPoolWebClientId()).thenReturn("");
 		when(cognitoUserPool.getDomain()).thenReturn("");
 
-		Assertions.assertEquals("eu-west-3", configurationSettings.getCognitoUserPool().getRegion());
+		Assertions.assertEquals("eu-west-3", configurationSettings.getCognitoSettings().getRegion());
 
 		verify(cognitoUserPool).getRegion();
 	}
