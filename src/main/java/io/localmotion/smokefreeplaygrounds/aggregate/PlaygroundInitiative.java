@@ -75,7 +75,7 @@ public class PlaygroundInitiative extends Initiative {
 
     @Override
     protected int getMaximumNumberOfMembers() {
-        return SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_VOLUNTEERS_ALLOWED;
+        return SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_NR_OF_VOLUNTEERS;
     }
 
     @CommandHandler
@@ -173,9 +173,9 @@ public class PlaygroundInitiative extends Initiative {
     }
 
     private void validateMaximumPlaygroundCapacity() {
-        if(playgroundProjection.getAllPlaygrounds().size() >= SmokefreeConstants.MAXIMUM_PLAYGROUNDS_ALLOWED) {
+        if(playgroundProjection.getAllPlaygrounds().size() >= SmokefreeConstants.MAXIMUM_NR_OF_PLAYGROUNDS) {
             throw new DomainException(ErrorCode.MAXIMUM_PLAYGROUNDS_CAPACITY_REACHED.toString(),
-                    "Can not add more than " + SmokefreeConstants.MAXIMUM_PLAYGROUNDS_ALLOWED + " playgrounds",
+                    "Can not add more than " + SmokefreeConstants.MAXIMUM_NR_OF_PLAYGROUNDS + " playgrounds",
                     "Sorry, Maximum playgrounds capacity is reached, please contact helpline");
         }
     }
@@ -210,10 +210,10 @@ public class PlaygroundInitiative extends Initiative {
     }
 
     private void validateMaximumAllowedManagers() {
-        if(managers.size() >= SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_MANAGERS_ALLOWED) {
+        if(managers.size() >= SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_NR_OF_MANAGERS) {
             throw new DomainException("MAXIMUM_MANAGERS",
-                    "No more than " + SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_MANAGERS_ALLOWED + " volunteers can claim for manager role",
-                    "No more than " + SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_MANAGERS_ALLOWED + " volunteers can claim for manager role");
+                    "No more than " + SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_NR_OF_MANAGERS + " volunteers can claim for manager role",
+                    "No more than " + SmokefreeConstants.PlaygroundWorkspace.MAXIMUM_NR_OF_MANAGERS + " volunteers can claim for manager role");
         }
     }
 
