@@ -23,10 +23,10 @@ public class ConfigurationSettings {
 
     // It support other cloud solutions for user managemnt and
     // easier to test if we have interface and implementations to inject different  implementations
-    private CloudUserManagement cognitoUserPool;
+    private CloudUserManagement cognitoSettings;
 
-    public ConfigurationSettings(CloudUserManagement cognitoUserPool) {
-        this.cognitoUserPool = cognitoUserPool;
+    public ConfigurationSettings(CloudUserManagement cognitoSettings) {
+        this.cognitoSettings = cognitoSettings;
     }
 }
 

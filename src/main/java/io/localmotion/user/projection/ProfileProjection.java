@@ -22,7 +22,7 @@ import java.util.Map;
 import static com.google.common.collect.Maps.newConcurrentMap;
 
 @Slf4j
-@Singleton
+@Context
 public class ProfileProjection {
 
     public static final String PROPERTY_REMOVED = "removed";
