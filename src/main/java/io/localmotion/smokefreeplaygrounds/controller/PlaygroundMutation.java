@@ -66,7 +66,7 @@ public class PlaygroundMutation implements GraphQLMutationResolver {
     }
 
     @SneakyThrows
-    public InputAcceptedResponse recordPlaygroundObservation(RecordPlaygroundObservationCommand input, DataFetchingEnvironment env) {
+    public InputAcceptedResponse recordPlaygroundObservation(@Valid RecordPlaygroundObservationCommand input, DataFetchingEnvironment env) {
         if(!(input.getObserver().equals(toContext(env).requireUserId()))) {
             throw new ValidationException("Observer must be equal to the userId");
         }

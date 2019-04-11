@@ -42,4 +42,10 @@ public class SmokefreeConstants {
 		public static final int MINIMUM_MESSAGE_LENGTH = 1;
 	}
 
+	public static class PlaygroundObservation {
+		public static final int MAXIMUM_COMMENT_LENGTH = 2000;
+		public static final int MINIMUM_COMMENT_LENGTH = 1;
+		public static final int MAXIMUM_NR_OF_OBSERVATIONS = 1000;
+	}
+
 }
