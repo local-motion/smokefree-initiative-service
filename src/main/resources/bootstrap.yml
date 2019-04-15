@@ -103,9 +103,22 @@ aws:
   cognito:
     # These settings are valid for running the application locally, override with env variables on server environments
     region: eu-west-1
-    userpoolid: eu-west-1_WsTxYUHyC
-    userpoolwebclientid: 3nkh1qomocr39s893jf0dp44cd
-    domain: smokefree-dev.auth.eu-west-1.amazoncognito.com
+
+# LocalMotion2 pool
+    userpoolid: eu-west-1_1nKYURwwe
+    userpoolwebclientid: 66b4h2jtrk309tlf2hlq5khkk2
+    domain: localmotion-dev2.auth.eu-west-1.amazoncognito.com
+
+# LocalMotion1 pool
+#    userpoolid: eu-west-1_6QRPYIlka
+#    userpoolwebclientid: 7lb03c77fm7sj3c4msu5h4nk5a
+#    domain: localmotion-dev1.auth.eu-west-1.amazoncognito.com
+#
+
+# Smokefree-dev pool
+#    userpoolid: eu-west-1_WsTxYUHyC
+#    userpoolwebclientid: 3nkh1qomocr39s893jf0dp44cd
+#    domain: smokefree-dev.auth.eu-west-1.amazoncognito.com
 
   rds:
     enableSsl: false
