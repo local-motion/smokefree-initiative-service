@@ -17,8 +17,8 @@ public class LocalmotionJWTClaimsValidator implements GenericJwtClaimsValidator 
     public boolean validate(JwtClaims claims) {
 
         boolean validClaim =    claims.contains(EMAIL_VERIFIED_CLAIM) &&
-                claims.get(EMAIL_VERIFIED_CLAIM) instanceof Boolean &&
-                ((Boolean) claims.get(EMAIL_VERIFIED_CLAIM)) ==  true;
+                                claims.get(EMAIL_VERIFIED_CLAIM) instanceof Boolean &&
+                                ((Boolean) claims.get(EMAIL_VERIFIED_CLAIM)) ==  true;
 
         if (!validClaim)
             log.info("Invalid claim email address not verfied: " + claims.get(EMAIL_CLAIM));
