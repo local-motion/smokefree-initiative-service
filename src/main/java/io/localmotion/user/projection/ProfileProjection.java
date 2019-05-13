@@ -86,11 +86,19 @@ public class ProfileProjection {
         return profilesById.get(id);
     }
 
+    public Profile getProfileByName(String username) {
+        return profilesByName.get(username);
+    }
+
     public Profile getDeletedProfile(String id) {
         return deletedProfilesById.get(id);
     }
 
     public Collection<Profile> getAllProfiles() {
         return profilesById.values();
+    }
+
+    public boolean emailExists(String emailAddress) {
+        return profilesById.values().stream().anyMatch(profile -> profile.getEmailAddress().equals(emailAddress));
     }
 }

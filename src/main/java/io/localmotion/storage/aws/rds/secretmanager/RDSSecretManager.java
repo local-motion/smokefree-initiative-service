@@ -22,7 +22,7 @@ public class RDSSecretManager {
     @Value("${aws.rds.jdbcdriverclass}")
     private String driverClass;
 
-    @Value("${aws.rds.enableSsl:true}")
+    @Value("${aws.rds.enable-ssl:true}")
     private boolean isSslEnabled;
 
     @Inject

@@ -18,6 +18,7 @@ type Query {
     profile: Profile
     playgrounds: [Playground]
     playground(id: String!): Playground
+    emailExists(emailAddress: String!): Boolean!
     totalVolunteers: Long
 }
 

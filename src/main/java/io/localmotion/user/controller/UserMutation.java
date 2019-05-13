@@ -2,9 +2,12 @@ package io.localmotion.user.controller;
 
 import com.coxautodev.graphql.tools.GraphQLMutationResolver;
 import graphql.schema.DataFetchingEnvironment;
+import io.localmotion.application.DomainException;
+import io.localmotion.eventsourcing.axon.MetaDataManager;
 import io.localmotion.initiative.controller.InputAcceptedResponse;
 import io.localmotion.interfacing.graphql.SecurityContext;
 import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
+import io.localmotion.user.aggregate.User;
 import io.localmotion.user.command.RetrieveUserCommand;
 import io.localmotion.user.command.CreateUserCommand;
 import io.localmotion.user.command.DeleteUserCommand;
@@ -15,12 +18,12 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.GenericCommandMessage;
 import org.axonframework.commandhandling.gateway.CommandGateway;
-import org.axonframework.eventsourcing.IncompatibleAggregateException;
 import org.axonframework.messaging.MetaData;
 import org.axonframework.modelling.command.AggregateNotFoundException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.validation.ValidationException;
 
 @Slf4j
 @Singleton
@@ -35,19 +38,20 @@ public class UserMutation implements GraphQLMutationResolver {
     private ProfileProjection profileProjection;
 
 
+
     public InputAcceptedResponse createUser(String input, DataFetchingEnvironment env) {
         String userId = toContext(env).requireUserId();
         String userName = toContext(env).requireUserName();
         String emailAddress = toContext(env).emailId();
 
-        // First check if the user is not already present. If so just ignore the request and return.
-        if (userExists(userId))
+        // First check if the user is not already present. If so revive if deleted or just ignore the request and return.
+        User user = tryRetrieveUser(userId);
+        if (user != null) {
+            if (user.isDeleted()) {
+                ReviveUserCommand cmd = new ReviveUserCommand(userId);
+                gateway.sendAndWait(decorateWithMetaData(cmd, env));
+            }
             return new InputAcceptedResponse(userId);
-
-        // Next check if the user has been logically deleted, in which case we will revive the user
-        if (profileProjection.getDeletedProfile(userId) != null) {
-            ReviveUserCommand cmd = new ReviveUserCommand(userId);
-            gateway.sendAndWait(decorateWithMetaData(cmd, env));
         }
         else {
             CreateUserCommand cmd = new CreateUserCommand(userId, userName, emailAddress);
@@ -77,6 +81,7 @@ public class UserMutation implements GraphQLMutationResolver {
     }
 
 
+
     /***********
      * Utility functions
      ************/
@@ -84,15 +89,15 @@ public class UserMutation implements GraphQLMutationResolver {
     /**
      * Check for the existence of a user (to avoid race conditions when checking using a projection)
      * @param userId of the user to check
-     * @return true if user exists
+     * @return the user aggregate if user exists and null otherwise
      */
-    private boolean userExists(String userId) {
+    private User tryRetrieveUser(String userId) {
         try {
-            gateway.sendAndWait(new RetrieveUserCommand(userId));
-            return true;
+            Object result = gateway.sendAndWait(new RetrieveUserCommand(userId));
+            return (User) result;
         }
         catch (AggregateNotFoundException e) {
-            return false;
+            return null;
         }
     }
 
