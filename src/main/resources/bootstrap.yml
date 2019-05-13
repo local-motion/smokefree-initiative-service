@@ -52,7 +52,7 @@ micronaut:
         algorithm: HS256
         bearer:
           enabled: true
-          header-name: "Authorization"
+          header-name: "AuthBearer"
           prefix: "Bearer"
         signature:
           enabled: true
@@ -108,12 +108,6 @@ aws:
     userpoolid: eu-west-1_1nKYURwwe
     userpoolwebclientid: 66b4h2jtrk309tlf2hlq5khkk2
     domain: localmotion-dev2.auth.eu-west-1.amazoncognito.com
-
-# LocalMotion1 pool
-#    userpoolid: eu-west-1_6QRPYIlka
-#    userpoolwebclientid: 7lb03c77fm7sj3c4msu5h4nk5a
-#    domain: localmotion-dev1.auth.eu-west-1.amazoncognito.com
-#
 
 # Smokefree-dev pool
 #    userpoolid: eu-west-1_WsTxYUHyC

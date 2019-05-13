@@ -19,6 +19,12 @@ public class DomainException extends RuntimeException implements GraphQLError {
         this.niceMessage = niceMessage;
     }
 
+    public DomainException(String code, String niceMessage) {
+        super(niceMessage);
+        this.code = code;
+        this.niceMessage = niceMessage;
+    }
+
     @Override
     public List<SourceLocation> getLocations() {
         return null;
