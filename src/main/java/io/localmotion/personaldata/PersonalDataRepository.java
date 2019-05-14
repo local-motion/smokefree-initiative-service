@@ -3,7 +3,6 @@ package io.localmotion.personaldata;
 import io.micronaut.spring.tx.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -26,7 +25,7 @@ import javax.persistence.Query;
  */
 @Slf4j
 @Singleton
-public class PersonalDataRepository {
+public class PersonalDataRepository implements IPersonalDataRepository {
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -55,6 +54,14 @@ public class PersonalDataRepository {
         query.setParameter("personId", personId);
         int deletedCount = query.executeUpdate();
         return deletedCount;
+    }
+
+    public static final String selectRecordByPersonId = "SELECT r from PersonalDataRecord r " +
+                                                        "WHERE r.personId = :personId";
+    public PersonalDataRecord getRecordByPersonId(String personId) {
+        return entityManager.createQuery(selectRecordByPersonId, PersonalDataRecord.class)
+                .setParameter("personId", personId)
+                .getSingleResult();
     }
 
 }

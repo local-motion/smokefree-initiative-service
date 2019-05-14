@@ -15,6 +15,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@ToString
 public class PersonalDataRecord {
 
     public static final int MAX_PERSON_ID_LENGTH = 255;
