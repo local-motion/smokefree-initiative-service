@@ -29,6 +29,9 @@ public class UserQuery implements GraphQLQueryResolver {
         return profiles.profile(userId);
     }
 
+    public boolean emailExists(String emailAddress) {
+        return profiles.emailExists(emailAddress);
+    }
 
 
     /***********
