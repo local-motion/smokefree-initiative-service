@@ -29,55 +29,25 @@ micronaut:
     endpoints:
       login:
         enabled: true
-      logout:
-        enabled: true
       oauth:
-        # TODO: is oauth needed? we're not refreshing on the server when 'implicit grant' flow?
         enabled: true
-      beans:
-        enabled: true
-        sensitive: true
-      info:
-        enabled: true
-        sensitive: false
-    intercept-url-map:
-    - pattern: /schema.graphql
-      http-method: GET
-      access:
-      - isAnonymous()
     token:
-      enabled: true
       jwt:
         enabled: true
-        algorithm: HS256
         bearer:
           enabled: true
-          header-name: "AuthBearer"
+          header-name: "Authorization"
           prefix: "Bearer"
-        signature:
-          enabled: true
-          rsa:
-            enabled: true
-            algorithm: HS256
-
-# Database and JPA
-#datasources:
-#  default:
-#    url: ${JDBC_URL:`jdbc:mysql://localhost:3306/smokefree`}
-#    username: ${JDBC_USER:root}
-#    password: ${JDBC_PASSWORD:root}
-#    driverClassName: ${JDBC_DRIVER:com.mysql.jdbc.Driver}
-
-#  other:
-#    url: ${JDBC_URL:`jdbc:h2:mem:default;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE`}
-#    username: ${JDBC_USER:sa}
-#    password: ${JDBC_PASSWORD:""}
-#    driverClassName: ${JDBC_DRIVER:org.h2.Driver}
+        signatures:
+          secret:
+            generator:
+              secret: "${JWT_GENERATOR_SIGNATURE_SECRET:pleaseChangeThisSecretForANewOne}"
 
 jpa:
   default:
     packages-to-scan:
     - io.localmotion.chatbox
+    - io.localmotion.picture
     - smokefree
     - io.localmotion.personaldata
     - io.localmotion.configuration
@@ -126,3 +96,7 @@ google:
 localmotion:
   # These settings are valid for running the application locally, override with env variables on server environments
   logicalenvironment: Local
+
+login:
+  username: test
+  password: password

@@ -2,14 +2,9 @@ package io.localmotion.user.aggregate;
 
 import com.google.gson.Gson;
 import io.localmotion.application.DomainException;
-import io.localmotion.user.command.RetrieveUserCommand;
-import io.localmotion.user.command.CreateUserCommand;
-import io.localmotion.user.command.DeleteUserCommand;
-import io.localmotion.user.command.ReviveUserCommand;
+import io.localmotion.user.command.*;
 import io.localmotion.user.domain.UserPII;
-import io.localmotion.user.event.UserCreatedEvent;
-import io.localmotion.user.event.UserDeletedEvent;
-import io.localmotion.user.event.UserRevivedEvent;
+import io.localmotion.user.event.*;
 import io.localmotion.user.projection.ProfileProjection;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +18,6 @@ import org.axonframework.modelling.command.AggregateRoot;
 import io.localmotion.personaldata.PersonalDataRecord;
 import io.localmotion.personaldata.PersonalDataRepository;
 import io.localmotion.application.Application;
-
 
 import java.time.Instant;
 

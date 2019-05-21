@@ -78,6 +78,7 @@ jpa:
   default:
     packages-to-scan:
     - io.localmotion.chatbox
+    - io.localmotion.picture
     - io.localmotion.personaldata
     - io.localmotion.configuration
     properties:

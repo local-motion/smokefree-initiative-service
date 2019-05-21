@@ -1,5 +1,6 @@
 package io.localmotion.security.aws.cognito;
 
+import io.micronaut.context.annotation.Requires;
 import io.micronaut.security.token.jwt.generator.claims.JwtClaims;
 import io.micronaut.security.token.jwt.validator.GenericJwtClaimsValidator;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +9,7 @@ import javax.inject.Singleton;
 
 
 @Slf4j
+@Requires(notEnv = "test")
 @Singleton
 public class LocalmotionJWTClaimsValidator implements GenericJwtClaimsValidator {
     private static final String EMAIL_VERIFIED_CLAIM = "email_verified";
