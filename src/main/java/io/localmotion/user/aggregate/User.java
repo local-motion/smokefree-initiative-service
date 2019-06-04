@@ -45,7 +45,6 @@ public class User {
     private String name;
     private String emailAddress;
 
-//    private boolean deleted = false;            // Users are deleted 'logically' leaving the option to rejoin
     private Instant deletionTimestamp = null;   // When not equal to null the user is 'logically' deleted leaving the option to rejoin
 
     // 'Injecting' using the application context
@@ -57,9 +56,6 @@ public class User {
     /*
                Properties
      */
-//    public boolean isDeleted() {
-//        return  deleted;
-//    }
     public boolean isDeleted() {
         return  deletionTimestamp != null;
     }
@@ -143,7 +139,7 @@ public class User {
     }
 
     private void validateRevivalCooldownPeriod() {
-        if (deletionTimestamp != null && System.currentTimeMillis() - deletionTimestamp.toEpochMilli() < REVIVAL_COOLDOWN_PERIOD*1000 )
+        if (deletionTimestamp == null || System.currentTimeMillis() < deletionTimestamp.toEpochMilli() + REVIVAL_COOLDOWN_PERIOD*1000 )
             throw new DomainException("REVIVAL_COOLDOWN_ACTIVE",
                     "A user cannot be revived within " + REVIVAL_COOLDOWN_PERIOD + " seconds of being deleted");
     }
@@ -174,14 +170,12 @@ public class User {
     @EventSourcingHandler
     void on(UserRevivedEvent evt) {
         log.info("ON EVENT {}", evt);
-//        deleted = false;
         deletionTimestamp = null;
     }
 
     @EventSourcingHandler
     void on(UserDeletedEvent evt, EventMessage<?> eventMessage) {
         log.info("ON EVENT {}", evt);
-//        deleted = true;
         deletionTimestamp = eventMessage.getTimestamp();
     }
 
