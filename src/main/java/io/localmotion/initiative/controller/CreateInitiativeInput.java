@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 @Getter
@@ -20,9 +21,10 @@ class CreateInitiativeInput {
     @Size(min = 1, message = "The initiativeId must not be blank")
     String initiativeId;
 
-    @Length(min = 3, message = "The name must be at least 3 characters")
-    @Length(max = 40, message = "The name must be less than 40 characters")
-    @NotNull
+//    @Length(min = 3, message = "The name must be at least 3 characters")
+//    @Length(max = 40, message = "The name must be less than 40 characters")
+    @Pattern(regexp="^[ a-zA-Z0-9&'!\\-]{3,40}$")
+//    @NotNull
     String name;
 
     @NotNull(message = "The lat must not be blank")
