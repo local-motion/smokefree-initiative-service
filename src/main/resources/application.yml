@@ -7,8 +7,8 @@ micronaut:
         web:
           allowedOrigins:
           - http://localhost:3000
-          - http://foo.com
-          - ^http(|s)://www\.google\.com$
+#          - http://foo.com
+#          - ^http(|s)://www\.google\.com$
           allowedMethods:
           - GET
           - POST

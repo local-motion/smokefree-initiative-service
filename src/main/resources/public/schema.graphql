@@ -26,6 +26,12 @@ type Profile {
     id : String!
     username : String!
     emailAddress : String!
+    notificationLevel : NotificationLevel!
+}
+
+enum NotificationLevel {
+    NONE
+    FULL
 }
 
 type Initiative {
@@ -102,7 +108,7 @@ type Mutation {
 # User
     createUser(doesNotMatter: String!): InputAcceptedResponse!
     deleteUser(doesNotMatter: String!): InputAcceptedResponse!
-
+    setNotificationPreferences(input: SetNotificationPreferencesCommand!): InputAcceptedResponse!
 }
 
 type InitiativeMutation {
@@ -158,4 +164,9 @@ input UpdateChecklistCommand {
     initiativeId: String!
     checklistItem: String!
     checked: Boolean!
+}
+
+input SetNotificationPreferencesCommand {
+    userId: String!
+    notificationLevel: NotificationLevel!
 }

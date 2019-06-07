@@ -1,6 +1,8 @@
 package io.localmotion.user.projection;
 
 import com.google.gson.Gson;
+import io.localmotion.user.domain.NotificationLevel;
+import io.localmotion.user.event.NotificationSettingsUpdatedEvent;
 import io.micronaut.context.annotation.Context;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventhandling.EventHandler;
@@ -50,11 +52,11 @@ public class ProfileProjection {
             PersonalDataRecord personalDataRecord = personalDataRepository.getRecord(evt.getPiiRecordId());
             Gson gson = new Gson();
             UserPII userPII = gson.fromJson(personalDataRecord.getData(), UserPII.class);
-            profile = new Profile(evt.getUserId(), userPII.getName(), userPII.getEmailAddress());
+            profile = new Profile(evt.getUserId(), userPII.getName(), userPII.getEmailAddress(), NotificationLevel.NONE);
             log.info("User profile retrieved pii record " + evt.getPiiRecordId() + " for " + evt.getUserId() + " with data " + userPII);
         }
         else {
-            profile = new Profile(evt.getUserId(), "PROPERTY_REMOVED", "PROPERTY_REMOVED");
+            profile = new Profile(evt.getUserId(), "PROPERTY_REMOVED", "PROPERTY_REMOVED", NotificationLevel.NONE);
         }
 
         profilesById.put(profile.getId(), profile);
@@ -76,6 +78,19 @@ public class ProfileProjection {
         profilesByName.remove(userProfile.getUsername());
         profilesById.remove(evt.getUserId());
         deletedProfilesById.put(userProfile.getId(), userProfile);
+    }
+
+    @EventSourcingHandler
+    void on(NotificationSettingsUpdatedEvent evt) {
+        log.info("ON EVENT {}", evt);
+        Profile userProfile = profilesById.get(evt.getUserId());
+        if (userProfile == null)
+            log.warn("Ignoring event because user profile not present: {}", evt);
+        else {
+            Profile newUserProfile = userProfile.withNotificationLevel(evt.getNewNotificationLevel());
+            profilesByName.put(newUserProfile.getUsername(), newUserProfile);
+            profilesById.put(newUserProfile.getId(), newUserProfile);
+        }
     }
 
     /*

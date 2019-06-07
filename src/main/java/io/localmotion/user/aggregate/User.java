@@ -2,11 +2,9 @@ package io.localmotion.user.aggregate;
 
 import com.google.gson.Gson;
 import io.localmotion.application.DomainException;
-import io.localmotion.user.command.RetrieveUserCommand;
-import io.localmotion.user.command.CreateUserCommand;
-import io.localmotion.user.command.DeleteUserCommand;
-import io.localmotion.user.command.ReviveUserCommand;
+import io.localmotion.user.command.*;
 import io.localmotion.user.domain.UserPII;
+import io.localmotion.user.event.NotificationSettingsUpdatedEvent;
 import io.localmotion.user.event.UserCreatedEvent;
 import io.localmotion.user.event.UserDeletedEvent;
 import io.localmotion.user.event.UserRevivedEvent;
@@ -114,6 +112,11 @@ public class User {
     public void deleteUser(DeleteUserCommand cmd, MetaData metaData) {
         if (!isDeleted())
             apply(new UserDeletedEvent(cmd.getUserId()), metaData);
+    }
+
+    @CommandHandler
+    public void setNotificationPreferences(SetNotificationPreferencesCommand cmd, MetaData metaData) {
+        apply(new NotificationSettingsUpdatedEvent(cmd.getUserId(), cmd.getNotificationLevel()), metaData);
     }
 
 
