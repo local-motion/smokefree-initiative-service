@@ -1,6 +1,7 @@
 package io.localmotion.user.projection;
 
 import com.google.gson.Gson;
+import io.localmotion.initiative.event.MemberJoinedInitiativeEvent;
 import io.localmotion.user.domain.NotificationLevel;
 import io.localmotion.user.event.NotificationSettingsUpdatedEvent;
 import io.micronaut.context.annotation.Context;
@@ -10,15 +11,14 @@ import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.messaging.MetaData;
 import io.localmotion.personaldata.PersonalDataRecord;
 import io.localmotion.personaldata.PersonalDataRepository;
-import io.localmotion.application.Application;
 import io.localmotion.user.event.UserCreatedEvent;
 import io.localmotion.user.event.UserDeletedEvent;
 import io.localmotion.user.domain.UserPII;
 import io.localmotion.user.event.UserRevivedEvent;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 
 import static com.google.common.collect.Maps.newConcurrentMap;
@@ -52,11 +52,13 @@ public class ProfileProjection {
             PersonalDataRecord personalDataRecord = personalDataRepository.getRecord(evt.getPiiRecordId());
             Gson gson = new Gson();
             UserPII userPII = gson.fromJson(personalDataRecord.getData(), UserPII.class);
-            profile = new Profile(evt.getUserId(), userPII.getName(), userPII.getEmailAddress(), NotificationLevel.NONE);
+//            profile = new Profile(evt.getUserId(), userPII.getName(), userPII.getEmailAddress(), NotificationLevel.NONE, new ArrayList<>());
+            profile = new Profile(evt.getUserId(), userPII.getName(), userPII.getEmailAddress(), NotificationLevel.NONE, new HashSet<>());
             log.info("User profile retrieved pii record " + evt.getPiiRecordId() + " for " + evt.getUserId() + " with data " + userPII);
         }
         else {
-            profile = new Profile(evt.getUserId(), "PROPERTY_REMOVED", "PROPERTY_REMOVED", NotificationLevel.NONE);
+//            profile = new Profile(evt.getUserId(), "PROPERTY_REMOVED", "PROPERTY_REMOVED", NotificationLevel.NONE, new ArrayList<>());
+            profile = new Profile(evt.getUserId(), "PROPERTY_REMOVED", "PROPERTY_REMOVED", NotificationLevel.NONE, new HashSet<>());
         }
 
         profilesById.put(profile.getId(), profile);
@@ -87,9 +89,20 @@ public class ProfileProjection {
         if (userProfile == null)
             log.warn("Ignoring event because user profile not present: {}", evt);
         else {
-            Profile newUserProfile = userProfile.withNotificationLevel(evt.getNewNotificationLevel());
+            Profile newUserProfile = userProfile.withNotificationLevel(evt.getNotificationLevel());
             profilesByName.put(newUserProfile.getUsername(), newUserProfile);
             profilesById.put(newUserProfile.getId(), newUserProfile);
+        }
+    }
+
+    @EventSourcingHandler
+    void on(MemberJoinedInitiativeEvent evt) {
+        log.info("ON EVENT {}", evt);
+        Profile userProfile = profilesById.get(evt.getMemberId());
+        if (userProfile == null)
+            log.warn("Ignoring event because user profile not present: {}", evt);
+        else {
+            userProfile.getInitiativeMemberships().add(evt.getInitiativeId());
         }
     }
 

@@ -9,5 +9,5 @@ import lombok.*;
 @ToString
 public class NotificationSettingsUpdatedEvent {
     String userId;
-    NotificationLevel newNotificationLevel;
+    NotificationLevel notificationLevel;
 }

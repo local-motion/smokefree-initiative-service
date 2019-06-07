@@ -27,6 +27,7 @@ type Profile {
     username : String!
     emailAddress : String!
     notificationLevel : NotificationLevel!
+    initiativeMemberships: [String!]!
 }
 
 enum NotificationLevel {
