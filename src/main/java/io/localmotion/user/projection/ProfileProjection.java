@@ -52,12 +52,12 @@ public class ProfileProjection {
             PersonalDataRecord personalDataRecord = personalDataRepository.getRecord(evt.getPiiRecordId());
             Gson gson = new Gson();
             UserPII userPII = gson.fromJson(personalDataRecord.getData(), UserPII.class);
-//            profile = new Profile(evt.getUserId(), userPII.getName(), userPII.getEmailAddress(), NotificationLevel.NONE, new ArrayList<>());
+//            profile = new AuditTrailRecord(evt.getUserId(), userPII.getName(), userPII.getEmailAddress(), NotificationLevel.NONE, new ArrayList<>());
             profile = new Profile(evt.getUserId(), userPII.getName(), userPII.getEmailAddress(), NotificationLevel.NONE, new HashSet<>());
             log.info("User profile retrieved pii record " + evt.getPiiRecordId() + " for " + evt.getUserId() + " with data " + userPII);
         }
         else {
-//            profile = new Profile(evt.getUserId(), "PROPERTY_REMOVED", "PROPERTY_REMOVED", NotificationLevel.NONE, new ArrayList<>());
+//            profile = new AuditTrailRecord(evt.getUserId(), "PROPERTY_REMOVED", "PROPERTY_REMOVED", NotificationLevel.NONE, new ArrayList<>());
             profile = new Profile(evt.getUserId(), "PROPERTY_REMOVED", "PROPERTY_REMOVED", NotificationLevel.NONE, new HashSet<>());
         }
 
@@ -65,7 +65,7 @@ public class ProfileProjection {
         profilesByName.put(profile.getUsername(), profile);
     }
 
-    @EventSourcingHandler
+    @EventHandler
     void on(UserRevivedEvent evt) {
         log.info("ON EVENT {}", evt);
         Profile profile = deletedProfilesById.get(evt.getUserId());
@@ -73,7 +73,7 @@ public class ProfileProjection {
         profilesByName.put(profile.getUsername(), profile);
     }
 
-    @EventSourcingHandler
+    @EventHandler
     void on(UserDeletedEvent evt) {
         log.info("ON EVENT {}", evt);
         Profile userProfile = profilesById.get(evt.getUserId());
@@ -82,7 +82,7 @@ public class ProfileProjection {
         deletedProfilesById.put(userProfile.getId(), userProfile);
     }
 
-    @EventSourcingHandler
+    @EventHandler
     void on(NotificationSettingsUpdatedEvent evt) {
         log.info("ON EVENT {}", evt);
         Profile userProfile = profilesById.get(evt.getUserId());
@@ -95,7 +95,7 @@ public class ProfileProjection {
         }
     }
 
-    @EventSourcingHandler
+    @EventHandler
     void on(MemberJoinedInitiativeEvent evt) {
         log.info("ON EVENT {}", evt);
         Profile userProfile = profilesById.get(evt.getMemberId());

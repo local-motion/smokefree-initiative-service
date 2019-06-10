@@ -18,6 +18,7 @@ type Query {
     profile: Profile
     playgrounds: [Playground]
     playground(id: String!): Playground
+    auditTrail(initiativeId: String, actorId: String, fromTime: LocalDateTime, toTime: LocalDateTime, maxRecords: Int): AuditTrail!
     emailExists(emailAddress: String!): Boolean!
     totalVolunteers: Long
 }
@@ -86,6 +87,18 @@ type PlaygroundObservation {
     smokefree: Boolean!
     observationDate: LocalDate!
     comment: String!
+}
+
+type AuditTrail {
+    records: [AuditTrailRecord!]!
+    totalRecords: Int!
+}
+
+type AuditTrailRecord {
+    actorName: String!
+    instant: LocalDateTime!
+    eventType: String!
+    details: String!
 }
 
 

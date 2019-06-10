@@ -18,6 +18,7 @@ import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.idl.SchemaDirectiveWiring;
 import graphql.schema.idl.SchemaDirectiveWiringEnvironment;
+import io.localmotion.audittrail.controller.AuditTrailQuery;
 import io.localmotion.initiative.controller.InitiativeQuery;
 import io.localmotion.user.controller.UserQuery;
 import io.micronaut.context.annotation.Bean;
@@ -86,7 +87,7 @@ public class GraphqlFactory {
 
     @Bean
     @Singleton
-    public GraphQL graphQL(InitiativeQuery initiativeQuery, PlaygroundQuery playgroundQuery, UserQuery userQuery,
+    public GraphQL graphQL(InitiativeQuery initiativeQuery, PlaygroundQuery playgroundQuery, UserQuery userQuery, AuditTrailQuery auditTrailQuery,
                            InitiativeMutation initiativeMutation, PlaygroundMutation playgroundMutation, UserMutation userMutation,
                            SecurityService securityService, ObjectMapper objectMapper, DataFetcherExceptionHandler exceptionHandler) throws IOException {
         /*
@@ -97,7 +98,7 @@ public class GraphqlFactory {
         final SchemaParserBuilder builder = SchemaParser.newParser()
                 .options(SchemaParserOptions.newOptions().objectMapperProvider(fieldDefinition -> objectMapper).build())
                 .resolvers(
-                            initiativeQuery, playgroundQuery, userQuery,
+                            initiativeQuery, playgroundQuery, userQuery, auditTrailQuery,
                             initiativeMutation, playgroundMutation, userMutation
                 )
                 .schemaString(schemaString)
