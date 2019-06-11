@@ -142,7 +142,7 @@ public class AuditTrailProjection {
                 .add("checklistItem", event.getChecklistItem())
                 .add("checked", event.isChecked())
                 .build();
-        AuditTrailRecord record = createAuditTrailRecord(actor, eventMessage.getTimestamp(), EventType.CHECKBOX_UPDATE, details);
+        AuditTrailRecord record = createAuditTrailRecord(actor, eventMessage.getTimestamp(), EventType.CHECKLIST_UPDATE, details);
         storeRecord(record, actor, initiativeId);
     }
 
@@ -205,9 +205,12 @@ public class AuditTrailProjection {
     void on(PlaygroundObservationEvent event, EventMessage<?> eventMessage) {
         String actor = getUserId(eventMessage);
         String initiativeId = event.getInitiativeId();
+        Profile profile = profileProjection.profile(event.getObserverId());
+        String observerName = profile != null ? profile.getUsername() : "onbekend";
+
         String details = DetailsBuilder.instance()
                 .add("initiativeId", initiativeId)
-                .add("observerId", event.getObserverId())
+                .add("observerName", observerName)
                 .add("smokefree", event.getSmokefree())
                 .add("observationDate", event.getObservationDate())
                 .add("comment", event.getComment())

@@ -4,7 +4,7 @@ public enum EventType {
 
     // Initiative events
     INITIATIVE_JOINED,
-    CHECKBOX_UPDATE,
+    CHECKLIST_UPDATE,
 
     // User events
     USER_CREATED,
