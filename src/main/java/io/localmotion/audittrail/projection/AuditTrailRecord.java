@@ -10,12 +10,10 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Set;
 
-//@Value
 @Data
 public class AuditTrailRecord {
     String actorName;
     Instant instant;
-//    LocalDateTime instant;
     EventType eventType;
     String details;
 

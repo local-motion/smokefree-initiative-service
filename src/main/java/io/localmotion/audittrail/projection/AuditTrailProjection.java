@@ -42,7 +42,6 @@ public class AuditTrailProjection {
             Serving the projections
      */
 
-//    public AuditTrail getAuditTrail(String initiativeId, String actorId, Instant fromTime, Instant toTime, Integer maxRecords) {
     public AuditTrail getAuditTrail(String initiativeId, String actorId, LocalDateTime fromTime, LocalDateTime toTime, Integer maxRecords) {
         AuditTrail auditTrail = actorId != null ? auditTrailsByActor.get(actorId) : initiativeId != null ? auditTrailsByInitiative.get(initiativeId) : this.auditTrail;
         if (auditTrail == null || (maxRecords != null && maxRecords == 0))
