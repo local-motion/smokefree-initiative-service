@@ -16,6 +16,7 @@ schema {
 #
 type Query {
     profile: Profile
+    userData: UserData
     playgrounds: [Playground]
     playground(id: String!): Playground
     auditTrail(initiativeId: String, actorId: String, fromTime: LocalDateTime, toTime: LocalDateTime, maxRecords: Int): AuditTrail!
@@ -29,6 +30,15 @@ type Profile {
     emailAddress : String!
     notificationLevel : NotificationLevel!
     initiativeMemberships: [String!]!
+}
+
+type UserData {
+    auditTrailAccesses : [auditTrailAccess!]!
+}
+
+type auditTrailAccess {
+    initiativeId: String!
+    instant: LocalDateTime!
 }
 
 enum NotificationLevel {
@@ -123,6 +133,9 @@ type Mutation {
     createUser(doesNotMatter: String!): InputAcceptedResponse!
     deleteUser(doesNotMatter: String!): InputAcceptedResponse!
     setNotificationPreferences(input: SetNotificationPreferencesCommand!): InputAcceptedResponse!
+
+# User data
+    storeUserData(input: UserData!):  InputAcceptedResponse!
 }
 
 type InitiativeMutation {
