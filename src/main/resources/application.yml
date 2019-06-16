@@ -7,8 +7,6 @@ micronaut:
         web:
           allowedOrigins:
           - http://localhost:3000
-#          - http://foo.com
-#          - ^http(|s)://www\.google\.com$
           allowedMethods:
           - GET
           - POST
@@ -80,6 +78,7 @@ jpa:
     - io.localmotion.chatbox
     - io.localmotion.personaldata
     - io.localmotion.configuration
+    - io.localmotion.userdata
     properties:
       hibernate:
         hbm2ddl:
@@ -107,11 +106,6 @@ aws:
     userpoolid: eu-west-1_1nKYURwwe
     userpoolwebclientid: 66b4h2jtrk309tlf2hlq5khkk2
     domain: localmotion-dev2.auth.eu-west-1.amazoncognito.com
-
-# Smokefree-dev pool
-#    userpoolid: eu-west-1_WsTxYUHyC
-#    userpoolwebclientid: 3nkh1qomocr39s893jf0dp44cd
-#    domain: smokefree-dev.auth.eu-west-1.amazoncognito.com
 
   rds:
     enableSsl: false
