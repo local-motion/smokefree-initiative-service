@@ -1,6 +1,7 @@
 package io.localmotion.user.projection;
 
 import com.google.gson.Gson;
+import io.localmotion.email.service.api.AWSSimpleEmailService;
 import io.micronaut.context.annotation.Context;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventhandling.EventHandler;
@@ -37,6 +38,9 @@ public class ProfileProjection {
     @Inject
     PersonalDataRepository personalDataRepository;
 
+    @Inject
+    AWSSimpleEmailService awsSimpleEmailService;
+
     /*
             Event handlers
      */
@@ -59,6 +63,10 @@ public class ProfileProjection {
 
         profilesById.put(profile.getId(), profile);
         profilesByName.put(profile.getUsername(), profile);
+
+        // TODO: send a confirmation link for further email communication
+        awsSimpleEmailService.verifyEmailAddress(profile.getEmailAddress());
+
     }
 
     @EventSourcingHandler

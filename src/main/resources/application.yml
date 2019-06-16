@@ -102,6 +102,8 @@ aws:
   cognito:
     # These settings are valid for running the application locally, override with env variables on server environments
     region: eu-west-1
+  ses:
+    region: eu-west-1
 
 # LocalMotion2 pool
     userpoolid: eu-west-1_1nKYURwwe
@@ -125,3 +127,26 @@ google:
 localmotion:
   # These settings are valid for running the application locally, override with env variables on server environments
   logicalenvironment: Local
+
+email:
+  templates:
+    verification:
+      name: email-verification-template
+      subjectline: Bevestig uw e-mailadres
+      textpart: Klik op de onderstaande link om uw e-mailadres te verifiëren
+      htmlpart: email-verification-template.html
+    playgroundinvite:
+      name: playground-invite-template
+      subjectline: Doe mee met Playground
+      textpart: Je bent uitgenodigd door /# name /# om deel te nemen aan de speeltuin
+      htmlpart: playground-invite-template.html
+    playgroundactivity:
+      name: playground-activity-template
+      subjectline: Afrekenen recente acties
+      textpart: Afrekenen recente acties
+      htmlpart: playground-activity-template.html
+    notify:
+      name: chat-notification-template
+      subjectline: Bekijk de meldingen op Rookvrijspelen
+      textpart: Bekijk de meldingen op Rookvrijspelen
+      htmlpart: chat-notification-template.html

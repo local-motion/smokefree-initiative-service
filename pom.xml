@@ -205,6 +205,12 @@
             <version>${aws.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk</artifactId>
+            <version>1.11.534</version>
+        </dependency>
+
         <!--JPA dependencies-->
         <!--<dependency>-->
             <!--<groupId>javax.persistence</groupId>-->
