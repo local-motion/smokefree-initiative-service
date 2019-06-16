@@ -235,9 +235,9 @@ public class AuditTrailProjection {
      */
 
     private AuditTrailRecord createAuditTrailRecord(String actorId, Instant eventTimestamp, EventType eventType, String details) {
-        Profile profile = profileProjection.profile(actorId);
-        String actorName = profile != null ? profile.getUsername() : "onbekend";
-        return new AuditTrailRecord(actorName, eventTimestamp, eventType, details);
+//        Profile profile = profileProjection.profile(actorId);
+//        String actorName = profile != null ? profile.getUsername() : "onbekend";
+        return new AuditTrailRecord(actorId, eventTimestamp, eventType, details, profileProjection);
     }
 
 
