@@ -25,7 +25,11 @@ public class AdminJobQuery implements GraphQLQueryResolver {
         String userName = toContext(env).requireUserName();
         String userEmail = toContext(env).emailId();
 
-        return adminJobController.readAdminJobCommandRecord();
+        AdminJobCommandRecord adminJobCommandRecord = adminJobController.readAdminJobCommandRecord();
+        if (adminJobCommandRecord != null && userEmail.equals(adminJobCommandRecord.getOperatorEmail()))
+            return adminJobCommandRecord;
+        else
+            return null;
     }
 
 
