@@ -52,12 +52,12 @@ public class ProfileProjection {
             PersonalDataRecord personalDataRecord = personalDataRepository.getRecord(evt.getPiiRecordId());
             Gson gson = new Gson();
             UserPII userPII = gson.fromJson(personalDataRecord.getData(), UserPII.class);
-//            profile = new AuditTrailRecord(evt.getUserId(), userPII.getName(), userPII.getEmailAddress(), NotificationLevel.NONE, new ArrayList<>());
+//            profile = new AdminJobCommandRecord(evt.getUserId(), userPII.getName(), userPII.getEmailAddress(), NotificationLevel.NONE, new ArrayList<>());
             profile = new Profile(evt.getUserId(), userPII.getName(), userPII.getEmailAddress(), NotificationLevel.NONE, new HashSet<>());
             log.info("User profile retrieved pii record " + evt.getPiiRecordId() + " for " + evt.getUserId() + " with data " + userPII);
         }
         else {
-//            profile = new AuditTrailRecord(evt.getUserId(), "PROPERTY_REMOVED", "PROPERTY_REMOVED", NotificationLevel.NONE, new ArrayList<>());
+//            profile = new AdminJobCommandRecord(evt.getUserId(), "PROPERTY_REMOVED", "PROPERTY_REMOVED", NotificationLevel.NONE, new ArrayList<>());
             profile = new Profile(evt.getUserId(), "PROPERTY_REMOVED", "PROPERTY_REMOVED", NotificationLevel.NONE, new HashSet<>());
         }
 
