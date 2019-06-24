@@ -18,8 +18,11 @@ import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.idl.SchemaDirectiveWiring;
 import graphql.schema.idl.SchemaDirectiveWiringEnvironment;
+import io.localmotion.audittrail.controller.AuditTrailQuery;
 import io.localmotion.initiative.controller.InitiativeQuery;
 import io.localmotion.user.controller.UserQuery;
+import io.localmotion.userdata.UserDataMutation;
+import io.localmotion.userdata.UserDataQuery;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
 import io.micronaut.core.io.IOUtils;
@@ -86,8 +89,8 @@ public class GraphqlFactory {
 
     @Bean
     @Singleton
-    public GraphQL graphQL(InitiativeQuery initiativeQuery, PlaygroundQuery playgroundQuery, UserQuery userQuery,
-                           InitiativeMutation initiativeMutation, PlaygroundMutation playgroundMutation, UserMutation userMutation,
+    public GraphQL graphQL(InitiativeQuery initiativeQuery, PlaygroundQuery playgroundQuery, UserQuery userQuery, AuditTrailQuery auditTrailQuery, UserDataQuery userDataQuery,
+                           InitiativeMutation initiativeMutation, PlaygroundMutation playgroundMutation, UserMutation userMutation, UserDataMutation userDataMutation,
                            SecurityService securityService, ObjectMapper objectMapper, DataFetcherExceptionHandler exceptionHandler) throws IOException {
         /*
          * More information can be found at https://www.graphql-java-kickstart.com/tools/schema-definition/
@@ -97,8 +100,8 @@ public class GraphqlFactory {
         final SchemaParserBuilder builder = SchemaParser.newParser()
                 .options(SchemaParserOptions.newOptions().objectMapperProvider(fieldDefinition -> objectMapper).build())
                 .resolvers(
-                            initiativeQuery, playgroundQuery, userQuery,
-                            initiativeMutation, playgroundMutation, userMutation
+                            initiativeQuery, playgroundQuery, userQuery, auditTrailQuery, userDataQuery,
+                            initiativeMutation, playgroundMutation, userMutation, userDataMutation
                 )
                 .schemaString(schemaString)
                 .directive("auth", new AuthenticationDirective(securityService))

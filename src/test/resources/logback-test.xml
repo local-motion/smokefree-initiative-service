@@ -7,7 +7,7 @@
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
-    <logger name="smokefree" level="trace" additivity="false">
+    <logger name="smokefree" level="info" additivity="false">
         <appender-ref ref="stdout" />
     </logger>
     <logger name="org.axonframework" level="info" additivity="false">

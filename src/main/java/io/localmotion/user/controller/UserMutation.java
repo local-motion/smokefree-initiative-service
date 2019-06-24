@@ -6,12 +6,10 @@ import io.localmotion.application.DomainException;
 import io.localmotion.eventsourcing.axon.MetaDataManager;
 import io.localmotion.initiative.controller.InputAcceptedResponse;
 import io.localmotion.interfacing.graphql.SecurityContext;
+import io.localmotion.interfacing.graphql.error.ErrorCode;
 import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 import io.localmotion.user.aggregate.User;
-import io.localmotion.user.command.RetrieveUserCommand;
-import io.localmotion.user.command.CreateUserCommand;
-import io.localmotion.user.command.DeleteUserCommand;
-import io.localmotion.user.command.ReviveUserCommand;
+import io.localmotion.user.command.*;
 import io.localmotion.user.projection.ProfileProjection;
 import io.micronaut.validation.Validated;
 import lombok.NoArgsConstructor;
@@ -36,7 +34,6 @@ public class UserMutation implements GraphQLMutationResolver {
 
     @Inject
     private ProfileProjection profileProjection;
-
 
 
     public InputAcceptedResponse createUser(String input, DataFetchingEnvironment env) {
@@ -80,6 +77,24 @@ public class UserMutation implements GraphQLMutationResolver {
         return new InputAcceptedResponse(userId);
     }
 
+    public InputAcceptedResponse setNotificationPreferences(SetNotificationPreferencesCommand cmd, DataFetchingEnvironment env) {
+        validateActorIsAuthorisedForUser(cmd.getUserId(), env);
+        gateway.sendAndWait(decorateWithMetaData(cmd, env));
+        return new InputAcceptedResponse(cmd.getUserId());
+    }
+
+
+    /***********
+     * Validations
+     ************/
+
+    private void validateActorIsAuthorisedForUser(String userId, DataFetchingEnvironment env) {
+        String actor = toContext(env).requireUserId();
+        if(!actor.equals(userId)) {
+            throw new DomainException(ErrorCode.UNAUTHORIZED.toString(),
+                    "User is not authorised to perform this operation");
+        }
+    }
 
 
     /***********

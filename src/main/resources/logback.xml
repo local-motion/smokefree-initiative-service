@@ -5,7 +5,7 @@
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %crlf(%msg) %n</pattern>
         </encoder>
     </appender>
-    <logger name="smokefree" level="trace" additivity="false">
+    <logger name="smokefree" level="info" additivity="false">
         <appender-ref ref="stdout" />
     </logger>
     <logger name="io.localmotion.storage.aws.rds.secretmanager.RDSSecretManager" level="info" additivity="false">

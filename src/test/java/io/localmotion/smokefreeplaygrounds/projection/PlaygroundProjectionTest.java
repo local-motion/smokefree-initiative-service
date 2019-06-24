@@ -83,7 +83,7 @@ class PlaygroundProjectionTest {
     void should_store_managers_per_playground() {
         PlaygroundProjection projection = this.playgroundProjection; //new PlaygroundProjection();
         triggerInitiativeCreatedEvent(projection, "initiative-1", IMPORT_NOT_STARTED);
-        // when(profileProjection.profile("manager-1")).thenReturn(new Profile("manager-1", "Jack Ma", null));
+        // when(profileProjection.profile("manager-1")).thenReturn(new AuditTrailRecord("manager-1", "Jack Ma", null));
 
         Map<String, String> metadataMap = new HashMap<>();
         metadataMap.put("user_id", "manager-1");

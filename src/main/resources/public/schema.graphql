@@ -16,8 +16,10 @@ schema {
 #
 type Query {
     profile: Profile
+    userData: UserData!
     playgrounds: [Playground]
     playground(id: String!): Playground
+    auditTrail(initiativeId: String, actorId: String, fromTime: LocalDateTime, toTime: LocalDateTime, maxRecords: Int): AuditTrail!
     emailExists(emailAddress: String!): Boolean!
     totalVolunteers: Long
 }
@@ -26,6 +28,14 @@ type Profile {
     id : String!
     username : String!
     emailAddress : String!
+    notificationLevel : NotificationLevel!
+    initiativeMemberships: [String!]!
+}
+
+
+enum NotificationLevel {
+    NONE
+    FULL
 }
 
 type Initiative {
@@ -81,6 +91,22 @@ type PlaygroundObservation {
     comment: String!
 }
 
+type AuditTrail {
+    records: [AuditTrailRecord!]!
+    totalRecords: Int!
+}
+
+type AuditTrailRecord {
+    actorName: String!
+    instant: LocalDateTime!
+    eventType: String!
+    details: String!
+}
+
+type UserData {
+    lastAuditTrailView: LocalDateTime
+}
+
 
 #
 # Mutations
@@ -102,8 +128,12 @@ type Mutation {
 # User
     createUser(doesNotMatter: String!): InputAcceptedResponse!
     deleteUser(doesNotMatter: String!): InputAcceptedResponse!
+    setNotificationPreferences(input: SetNotificationPreferencesCommand!): InputAcceptedResponse!
 
+# User data
+    storeUserData(input: UserDataInput!):  InputAcceptedResponse!
 }
+
 
 type InitiativeMutation {
     createInitiative(input: CreateInitiativeInput!): InputAcceptedResponse!
@@ -125,6 +155,10 @@ type UserMutation {
 
 type InputAcceptedResponse {
     id : String!
+}
+
+input UserDataInput {
+    lastAuditTrailView: LocalDateTime
 }
 
 input CreateInitiativeInput {
@@ -158,4 +192,9 @@ input UpdateChecklistCommand {
     initiativeId: String!
     checklistItem: String!
     checked: Boolean!
+}
+
+input SetNotificationPreferencesCommand {
+    userId: String!
+    notificationLevel: NotificationLevel!
 }
