@@ -13,7 +13,7 @@ import io.localmotion.personaldata.PersonalDataRepository;
 import io.micronaut.context.annotation.Primary;
 import io.micronaut.test.annotation.MicronautTest;
 import io.micronaut.test.annotation.MockBean;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
 
 import javax.inject.Inject;
 
@@ -41,7 +41,7 @@ class ChatboxNotificationBatchTest {
 	@Inject
 	IPersonalDataRepository personalDataRepository;
 
-	@Test
+	@Disabled
 	void notifyUnreadMessages() throws InterruptedException {
 		// Given
 		List<ChatboxUser> notifications = new ArrayList<>();

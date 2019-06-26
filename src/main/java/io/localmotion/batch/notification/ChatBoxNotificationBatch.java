@@ -31,7 +31,6 @@ public class ChatBoxNotificationBatch {
 
 
 	// job is triggered once a month
-	// 26th Tech Demo 2
 	@Scheduled(cron = "0 0 0 1 * ?")
 	void notifyUnreadMessages() {
 		log.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Notification Batch Job Started at: {} ~~~~~~~~~~~~~~~~~~~~~~~~~~~", Instant.now());
