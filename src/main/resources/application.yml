@@ -111,6 +111,9 @@ aws:
     enableSsl: false
     jdbcdriverclass: com.mysql.jdbc.Driver
 
+  s3:
+    region: eu-west-1
+
 google:
   maps:
     key: use_your_personal_key_for_localhost
@@ -121,5 +124,8 @@ localmotion:
   logicalenvironment: Local
   adminjob:
     commandfileurl: '...'
-    resultfilebucket: '...'
-    jobhistorybucket: '...'
+    bucketname: '...'
+    historybucketname: '...'
+    commandfilekey: 'command'
+    resultfilekey: 'result'
+    jobhistorykey: 'jobhistory'

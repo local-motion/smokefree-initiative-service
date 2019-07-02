@@ -6,5 +6,5 @@ package io.localmotion.adminjob.domain;
 public interface AdminJob {
 
     public String getJobIdentifier();
-    public void run();
+    public String run(AdminJobCommandRecord adminJobCommandRecord);
 }

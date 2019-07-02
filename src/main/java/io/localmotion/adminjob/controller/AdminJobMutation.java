@@ -2,6 +2,8 @@ package io.localmotion.adminjob.controller;
 
 import com.coxautodev.graphql.tools.GraphQLMutationResolver;
 import graphql.schema.DataFetchingEnvironment;
+import io.localmotion.adminjob.domain.AdminJobCommandRecord;
+import io.localmotion.adminjob.domain.AdminJobController;
 import io.localmotion.application.DomainException;
 import io.localmotion.initiative.controller.InputAcceptedResponse;
 import io.localmotion.interfacing.graphql.SecurityContext;
@@ -33,14 +35,22 @@ public class AdminJobMutation implements GraphQLMutationResolver {
     @Inject
     private ProfileProjection profileProjection;
 
+    @Inject
+    private AdminJobController adminJobController;
 
     public InputAcceptedResponse runAdminJob(String input, DataFetchingEnvironment env) {
         String userId = toContext(env).requireUserId();
         String userName = toContext(env).requireUserName();
-        String emailAddress = toContext(env).emailId();
+        String userEmail = toContext(env).emailId();
 
+        AdminJobCommandRecord adminJobCommandRecord = adminJobController.readAdminJobCommandRecord();
+        if (adminJobCommandRecord == null || !userEmail.equals(adminJobCommandRecord.getOperatorEmail()))
+            throw new DomainException(ErrorCode.UNAUTHORIZED.toString(),
+                    "User is not authorised to perform this operation");
 
-        return new InputAcceptedResponse(userId);
+        adminJobController.runCurrentJob();
+
+        return new InputAcceptedResponse(adminJobCommandRecord.getJobIdentifier());
     }
 
 
