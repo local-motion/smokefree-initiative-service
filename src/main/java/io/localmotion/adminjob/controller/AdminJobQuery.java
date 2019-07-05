@@ -29,7 +29,8 @@ public class AdminJobQuery implements GraphQLQueryResolver {
         if (adminJobCommandRecord != null && userEmail.equals(adminJobCommandRecord.getOperatorEmail()))
             return adminJobCommandRecord;
         else
-            return null;
+//            return null;
+            return new AdminJobCommandRecord("jopb-01", "just a test", "dimi@dekker.nl", "{ \"in\" : \"28\" }");
     }
 
 

@@ -2,7 +2,7 @@ package io.localmotion.adminjob.domain;
 
 import com.google.gson.Gson;
 import io.localmotion.adminjob.jobs.AdminJobRegistry;
-import io.localmotion.storage.file.s3.S3Accessor;
+import io.localmotion.storage.file.FileAccessor;
 import io.micronaut.context.annotation.Value;
 
 import javax.inject.Inject;
@@ -32,7 +32,7 @@ public class AdminJobController {
     private String jobHistoryKey;
 
     @Inject
-    private S3Accessor s3Reader;
+    private FileAccessor fileAccessor;
 
 
     @Inject
@@ -40,7 +40,7 @@ public class AdminJobController {
 
     public AdminJobCommandRecord readAdminJobCommandRecord() {
         Gson gson = new Gson();
-        String commandRecordString = s3Reader.readFileToString(bucketName, commandFileKey);
+        String commandRecordString = fileAccessor.readFileToString(bucketName, commandFileKey);
         return gson.fromJson(commandRecordString, AdminJobCommandRecord.class);
 
     }
@@ -56,13 +56,13 @@ public class AdminJobController {
         AdminJobCommandRecord adminJobCommandRecord = readAdminJobCommandRecord();
         AdminJob adminJob = adminJobRegistry.lookupAdminJob(adminJobCommandRecord.getJobIdentifier());
         String resultString = adminJob.run(adminJobCommandRecord);
-        s3Reader.writeFile(bucketName, resultFileKey, resultString);
+        fileAccessor.writeFile(bucketName, resultFileKey, resultString);
 
         // Write the job info to the history bucket
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
         String historyKey = "run_" + simpleDateFormat.format(jobDateTime);
         JobHistoryRecord historyRecord = new JobHistoryRecord(jobDateTime, adminJobCommandRecord.getOperatorEmail(), adminJobCommandRecord, resultString);
         String content = new Gson().toJson(historyRecord);
-        s3Reader.writeFile(historyBucketName, historyKey, content);
+        fileAccessor.writeFile(historyBucketName, historyKey, content);
     }
 }

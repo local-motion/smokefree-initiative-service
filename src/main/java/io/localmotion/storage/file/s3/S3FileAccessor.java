@@ -21,7 +21,7 @@ import java.util.List;
 
 @Singleton
 @Requires(env="aws")
-public class S3Accessor implements FileAccessor {
+public class S3FileAccessor implements FileAccessor {
 
     @Value("${aws.s3.region}")
     private String clientRegion;
@@ -42,7 +42,7 @@ public class S3Accessor implements FileAccessor {
                 fullObject = s3Client.getObject(new GetObjectRequest(location, name));
                 System.out.println("Content-Type: " + fullObject.getObjectMetadata().getContentType());
                 System.out.println("Content: ");
-                result = displayTextInputStream(fullObject.getObjectContent());
+                result = readLinesFromStream(fullObject.getObjectContent());
 
             } catch (AmazonServiceException e) {
                 // The call was transmitted successfully, but Amazon S3 couldn't process
@@ -72,7 +72,7 @@ public class S3Accessor implements FileAccessor {
     }
 
 
-    private List<String> displayTextInputStream(InputStream input) throws IOException {
+    private List<String> readLinesFromStream(InputStream input) throws IOException {
         List<String> result = new ArrayList<>();
         BufferedReader reader = new BufferedReader(new InputStreamReader(input));
         String line = null;
