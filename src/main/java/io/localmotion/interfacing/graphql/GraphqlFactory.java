@@ -18,6 +18,7 @@ import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.idl.SchemaDirectiveWiring;
 import graphql.schema.idl.SchemaDirectiveWiringEnvironment;
+import io.localmotion.adminjob.controller.AdminJobMutation;
 import io.localmotion.adminjob.controller.AdminJobQuery;
 import io.localmotion.audittrail.controller.AuditTrailQuery;
 import io.localmotion.initiative.controller.InitiativeQuery;
@@ -93,6 +94,7 @@ public class GraphqlFactory {
     public GraphQL graphQL(InitiativeQuery initiativeQuery, PlaygroundQuery playgroundQuery, UserQuery userQuery, AuditTrailQuery auditTrailQuery, UserDataQuery userDataQuery,
                            AdminJobQuery adminJobQuery,
                            InitiativeMutation initiativeMutation, PlaygroundMutation playgroundMutation, UserMutation userMutation, UserDataMutation userDataMutation,
+                           AdminJobMutation adminJobMutation,
                            SecurityService securityService, ObjectMapper objectMapper, DataFetcherExceptionHandler exceptionHandler) throws IOException {
         /*
          * More information can be found at https://www.graphql-java-kickstart.com/tools/schema-definition/
@@ -103,7 +105,7 @@ public class GraphqlFactory {
                 .options(SchemaParserOptions.newOptions().objectMapperProvider(fieldDefinition -> objectMapper).build())
                 .resolvers(
                             initiativeQuery, playgroundQuery, userQuery, auditTrailQuery, userDataQuery, adminJobQuery,
-                            initiativeMutation, playgroundMutation, userMutation, userDataMutation
+                            initiativeMutation, playgroundMutation, userMutation, userDataMutation, adminJobMutation
                 )
                 .schemaString(schemaString)
                 .directive("auth", new AuthenticationDirective(securityService))

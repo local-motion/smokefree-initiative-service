@@ -16,4 +16,8 @@ public class AdminJobCommandRecord {
     String comment;
     String operatorEmail;
     String inputParameters;
+
+    public int getValidationCode() {
+        return commandIdentifier.hashCode() + comment.hashCode() + operatorEmail.hashCode() + inputParameters.hashCode();
+    }
 }

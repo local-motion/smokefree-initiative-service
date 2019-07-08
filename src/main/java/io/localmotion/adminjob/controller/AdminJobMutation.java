@@ -3,6 +3,7 @@ package io.localmotion.adminjob.controller;
 import com.coxautodev.graphql.tools.GraphQLMutationResolver;
 import graphql.schema.DataFetchingEnvironment;
 import io.localmotion.adminjob.domain.AdminJobCommandRecord;
+import io.localmotion.adminjob.domain.JobResult;
 import io.localmotion.application.DomainException;
 import io.localmotion.initiative.controller.InputAcceptedResponse;
 import io.localmotion.interfacing.graphql.SecurityContext;
@@ -37,9 +38,8 @@ public class AdminJobMutation implements GraphQLMutationResolver {
     @Inject
     private AdminJobController adminJobController;
 
-    public InputAcceptedResponse runAdminJob(String input, DataFetchingEnvironment env) {
+    public JobResult runAdminJob(RunAdminJobInput input, DataFetchingEnvironment env) {
         String userId = toContext(env).requireUserId();
-        String userName = toContext(env).requireUserName();
         String userEmail = toContext(env).emailId();
 
         AdminJobCommandRecord adminJobCommandRecord = adminJobController.readAdminJobCommandRecord();
@@ -47,9 +47,22 @@ public class AdminJobMutation implements GraphQLMutationResolver {
             throw new DomainException(ErrorCode.UNAUTHORIZED.toString(),
                     "User is not authorised to perform this operation");
 
-        adminJobController.runCurrentJob();
+        return adminJobController.runCurrentCommand(
+                input.getValidationCode(),
+                input.getRetainCommandFile() != null && input.getRetainCommandFile() == true
+        );
+    }
 
-        return new InputAcceptedResponse(adminJobCommandRecord.getCommandIdentifier());
+    public InputAcceptedResponse deleteAdminCommand(String input, DataFetchingEnvironment env) {
+        String userEmail = toContext(env).emailId();
+
+        AdminJobCommandRecord adminJobCommandRecord = adminJobController.readAdminJobCommandRecord();
+        if (adminJobCommandRecord == null || !userEmail.equals(adminJobCommandRecord.getOperatorEmail()))
+            throw new DomainException(ErrorCode.UNAUTHORIZED.toString(),
+                    "User is not authorised to perform this operation");
+
+        adminJobController.deleteCurrentCommand();
+        return new InputAcceptedResponse("ok");
     }
 
 

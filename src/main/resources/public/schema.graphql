@@ -113,7 +113,15 @@ type AdminJobCommandRecord {
     comment: String!
     operatorEmail: String!
     inputParameters: String!
+    validationCode: Int!
 }
+
+type JobResult {
+    resultCode: String!
+    message: String!
+    result: String                  # Json object
+}
+
 
 #
 # Mutations
@@ -139,6 +147,10 @@ type Mutation {
 
 # User data
     storeUserData(input: UserDataInput!):  InputAcceptedResponse!
+
+# Admin job
+    runAdminJob(input: RunAdminJobInput!): JobResult!
+    deleteAdminCommand(doesNotMatter: String!): InputAcceptedResponse!
 }
 
 
@@ -158,6 +170,12 @@ type PlaygroundMutation {
 type UserMutation {
     createUser(doesNotMatter: String!): Profile!
     deleteUser(doesNotMatter: String!): InputAcceptedResponse!
+    setNotificationPreferences(input: SetNotificationPreferencesCommand!): InputAcceptedResponse!
+}
+
+type AdminJobMutation {
+    runAdminJob(input: RunAdminJobInput!): JobResult!
+    deleteAdminCommand(doesNotMatter: String!): InputAcceptedResponse!
 }
 
 type InputAcceptedResponse {
@@ -177,6 +195,11 @@ input CreateInitiativeInput {
 
 input JoinInitiativeInput {
     initiativeId: String!
+}
+
+input RunAdminJobInput {
+    validationCode: Int!
+    retainCommandFile: Boolean
 }
 
 input DecideToBecomeSmokeFreeCommand {

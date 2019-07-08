@@ -3,6 +3,7 @@ package io.localmotion.adminjob.commands;
 import io.localmotion.adminjob.domain.AdminCommand;
 import io.localmotion.adminjob.commands.cognitoimportfile.CognitoImportFileCommand;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Collection;
 import java.util.HashMap;
@@ -11,10 +12,17 @@ import java.util.Map;
 @Singleton
 public class AdminJobRegistry {
 
+    @Inject
+    private CognitoImportFileCommand cognitoImportFileCommand;
+
     private final Map<String, AdminCommand> adminJobs = new HashMap<>();
 
-    {
-        registerAdminJob(new CognitoImportFileCommand());
+    private boolean registryBuilt = false;
+    private void buildRegistry() {
+        if (!registryBuilt) {
+            registerAdminJob(cognitoImportFileCommand);
+            registryBuilt = true;
+        }
     }
 
     public void registerAdminJob(AdminCommand adminCommand) {
@@ -22,10 +30,12 @@ public class AdminJobRegistry {
     }
 
     public Collection<AdminCommand> getAdminJobs() {
+        buildRegistry();
         return adminJobs.values();
     }
 
     public AdminCommand lookupAdminJob(String jobIdentifier) {
+        buildRegistry();
         return adminJobs.get(jobIdentifier);
     }
 }

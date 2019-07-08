@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.util.Date;
 
 @Slf4j
 @Singleton
@@ -50,14 +51,14 @@ public class AdminJobController {
         }
     }
 
-//    public void cancelCurrentJob() {
-//        // delete the command record
-//        if (fileAccessor.fileExists(fileLocation, executionMarkerName)) {
-//            fileAccessor.deleteFile(fileLocation, executionMarkerName);
-//        }
-//    }
+    public void deleteCurrentCommand() {
+        // delete the command record
+        if (fileAccessor.fileExists(fileLocation, commandFileName)) {
+            fileAccessor.deleteFile(fileLocation, commandFileName);
+        }
+    }
 
-    public JobResult runCurrentJob() {
+    public JobResult runCurrentCommand(int validationCode, boolean retainCommandFile) {
         final Instant jobDateTime = Instant.now();
         final long executionMarkerTimestamp = jobDateTime.toEpochMilli();
         final String executionMarker = executionMarkerTimestamp + "";
@@ -70,6 +71,10 @@ public class AdminJobController {
                 log.warn("Job with command identifier '" + adminJobCommandRecord.getCommandIdentifier() + "' not found, cancelling");
                 return new JobResult(JobResultCode.FAIL, "Admin command '" + adminJobCommandRecord.getCommandIdentifier() + "' does not exist", null);
             }
+
+            // Check that the job is still the same as the operation intended to run
+            if (validationCode != adminJobCommandRecord.getValidationCode())
+                return new JobResult(JobResultCode.FAIL, "Validation code of admin command has changed. Refresh and check the admin command.", null);
 
             // Check if an execution is already in progress
             if (fileAccessor.fileExists(fileLocation, executionMarkerName)) {
@@ -101,7 +106,8 @@ public class AdminJobController {
 
                 // Write the job info to the history bucket
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-                String historyFileName = "job_" + simpleDateFormat.format(jobDateTime);
+//                String historyFileName = "job_" + simpleDateFormat.format(jobDateTime);
+                String historyFileName = "job_" + simpleDateFormat.format(new Date(executionMarkerTimestamp));
                 JobHistoryRecord historyRecord = new JobHistoryRecord(jobDateTime, adminJobCommandRecord.getOperatorEmail(), adminJobCommandRecord, jobResult);
                 String content = new Gson().toJson(historyRecord);
                 fileAccessor.writeFile(historyLogLocation, historyFileName, content);
@@ -110,6 +116,10 @@ public class AdminJobController {
                 if (!fileAccessor.fileExists(fileLocation, resultFileName))
                     fileAccessor.deleteFile(fileLocation, resultFileName);
                 fileAccessor.writeFile(fileLocation, resultFileName, content);
+
+                // Delete the command file unless it needs to be retained
+                if (!retainCommandFile)
+                    fileAccessor.deleteFile(fileLocation, commandFileName);
 
                 return jobResult;
 

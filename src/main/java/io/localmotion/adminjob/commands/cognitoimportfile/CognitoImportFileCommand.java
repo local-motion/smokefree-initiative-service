@@ -1,6 +1,7 @@
 package io.localmotion.adminjob.commands.cognitoimportfile;
 
 import com.google.gson.Gson;
+import io.localmotion.adminjob.commands.AdminJobRegistry;
 import io.localmotion.adminjob.domain.AdminCommand;
 import io.localmotion.adminjob.domain.AdminJobCommandRecord;
 import io.localmotion.adminjob.domain.JobResult;
@@ -11,7 +12,9 @@ import io.localmotion.user.projection.ProfileProjection;
 import io.micronaut.context.annotation.Value;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
+@Singleton
 public class CognitoImportFileCommand implements AdminCommand {
 
     private static final String COMMAND_IDENTIFIER = "GenerateCognitoInputFile";
@@ -22,11 +25,13 @@ public class CognitoImportFileCommand implements AdminCommand {
     @Value("${localmotion.adminjob.cognitoimportfile.filename}")
     private String fileName;
 
+
     @Inject
     private ProfileProjection profileProjection;
 
     @Inject
     private FileAccessor fileAccessor;
+
 
     @Override
     public String getIdentifier() {
