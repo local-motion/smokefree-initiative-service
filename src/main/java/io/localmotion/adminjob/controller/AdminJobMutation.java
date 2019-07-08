@@ -3,7 +3,6 @@ package io.localmotion.adminjob.controller;
 import com.coxautodev.graphql.tools.GraphQLMutationResolver;
 import graphql.schema.DataFetchingEnvironment;
 import io.localmotion.adminjob.domain.AdminJobCommandRecord;
-import io.localmotion.adminjob.domain.AdminJobController;
 import io.localmotion.application.DomainException;
 import io.localmotion.initiative.controller.InputAcceptedResponse;
 import io.localmotion.interfacing.graphql.SecurityContext;
@@ -50,7 +49,7 @@ public class AdminJobMutation implements GraphQLMutationResolver {
 
         adminJobController.runCurrentJob();
 
-        return new InputAcceptedResponse(adminJobCommandRecord.getJobIdentifier());
+        return new InputAcceptedResponse(adminJobCommandRecord.getCommandIdentifier());
     }
 
 

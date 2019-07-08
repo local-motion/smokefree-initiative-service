@@ -22,7 +22,7 @@ type Query {
     auditTrail(initiativeId: String, actorId: String, fromTime: LocalDateTime, toTime: LocalDateTime, maxRecords: Int): AuditTrail!
     emailExists(emailAddress: String!): Boolean!
     totalVolunteers: Long
-    adminjob: AdminJobCommandRecord
+    adminCommand: AdminJobCommandRecord
 }
 
 type Profile {
@@ -109,8 +109,8 @@ type UserData {
 }
 
 type AdminJobCommandRecord {
-    jobIdentifier: String!
-    description: String!
+    commandIdentifier: String!
+    comment: String!
     operatorEmail: String!
     inputParameters: String!
 }

@@ -11,7 +11,8 @@ public interface FileAccessor {
         return sb.toString();
     }
 
+    public boolean fileExists(String location, String name);
     public List<String> readFile(String location, String name);
     public void writeFile(String location, String name, String content);
-
+    public void deleteFile(String location, String name);
 }

@@ -3,7 +3,6 @@ package io.localmotion.adminjob.controller;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
 import io.localmotion.adminjob.domain.AdminJobCommandRecord;
-import io.localmotion.adminjob.domain.AdminJobController;
 import io.localmotion.interfacing.graphql.SecurityContext;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,8 +28,8 @@ public class AdminJobQuery implements GraphQLQueryResolver {
         if (adminJobCommandRecord != null && userEmail.equals(adminJobCommandRecord.getOperatorEmail()))
             return adminJobCommandRecord;
         else
-//            return null;
-            return new AdminJobCommandRecord("jopb-01", "just a test", "dimi@dekker.nl", "{ \"in\" : \"28\" }");
+            return null;
+//            return new AdminJobCommandRecord("jopb-01", "just a test", "dimi@dekker.nl", "{ \"in\" : \"28\" }");
     }
 
 

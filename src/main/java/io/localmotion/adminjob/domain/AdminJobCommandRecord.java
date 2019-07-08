@@ -5,15 +5,15 @@ import lombok.Value;
 //public interface AdminJobCommandRecord {
     /**
      *
-     * @return the e-mail address of an authenticated user that may trigger this jobs
+     * @return the e-mail address of an authenticated user that may trigger this commands
      */
 //    public String getOperatorEmail();
 //}
 
 @Value
 public class AdminJobCommandRecord {
-    String jobIdentifier;
-    String description;
+    String commandIdentifier;
+    String comment;
     String operatorEmail;
     String inputParameters;
 }

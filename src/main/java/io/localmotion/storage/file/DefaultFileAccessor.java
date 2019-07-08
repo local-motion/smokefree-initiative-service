@@ -1,7 +1,6 @@
 package io.localmotion.storage.file;
 
 import io.micronaut.context.annotation.Requires;
-import io.micronaut.context.annotation.Value;
 
 import javax.inject.Singleton;
 import java.io.*;
@@ -12,9 +11,10 @@ import java.util.List;
 @Requires(notEnv="aws")
 public class DefaultFileAccessor implements FileAccessor {
 
-    @Value("${aws.s3.region}")
-    private String clientRegion;
-
+    @Override
+    public boolean fileExists(String location, String name) {
+        return new File(location, name).exists();
+    }
 
     public List<String> readFile(String location, String name) {
         List<String> result = new ArrayList<>();
@@ -45,9 +45,7 @@ public class DefaultFileAccessor implements FileAccessor {
         String line = null;
         while ((line = reader.readLine()) != null) {
             result.add(line);
-            System.out.println(line);
         }
-        System.out.println();
         return result;
     }
 
@@ -67,7 +65,11 @@ public class DefaultFileAccessor implements FileAccessor {
         } catch(IOException e) {
             e.printStackTrace();
         }
+    }
 
+    @Override
+    public void deleteFile(String location, String name) {
+        new File(location, name).delete();
     }
 }
 

@@ -10,5 +10,6 @@ public class JobHistoryRecord {
     Instant runDateTime;
     String operatorEmail;
     AdminJobCommandRecord adminJobCommandRecord;
-    String result;
+    JobResult jobResult;
+//    String result;                  // Json result object
 }
