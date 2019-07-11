@@ -2,6 +2,7 @@ package io.localmotion.storage.file.s3;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.SdkClientException;
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
@@ -45,6 +46,7 @@ public class S3FileAccessor implements FileAccessor {
             AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
                     .withRegion(clientRegion)
 //                    .withCredentials(new ProfileCredentialsProvider())
+                    .withCredentials(DefaultAWSCredentialsProviderChain.getInstance())
                     .build();
 
             // Get an object and print its contents.
