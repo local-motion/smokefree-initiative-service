@@ -44,7 +44,7 @@ public class S3FileAccessor implements FileAccessor {
         try {
             AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
                     .withRegion(clientRegion)
-                    .withCredentials(new ProfileCredentialsProvider())
+//                    .withCredentials(new ProfileCredentialsProvider())
                     .build();
 
             // Get an object and print its contents.
