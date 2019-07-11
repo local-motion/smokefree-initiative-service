@@ -32,7 +32,7 @@ public class S3FileAccessor implements FileAccessor {
     public boolean fileExists(String location, String name) {
         AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
                 .withRegion(clientRegion)
-                .withCredentials(new ProfileCredentialsProvider())
+//                .withCredentials(new ProfileCredentialsProvider())
                 .build();
 
         return s3Client.doesObjectExist(location, name);
@@ -46,7 +46,7 @@ public class S3FileAccessor implements FileAccessor {
             AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
                     .withRegion(clientRegion)
 //                    .withCredentials(new ProfileCredentialsProvider())
-                    .withCredentials(DefaultAWSCredentialsProviderChain.getInstance())
+//                    .withCredentials(DefaultAWSCredentialsProviderChain.getInstance())
                     .build();
 
             // Get an object and print its contents.
@@ -131,7 +131,7 @@ public class S3FileAccessor implements FileAccessor {
     public void writeFile(String location, String name, String content) {
         AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
                 .withRegion(clientRegion)
-                .withCredentials(new ProfileCredentialsProvider())
+//                .withCredentials(new ProfileCredentialsProvider())
                 .build();
 
         s3Client.putObject(location, name, content);
@@ -162,7 +162,7 @@ public class S3FileAccessor implements FileAccessor {
     public void deleteFile(String location, String name) {
         AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
                 .withRegion(clientRegion)
-                .withCredentials(new ProfileCredentialsProvider())
+//                .withCredentials(new ProfileCredentialsProvider())
                 .build();
 
         s3Client.deleteObject(location, name);
