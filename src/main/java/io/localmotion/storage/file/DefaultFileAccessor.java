@@ -12,17 +12,17 @@ import java.util.List;
 public class DefaultFileAccessor implements FileAccessor {
 
     @Override
-    public boolean fileExists(String location, String name) {
-        return new File(location, name).exists();
+    public boolean fileExists(String location, String path, String name) {
+        return getFile(location, path, name).exists();
     }
 
-    public List<String> readFile(String location, String name) {
+    public List<String> readFile(String location, String path, String name) {
         List<String> result = new ArrayList<>();
 
         FileInputStream inputStream = null;
         try {
             try {
-                inputStream = new FileInputStream(new File(location, name));
+                inputStream = new FileInputStream(getFile(location, path, name));
                 result = readLinesFromStream(inputStream);
 
             } finally {
@@ -49,11 +49,11 @@ public class DefaultFileAccessor implements FileAccessor {
         return result;
     }
 
-    public void writeFile(String location, String name, String content) {
+    public void writeFile(String location, String path, String name, String content) {
         FileWriter writer = null;
         try {
             try {
-                writer = new FileWriter(new File(location, name));
+                writer = new FileWriter(getFile(location, path, name));
                 writer.write(content);
 
             } finally {
@@ -68,8 +68,13 @@ public class DefaultFileAccessor implements FileAccessor {
     }
 
     @Override
-    public void deleteFile(String location, String name) {
-        new File(location, name).delete();
+    public void deleteFile(String location, String path, String name) {
+        getFile(location, path, name).delete();
+    }
+
+    private File getFile(String location, String path, String name) {
+        File dir = path != null && !path.equals("") ? new File(location, path) : new File(location);
+        return new File(dir, name);
     }
 }
 

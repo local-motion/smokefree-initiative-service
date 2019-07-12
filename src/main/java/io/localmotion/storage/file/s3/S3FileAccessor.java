@@ -29,17 +29,17 @@ public class S3FileAccessor implements FileAccessor {
     private String clientRegion;
 
     @Override
-    public boolean fileExists(String location, String name) {
+    public boolean fileExists(String location, String path, String name) {
         AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
                 .withRegion(clientRegion)
 //                .withCredentials(new ProfileCredentialsProvider())
                 .build();
 
-        return s3Client.doesObjectExist(location, name);
+        return s3Client.doesObjectExist(location, getS3Key(path, name));
     }
 
     @SneakyThrows
-    public List<String> readFile(String location, String name) {
+    public List<String> readFile(String location, String path, String name) {
         List<String> result = new ArrayList<>();
         S3Object fullObject = null, objectPortion = null, headerOverrideObject = null;
         try {
@@ -51,7 +51,7 @@ public class S3FileAccessor implements FileAccessor {
 
             // Get an object and print its contents.
             System.out.println("Downloading an object");
-            fullObject = s3Client.getObject(new GetObjectRequest(location, name));
+            fullObject = s3Client.getObject(new GetObjectRequest(location, getS3Key(path, name)));
             System.out.println("Content-Type: " + fullObject.getObjectMetadata().getContentType());
             System.out.println("Content: ");
             result = readLinesFromStream(fullObject.getObjectContent());
@@ -128,13 +128,13 @@ public class S3FileAccessor implements FileAccessor {
         return result;
     }
 
-    public void writeFile(String location, String name, String content) {
+    public void writeFile(String location, String path, String name, String content) {
         AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
                 .withRegion(clientRegion)
 //                .withCredentials(new ProfileCredentialsProvider())
                 .build();
 
-        s3Client.putObject(location, name, content);
+        s3Client.putObject(location, getS3Key(path, name), content);
     }
 
 //  public void writeFile(String location, String name, String content) {
@@ -159,13 +159,13 @@ public class S3FileAccessor implements FileAccessor {
 //    }
 
     @Override
-    public void deleteFile(String location, String name) {
+    public void deleteFile(String location, String path, String name) {
         AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
                 .withRegion(clientRegion)
 //                .withCredentials(new ProfileCredentialsProvider())
                 .build();
 
-        s3Client.deleteObject(location, name);
+        s3Client.deleteObject(location, getS3Key(path, name));
     }
 
 //    @Override
@@ -189,5 +189,20 @@ public class S3FileAccessor implements FileAccessor {
 //            e.printStackTrace();
 //        }
 //    }
+
+    private String getS3Key(String path, String name) {
+        if (path == null || path.equals(""))
+            return name;
+        else {
+            StringBuilder sb = new StringBuilder();
+            if (!path.startsWith("/"))
+                sb.append("/");
+            sb.append(path);
+            if (!path.endsWith("/"))
+                sb.append("/");
+            sb.append(name);
+            return sb.toString();
+        }
+    }
 }
 

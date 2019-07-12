@@ -22,8 +22,8 @@ public class AdminJobController {
     @Value("${localmotion.adminjob.location}")
     private String fileLocation;
 
-    @Value("${localmotion.adminjob.historylocation}")
-    private String historyLogLocation;
+    @Value("${localmotion.adminjob.historyfolder}")
+    private String historyFolder;
 
     @Value("${localmotion.adminjob.commandfilename}")
     private String commandFileName;
@@ -110,7 +110,7 @@ public class AdminJobController {
                 String historyFileName = "job_" + simpleDateFormat.format(new Date(executionMarkerTimestamp));
                 JobHistoryRecord historyRecord = new JobHistoryRecord(jobDateTime, adminJobCommandRecord.getOperatorEmail(), adminJobCommandRecord, jobResult);
                 String content = new Gson().toJson(historyRecord);
-                fileAccessor.writeFile(historyLogLocation, historyFileName, content);
+                fileAccessor.writeFile(fileLocation, historyFolder, historyFileName, content);
 
                 // Write the job info to the result file (same as history record). Remove the previous result file first.
                 if (!fileAccessor.fileExists(fileLocation, resultFileName))

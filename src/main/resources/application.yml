@@ -123,12 +123,12 @@ localmotion:
   # These settings are valid for running the application locally, override with env variables on server environments
   logicalenvironment: Local
   adminjob:
-#    location: location for the files below, url to aws S3 bucket or absolute folder path for local test
+#    location: location for the files below, aws S3 bucket (for example 'adminjob') or absolute folder path for local test
     commandfilename: 'command'
     executionmarkername: 'inexecution'
     resultfilename: 'result'
 
-#    historylocation: location for the job history files, url to aws S3 bucket or absolute folder path for local test
+    historyfolder: 'history'    # folder for the job history files, will be located in the location specified above
 
     cognitoimportfile:
       filename: 'cognitoimport'
