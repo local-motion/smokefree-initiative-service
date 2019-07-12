@@ -195,8 +195,8 @@ public class S3FileAccessor implements FileAccessor {
             return name;
         else {
             StringBuilder sb = new StringBuilder();
-            if (!path.startsWith("/"))
-                sb.append("/");
+//            if (!path.startsWith("/"))
+//                sb.append("/");
             sb.append(path);
             if (!path.endsWith("/"))
                 sb.append("/");
