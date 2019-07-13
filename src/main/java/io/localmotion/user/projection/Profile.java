@@ -15,5 +15,4 @@ public class Profile {
     String emailAddress;
     NotificationLevel notificationLevel;
     Set<String> initiativeMemberships;
-//    List<String> initiativeMemberships;
 }

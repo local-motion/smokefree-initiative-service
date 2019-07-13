@@ -6,6 +6,7 @@ import io.localmotion.adminjob.domain.AdminCommand;
 import io.localmotion.adminjob.domain.AdminJobCommandRecord;
 import io.localmotion.adminjob.domain.JobResult;
 import io.localmotion.adminjob.domain.JobResultCode;
+import io.localmotion.interfacing.graphql.SecurityContext;
 import io.localmotion.storage.file.FileAccessor;
 import io.localmotion.user.projection.Profile;
 import io.localmotion.user.projection.ProfileProjection;
@@ -18,7 +19,10 @@ import javax.inject.Singleton;
 public class CognitoImportFileCommand implements AdminCommand {
 
     private static final String COMMAND_IDENTIFIER = "GenerateCognitoInputFile";
-    private static final String FILE_HEADERS = "cognito:username,name,given_name,family_name,middle_name,nickname,preferred_username,profile,picture,website,email,email_verified,gender,birthdate,zoneinfo,locale,phone_number,phone_number_verified,address,updated_at,cognito:mfa_enabled";
+    private static final String FILE_HEADERS =  "cognito:username,name,given_name,family_name,middle_name,nickname," +
+                                                "preferred_username,profile,picture,website,email,email_verified," +
+                                                "gender,birthdate,zoneinfo,locale,phone_number,phone_number_verified," +
+                                                "address,updated_at,cognito:mfa_enabled";
 
     @Value("${localmotion.adminjob.location}")
     private String fileLocation;
@@ -40,7 +44,7 @@ public class CognitoImportFileCommand implements AdminCommand {
     }
 
     @Override
-    public JobResult run(AdminJobCommandRecord adminJobCommandRecord) {
+    public JobResult run(AdminJobCommandRecord adminJobCommandRecord, SecurityContext securityContext) {
         int recordsWritten = 0;
         int hashcode = 0;
         StringBuilder sb = new StringBuilder(FILE_HEADERS + "\r\n");

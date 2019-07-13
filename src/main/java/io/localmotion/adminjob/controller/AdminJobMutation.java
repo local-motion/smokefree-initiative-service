@@ -49,7 +49,8 @@ public class AdminJobMutation implements GraphQLMutationResolver {
 
         return adminJobController.runCurrentCommand(
                 input.getValidationCode(),
-                input.getRetainCommandFile() != null && input.getRetainCommandFile() == true
+                input.getRetainCommandFile() != null && input.getRetainCommandFile() == true,
+                toContext(env)
         );
     }
 
@@ -66,50 +67,13 @@ public class AdminJobMutation implements GraphQLMutationResolver {
     }
 
 
-    /***********
-     * Validations
-     ************/
-
-    private void validateActorIsAuthorisedForUser(String userId, DataFetchingEnvironment env) {
-        String actor = toContext(env).requireUserId();
-        if(!actor.equals(userId)) {
-            throw new DomainException(ErrorCode.UNAUTHORIZED.toString(),
-                    "User is not authorised to perform this operation");
-        }
-    }
-
 
     /***********
      * Utility functions
      ************/
 
-    /**
-     * Check for the existence of a user (to avoid race conditions when checking using a projection)
-     * @param userId of the user to check
-     * @return the user aggregate if user exists and null otherwise
-     */
-    private User tryRetrieveUser(String userId) {
-        try {
-            Object result = gateway.sendAndWait(new RetrieveUserCommand(userId));
-            return (User) result;
-        }
-        catch (AggregateNotFoundException e) {
-            return null;
-        }
-    }
-
     private SecurityContext toContext(DataFetchingEnvironment environment) {
         return environment.getContext();
-    }
-
-    private String getUserId(DataFetchingEnvironment env) {
-        return toContext(env).userId();
-    }
-
-    private GenericCommandMessage<?> decorateWithMetaData(Object cmd, DataFetchingEnvironment env) {
-        MetaData metaData = MetaData
-                .with(SmokefreeConstants.JWTClaimSet.USER_ID, toContext(env).requireUserId());
-        return new GenericCommandMessage<>(cmd, metaData);
     }
 
 }

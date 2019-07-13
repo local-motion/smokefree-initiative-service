@@ -1,5 +1,6 @@
 package io.localmotion.interfacing.graphql;
 
+import io.localmotion.adminjob.domain.AdminJobCommandRecord;
 import io.micronaut.core.util.StringUtils;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.authentication.AuthenticationException;
@@ -18,6 +19,11 @@ public class SecurityContext extends ConcurrentHashMap<String, Object> {
 
     public Authentication authentication() {
         return (Authentication) get("authentication");
+    }
+
+
+    public void setAdminCommand(AdminJobCommandRecord adminJobCommandRecord) {
+        put("adminCommand", adminJobCommandRecord);
     }
 
     /**
@@ -64,5 +70,8 @@ public class SecurityContext extends ConcurrentHashMap<String, Object> {
         return userName;
     }
 
+    public AdminJobCommandRecord getAdminCommand() {
+        return (AdminJobCommandRecord) get("adminCommand");
+    }
 
 }

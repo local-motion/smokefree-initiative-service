@@ -3,9 +3,13 @@ package io.localmotion.adminjob.controller;
 import com.google.gson.Gson;
 import io.localmotion.adminjob.commands.AdminJobRegistry;
 import io.localmotion.adminjob.domain.*;
+import io.localmotion.interfacing.graphql.SecurityContext;
+import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 import io.localmotion.storage.file.FileAccessor;
 import io.micronaut.context.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.axonframework.commandhandling.GenericCommandMessage;
+import org.axonframework.messaging.MetaData;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -58,7 +62,7 @@ public class AdminJobController {
         }
     }
 
-    public JobResult runCurrentCommand(int validationCode, boolean retainCommandFile) {
+    public JobResult runCurrentCommand(int validationCode, boolean retainCommandFile, SecurityContext securityContext) {
         final Instant jobDateTime = Instant.now();
         final long executionMarkerTimestamp = jobDateTime.toEpochMilli();
         final String executionMarker = executionMarkerTimestamp + "";
@@ -100,15 +104,17 @@ public class AdminJobController {
                 throw new IllegalStateException("Job is already running");
 
             try {
+                // Elaborate the security context
+                securityContext.setAdminCommand(adminJobCommandRecord);
+
                 // Run the job
                 log.info("Running job of " + adminJobCommandRecord);
-                JobResult jobResult = adminCommand.run(adminJobCommandRecord);
+                JobResult jobResult = adminCommand.run(adminJobCommandRecord, securityContext);
 
                 // Write the job info to the history bucket
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-//                String historyFileName = "job_" + simpleDateFormat.format(jobDateTime);
                 String historyFileName = "job_" + simpleDateFormat.format(new Date(executionMarkerTimestamp));
-                JobHistoryRecord historyRecord = new JobHistoryRecord(jobDateTime, adminJobCommandRecord.getOperatorEmail(), adminJobCommandRecord, jobResult);
+                JobHistoryRecord historyRecord = new JobHistoryRecord(jobDateTime, securityContext.emailId(), adminJobCommandRecord, jobResult);
                 String content = new Gson().toJson(historyRecord);
                 fileAccessor.writeFile(fileLocation, historyFolder, historyFileName, content);
 
@@ -132,5 +138,12 @@ public class AdminJobController {
             e.printStackTrace();
             return new JobResult(JobResultCode.FAIL, "Job failed with exception: " + e.getMessage(), null);
         }
+    }
+
+    public static GenericCommandMessage<?> decorateWithMetaData(Object cmd, SecurityContext securityContext) {
+        MetaData metaData = MetaData
+                .with(SmokefreeConstants.JWTClaimSet.USER_ID, securityContext.requireUserId())
+                .with("adminCommand", securityContext.getAdminCommand());
+        return new GenericCommandMessage<>(cmd, metaData);
     }
 }

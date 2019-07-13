@@ -11,5 +11,4 @@ public class JobHistoryRecord {
     String operatorEmail;
     AdminJobCommandRecord adminJobCommandRecord;
     JobResult jobResult;
-//    String result;                  // Json result object
 }

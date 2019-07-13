@@ -3,7 +3,7 @@ package io.localmotion.user.projection;
 import com.google.gson.Gson;
 import io.localmotion.initiative.event.MemberJoinedInitiativeEvent;
 import io.localmotion.user.domain.NotificationLevel;
-import io.localmotion.user.event.NotificationSettingsUpdatedEvent;
+import io.localmotion.user.event.*;
 import io.micronaut.context.annotation.Context;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventhandling.EventHandler;
@@ -11,10 +11,7 @@ import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.messaging.MetaData;
 import io.localmotion.personaldata.PersonalDataRecord;
 import io.localmotion.personaldata.PersonalDataRepository;
-import io.localmotion.user.event.UserCreatedEvent;
-import io.localmotion.user.event.UserDeletedEvent;
 import io.localmotion.user.domain.UserPII;
-import io.localmotion.user.event.UserRevivedEvent;
 
 import javax.inject.Inject;
 import java.util.Collection;
@@ -48,17 +45,15 @@ public class ProfileProjection {
         log.info("ON EVENT {}", evt);
 
         Profile profile;
-        if (evt.getPiiRecordId() != 0) {
-            PersonalDataRecord personalDataRecord = personalDataRepository.getRecord(evt.getPiiRecordId());
-            Gson gson = new Gson();
-            UserPII userPII = gson.fromJson(personalDataRecord.getData(), UserPII.class);
-//            profile = new AdminJobCommandRecord(evt.getUserId(), userPII.getName(), userPII.getEmailAddress(), NotificationLevel.NONE, new ArrayList<>());
+        PersonalDataRecord personalDataRecord = personalDataRepository.getRecord(evt.getPiiRecordId());
+        if (personalDataRecord != null) {
+            UserPII userPII = new Gson().fromJson(personalDataRecord.getData(), UserPII.class);
             profile = new Profile(evt.getUserId(), userPII.getName(), userPII.getEmailAddress(), NotificationLevel.NONE, new HashSet<>());
             log.info("User profile retrieved pii record " + evt.getPiiRecordId() + " for " + evt.getUserId() + " with data " + userPII);
         }
         else {
-//            profile = new AdminJobCommandRecord(evt.getUserId(), "PROPERTY_REMOVED", "PROPERTY_REMOVED", NotificationLevel.NONE, new ArrayList<>());
-            profile = new Profile(evt.getUserId(), "PROPERTY_REMOVED", "PROPERTY_REMOVED", NotificationLevel.NONE, new HashSet<>());
+            profile = new Profile(evt.getUserId(), "*PROPERTY_REMOVED*", "*PROPERTY_REMOVED*", NotificationLevel.NONE, new HashSet<>());
+//            profile = new Profile(evt.getUserId(), null, null, null, null);
         }
 
         profilesById.put(profile.getId(), profile);
@@ -69,8 +64,12 @@ public class ProfileProjection {
     void on(UserRevivedEvent evt) {
         log.info("ON EVENT {}", evt);
         Profile profile = deletedProfilesById.get(evt.getUserId());
-        profilesById.put(profile.getId(), profile);
-        profilesByName.put(profile.getUsername(), profile);
+        if (profile.getUsername() != null) {
+            profilesById.put(profile.getId(), profile);
+            profilesByName.put(profile.getUsername(), profile);
+        }
+        else
+            log.warn("Trying to revive user with personal data removed, Ignoring...");
     }
 
     @EventHandler
@@ -80,6 +79,12 @@ public class ProfileProjection {
         profilesByName.remove(userProfile.getUsername());
         profilesById.remove(evt.getUserId());
         deletedProfilesById.put(userProfile.getId(), userProfile);
+    }
+
+    @EventHandler
+    void on(PersonalDataDeletedEvent evt) {
+        log.info("ON EVENT {}", evt);
+        deletedProfilesById.put(evt.getUserId(), new Profile(evt.getUserId(), null, null, null, null));
     }
 
     @EventHandler

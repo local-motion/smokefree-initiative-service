@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
@@ -38,12 +39,17 @@ public class PersonalDataRepository {
 
     @Transactional(readOnly = true)
     public PersonalDataRecord getRecord(long recordId) {
-        Query query = entityManager.createQuery(
-                "SELECT r from PersonalDataRecord r " +
-                        "WHERE r.recordId = :recordId"
-        );
-        query.setParameter("recordId", recordId);
-        return (PersonalDataRecord) query.getSingleResult();
+        try {
+            Query query = entityManager.createQuery(
+                    "SELECT r from PersonalDataRecord r " +
+                            "WHERE r.recordId = :recordId"
+            );
+            query.setParameter("recordId", recordId);
+            return (PersonalDataRecord) query.getSingleResult();
+        }
+        catch (NoResultException e) {
+            return null;
+        }
     }
 
     @Transactional
