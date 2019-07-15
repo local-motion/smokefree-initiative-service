@@ -1,22 +1,17 @@
 package io.localmotion.adminjob.commands.deletepersonaldata;
 
 import com.google.gson.Gson;
-import graphql.schema.DataFetchingEnvironment;
 import io.localmotion.adminjob.controller.AdminJobController;
 import io.localmotion.adminjob.domain.AdminCommand;
 import io.localmotion.adminjob.domain.AdminJobCommandRecord;
 import io.localmotion.adminjob.domain.JobResult;
 import io.localmotion.adminjob.domain.JobResultCode;
-import io.localmotion.interfacing.graphql.SecurityContext;
+import io.localmotion.security.user.SecurityContext;
 import io.localmotion.personaldata.PersonalDataRepository;
-import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
-import io.localmotion.user.aggregate.User;
 import io.localmotion.user.command.RetrieveUserCommand;
 import io.localmotion.user.projection.Profile;
 import io.localmotion.user.projection.ProfileProjection;
-import org.axonframework.commandhandling.GenericCommandMessage;
 import org.axonframework.commandhandling.gateway.CommandGateway;
-import org.axonframework.messaging.MetaData;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

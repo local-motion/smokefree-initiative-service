@@ -3,9 +3,8 @@ package io.localmotion.user.controller;
 import com.coxautodev.graphql.tools.GraphQLMutationResolver;
 import graphql.schema.DataFetchingEnvironment;
 import io.localmotion.application.DomainException;
-import io.localmotion.eventsourcing.axon.MetaDataManager;
 import io.localmotion.initiative.controller.InputAcceptedResponse;
-import io.localmotion.interfacing.graphql.SecurityContext;
+import io.localmotion.security.user.SecurityContext;
 import io.localmotion.interfacing.graphql.error.ErrorCode;
 import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 import io.localmotion.user.aggregate.User;
@@ -21,7 +20,6 @@ import org.axonframework.modelling.command.AggregateNotFoundException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.validation.ValidationException;
 
 @Slf4j
 @Singleton

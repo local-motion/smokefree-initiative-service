@@ -15,7 +15,7 @@ schema {
 # Queries
 #
 type Query {
-    profile: Profile
+    profile: ProfileResponse!
     userData: UserData!
     playgrounds: [Playground]
     playground(id: String!): Playground
@@ -23,6 +23,20 @@ type Query {
     emailExists(emailAddress: String!): Boolean!
     totalVolunteers: Long
     adminCommand: AdminJobCommandRecord
+}
+
+type ProfileResponse {
+    profileStatus: ProfileStatus!
+    profile: Profile
+    newUserName: String
+}
+
+enum ProfileStatus {
+    NONE
+    ACTIVE
+    ACTIVE_USER_NAME_CHANGED
+    DELETED
+    DELETED_USER_NAME_CHANGED
 }
 
 type Profile {

@@ -1,6 +1,6 @@
 package io.localmotion.smokefreeplaygrounds.controller;
 
-import io.localmotion.interfacing.graphql.SecurityContext;
+import io.localmotion.security.user.SecurityContext;
 import io.localmotion.smokefreeplaygrounds.projection.Playground;
 import io.localmotion.smokefreeplaygrounds.projection.PlaygroundProjection;
 import io.micronaut.http.annotation.Body;

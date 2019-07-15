@@ -1,6 +1,6 @@
 package io.localmotion.adminjob.domain;
 
-import io.localmotion.interfacing.graphql.SecurityContext;
+import io.localmotion.security.user.SecurityContext;
 
 /**
  * All specific admin commands must implement this interface so they can be controlled by the admin framework

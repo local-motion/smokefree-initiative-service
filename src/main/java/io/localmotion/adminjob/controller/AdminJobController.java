@@ -3,7 +3,7 @@ package io.localmotion.adminjob.controller;
 import com.google.gson.Gson;
 import io.localmotion.adminjob.commands.AdminJobRegistry;
 import io.localmotion.adminjob.domain.*;
-import io.localmotion.interfacing.graphql.SecurityContext;
+import io.localmotion.security.user.SecurityContext;
 import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 import io.localmotion.storage.file.FileAccessor;
 import io.micronaut.context.annotation.Value;

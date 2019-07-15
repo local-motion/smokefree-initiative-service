@@ -1,17 +1,17 @@
-package io.localmotion.interfacing.graphql;
+package io.localmotion.security.user;
 
 import io.localmotion.adminjob.domain.AdminJobCommandRecord;
+import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 import io.micronaut.core.util.StringUtils;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.authentication.AuthenticationException;
-import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 
 import javax.annotation.Nullable;
 import java.util.concurrent.ConcurrentHashMap;
 
 @SuppressWarnings("WeakerAccess")
-public class SecurityContext extends ConcurrentHashMap<String, Object> {
-    public SecurityContext(Authentication authentication) {
+public class SecurityContextOLD extends ConcurrentHashMap<String, Object> {
+    public SecurityContextOLD(Authentication authentication) {
         if (authentication != null) {
             put("authentication", authentication);
         }

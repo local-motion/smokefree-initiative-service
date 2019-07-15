@@ -26,13 +26,15 @@ public class ProfileProjection {
 
     public static final String PROPERTY_REMOVED = "removed";
 
-    private final Map<String, Profile> profilesById = newConcurrentMap();
-    private final Map<String, Profile> profilesByName = newConcurrentMap();
+//    private final Map<String, Profile> profilesById = newConcurrentMap();
+//    private final Map<String, Profile> profilesByName = newConcurrentMap();
+//
+//    private final Map<String, Profile> deletedProfilesById = newConcurrentMap();
 
-    private final Map<String, Profile> deletedProfilesById = newConcurrentMap();
+    private final ProfileStore activeProfiles = new ProfileStore();
+    private final ProfileStore deletedProfiles = new ProfileStore();
 
-    // 'Injecting' using the application context
-    // private PersonalDataRepository personalDataRepository = Application.getApplicationContext().getBean(PersonalDataRepository.class);
+
     @Inject
     PersonalDataRepository personalDataRepository;
 
@@ -56,17 +58,23 @@ public class ProfileProjection {
 //            profile = new Profile(evt.getUserId(), null, null, null, null);
         }
 
-        profilesById.put(profile.getId(), profile);
-        profilesByName.put(profile.getUsername(), profile);
+//        profilesById.put(profile.getId(), profile);
+//        profilesByName.put(profile.getUsername(), profile);
+        activeProfiles.put(profile);
     }
 
     @EventHandler
     void on(UserRevivedEvent evt) {
         log.info("ON EVENT {}", evt);
-        Profile profile = deletedProfilesById.get(evt.getUserId());
+//        Profile profile = deletedProfilesById.get(evt.getUserId());
+        Profile profile = deletedProfiles.getById(evt.getUserId());
         if (profile.getUsername() != null) {
-            profilesById.put(profile.getId(), profile);
-            profilesByName.put(profile.getUsername(), profile);
+//            profilesById.put(profile.getId(), profile);
+//            profilesByName.put(profile.getUsername(), profile);
+
+            activeProfiles.put(profile);
+            deletedProfiles.remove(profile);
+
         }
         else
             log.warn("Trying to revive user with personal data removed, Ignoring...");
@@ -75,35 +83,43 @@ public class ProfileProjection {
     @EventHandler
     void on(UserDeletedEvent evt) {
         log.info("ON EVENT {}", evt);
-        Profile userProfile = profilesById.get(evt.getUserId());
-        profilesByName.remove(userProfile.getUsername());
-        profilesById.remove(evt.getUserId());
-        deletedProfilesById.put(userProfile.getId(), userProfile);
+//        Profile userProfile = profilesById.get(evt.getUserId());
+//        profilesByName.remove(userProfile.getUsername());
+//        profilesById.remove(evt.getUserId());
+//        deletedProfilesById.put(userProfile.getId(), userProfile);
+
+        Profile profile = activeProfiles.getById(evt.getUserId());
+        activeProfiles.remove(profile);
+        deletedProfiles.put(profile);
     }
 
     @EventHandler
     void on(PersonalDataDeletedEvent evt) {
         log.info("ON EVENT {}", evt);
-        deletedProfilesById.put(evt.getUserId(), new Profile(evt.getUserId(), null, null, null, null));
+//        deletedProfilesById.put(evt.getUserId(), new Profile(evt.getUserId(), null, null, null, null));
+        deletedProfiles.put(new Profile(evt.getUserId(), null, null, null, null));
     }
 
     @EventHandler
     void on(NotificationSettingsUpdatedEvent evt) {
         log.info("ON EVENT {}", evt);
-        Profile userProfile = profilesById.get(evt.getUserId());
+//        Profile userProfile = profilesById.get(evt.getUserId());
+        Profile userProfile = activeProfiles.getById(evt.getUserId());
         if (userProfile == null)
             log.warn("Ignoring event because user profile not present: {}", evt);
         else {
             Profile newUserProfile = userProfile.withNotificationLevel(evt.getNotificationLevel());
-            profilesByName.put(newUserProfile.getUsername(), newUserProfile);
-            profilesById.put(newUserProfile.getId(), newUserProfile);
+//            profilesByName.put(newUserProfile.getUsername(), newUserProfile);
+//            profilesById.put(newUserProfile.getId(), newUserProfile);
+            activeProfiles.put(userProfile);
         }
     }
 
     @EventHandler
     void on(MemberJoinedInitiativeEvent evt) {
         log.info("ON EVENT {}", evt);
-        Profile userProfile = profilesById.get(evt.getMemberId());
+//        Profile userProfile = profilesById.get(evt.getMemberId());
+        Profile userProfile = activeProfiles.getById(evt.getMemberId());
         if (userProfile == null)
             log.warn("Ignoring event because user profile not present: {}", evt);
         else {
@@ -116,22 +132,35 @@ public class ProfileProjection {
      */
 
     public Profile profile(String id) {
-        return profilesById.get(id);
+//        return profilesById.get(id);
+        return activeProfiles.getById(id);
     }
 
     public Profile getProfileByName(String username) {
-        return profilesByName.get(username);
+//        return profilesByName.get(username);
+        return activeProfiles.getByName(username);
+    }
+
+    public Profile getProfileByEmailAddress(String emailAddress) {
+        return activeProfiles.getByEmailAddress(emailAddress);
     }
 
     public Profile getDeletedProfile(String id) {
-        return deletedProfilesById.get(id);
+//        return deletedProfilesById.get(id);
+        return deletedProfiles.getById(id);
+    }
+
+    public Profile getDeletedProfileByEmailAddress(String emailAddress) {
+        return deletedProfiles.getByEmailAddress(emailAddress);
     }
 
     public Collection<Profile> getAllProfiles() {
-        return profilesById.values();
+//        return profilesById.values();
+        return activeProfiles.getAllProfiles();
     }
 
     public boolean emailExists(String emailAddress) {
-        return profilesById.values().stream().anyMatch(profile -> profile.getEmailAddress().equals(emailAddress));
+//        return profilesById.values().stream().anyMatch(profile -> profile.getEmailAddress().equals(emailAddress));
+        return activeProfiles.getByEmailAddress(emailAddress) != null;
     }
 }

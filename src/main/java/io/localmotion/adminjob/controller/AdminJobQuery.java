@@ -3,7 +3,7 @@ package io.localmotion.adminjob.controller;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
 import io.localmotion.adminjob.domain.AdminJobCommandRecord;
-import io.localmotion.interfacing.graphql.SecurityContext;
+import io.localmotion.security.user.SecurityContext;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

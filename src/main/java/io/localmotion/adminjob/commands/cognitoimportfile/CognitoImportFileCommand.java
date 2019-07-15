@@ -1,12 +1,11 @@
 package io.localmotion.adminjob.commands.cognitoimportfile;
 
 import com.google.gson.Gson;
-import io.localmotion.adminjob.commands.AdminJobRegistry;
 import io.localmotion.adminjob.domain.AdminCommand;
 import io.localmotion.adminjob.domain.AdminJobCommandRecord;
 import io.localmotion.adminjob.domain.JobResult;
 import io.localmotion.adminjob.domain.JobResultCode;
-import io.localmotion.interfacing.graphql.SecurityContext;
+import io.localmotion.security.user.SecurityContext;
 import io.localmotion.storage.file.FileAccessor;
 import io.localmotion.user.projection.Profile;
 import io.localmotion.user.projection.ProfileProjection;

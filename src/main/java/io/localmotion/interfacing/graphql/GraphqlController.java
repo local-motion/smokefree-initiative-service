@@ -1,6 +1,8 @@
 package io.localmotion.interfacing.graphql;
 
 import graphql.*;
+import io.localmotion.security.user.SecurityContext;
+import io.localmotion.security.user.SecurityContextFactory;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
@@ -36,6 +38,10 @@ public class GraphqlController {
     @Inject
     private ProfileProjection profileProjection;
 
+    @Inject
+    SecurityContextFactory securityContextFactory;
+
+
     @Post(consumes = MediaType.APPLICATION_JSON)
     public Map<String, Object> graphql(@Nullable Authentication authentication, @Size(max=4096) /* TODO Validation not yet enabled */  @Body GraphqlQuery query) throws Exception {
         log.trace("PlaygroundQuery: {}", query.getQuery());
@@ -48,11 +54,20 @@ public class GraphqlController {
             return getSingleErrorResult("User must be authenticated");
 
 
-        if ( authentication != null && profileProjection.profile(authentication.getName()) == null  && !query.getQuery().trim().startsWith("mutation CreateUser") ) {
-            // Authenticated user does not have a profile yet. This will be a newly enrolled user. Fail and have the front-end do a CreateUser request
-            log.trace("Authenticated user without profile: authentication.getName: " + authentication.getName() + " nr of profiles: " + profileProjection.getAllProfiles().size());
-            return getSingleErrorResult("NO_PROFILE", "No user profile present");
-        }
+        // Establish the security context
+        SecurityContext securityContext = securityContextFactory.createSecurityContext(authentication);
+//        if ( authentication != null && securityContext == null  && !query.getQuery().trim().startsWith("mutation CreateUser") ) {
+//            // Authenticated user does not have a valid context yet. This will be a newly enrolled user. Fail and have the front-end do a CreateUser request
+//            log.trace("Authenticated user without profile: authentication.getName: " + authentication.getName() + " nr of profiles: " + profileProjection.getAllProfiles().size());
+//            return getSingleErrorResult("NO_PROFILE", "No user profile present");
+//        }
+
+
+//        if ( authentication != null && profileProjection.profile(authentication.getName()) == null  && !query.getQuery().trim().startsWith("mutation CreateUser") ) {
+//            // Authenticated user does not have a profile yet. This will be a newly enrolled user. Fail and have the front-end do a CreateUser request
+//            log.trace("Authenticated user without profile: authentication.getName: " + authentication.getName() + " nr of profiles: " + profileProjection.getAllProfiles().size());
+//            return getSingleErrorResult("NO_PROFILE", "No user profile present");
+//        }
 
 
         // create a fingerprint of the request
@@ -65,7 +80,8 @@ public class GraphqlController {
         ExecutionInput.Builder builder = new ExecutionInput.Builder()
                 .query(query.getQuery())
                 .variables(query.getVariables());
-        builder.context(new SecurityContext(authentication));
+//        builder.context(new SecurityContext(authentication));
+        builder.context(securityContext);
         ExecutionResult executionResult = graphQL.execute(builder);
 
 
