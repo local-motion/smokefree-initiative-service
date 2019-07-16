@@ -29,6 +29,12 @@ public class DetailsBuilder {
         return this;
     }
 
+    public DetailsBuilder addIf(boolean condition, String key, Object value) {
+        if (condition)
+            details.put(key, value);
+        return this;
+    }
+
     public DetailsBuilder addObject(String key) {
         return new DetailsBuilder(key, this);
     }

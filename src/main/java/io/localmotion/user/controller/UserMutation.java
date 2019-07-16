@@ -9,6 +9,8 @@ import io.localmotion.interfacing.graphql.error.ErrorCode;
 import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 import io.localmotion.user.aggregate.User;
 import io.localmotion.user.command.*;
+import io.localmotion.user.domain.ProfileStatus;
+import io.localmotion.user.projection.Profile;
 import io.localmotion.user.projection.ProfileProjection;
 import io.micronaut.validation.Validated;
 import lombok.NoArgsConstructor;
@@ -35,39 +37,76 @@ public class UserMutation implements GraphQLMutationResolver {
 
 
     public InputAcceptedResponse createUser(String input, DataFetchingEnvironment env) {
-        String userId = toContext(env).requireUserId();
-        String userName = toContext(env).requireUserName();
-        String emailAddress = toContext(env).emailId();
+        SecurityContext securityContext = toContext(env);
 
-        // First check if the user is not already present. If so revive if deleted or just ignore the request and return.
-        User user = tryRetrieveUser(userId);
-        if (user != null) {
-            if (user.isDeleted()) {
-                ReviveUserCommand cmd = new ReviveUserCommand(userId);
-                gateway.sendAndWait(decorateWithMetaData(cmd, env));
-            }
-            return new InputAcceptedResponse(userId);
+        validateProfileIsReadyToBeCreated(securityContext);
+
+        Profile toBeCreatedProfile = securityContext.getProfile();
+        CreateUserCommand cmd = new CreateUserCommand(toBeCreatedProfile.getId(), toBeCreatedProfile.getUsername(), toBeCreatedProfile.getEmailAddress());
+        try {
+            gateway.sendAndWait(decorateWithMetaDataFutureUser(cmd, env));
         }
-        else {
-            CreateUserCommand cmd = new CreateUserCommand(userId, userName, emailAddress);
-            try {
-                gateway.sendAndWait(decorateWithMetaData(cmd, env));
+        catch (Exception e) {
+            if (e.getMessage().endsWith(" was already inserted")) {
+                // Ignore exception, duplicate createUser request or profile was not up to date resulting in an unnecessary createUser call
+                // Anyhow the user is present, so we can return a success response.
+                // Note that it is possible to due the race condition as the profiles are updated a-synchronously, that the user is present,
+                // but logically deleted, but the profile was not yet loaded before to detect this. In this, rare case, the end user will just
+                // have to refresh.
             }
-            catch (Exception e) {
-                if (e.getMessage().endsWith(" was already inserted")) {
-                    // Ignore exception, duplicate createUser request or profile was not up to date resulting in an unnecessary createUser call
-                    // Anyhow the user is present, so we can return a success response.
-                    // Note that it is possible to due the race condition as the profiles are updated a-synchronously, that the user is present,
-                    // but logically deleted, but the profile was not yet loaded before to detect this. In this, rare case, the end user will just
-                    // have to refresh.
-                }
-                else
-                    throw(e);
-            }
+            else
+                throw(e);
         }
-        return new InputAcceptedResponse(userId);
+
+        return new InputAcceptedResponse(toBeCreatedProfile.getId());
     }
 
+    public InputAcceptedResponse reviveUser(String input, DataFetchingEnvironment env) {
+        SecurityContext securityContext = toContext(env);
+
+        validateProfileIsReadyToBeRevived(securityContext);
+
+        Profile toBeCreatedProfile = securityContext.getProfile();
+        ReviveUserCommand cmd = new ReviveUserCommand(toBeCreatedProfile.getId(), securityContext.getNewUserName());
+        gateway.sendAndWait(decorateWithMetaDataFutureUser(cmd, env));
+
+        return new InputAcceptedResponse(toBeCreatedProfile.getId());
+    }
+
+//    public InputAcceptedResponse createUser(String input, DataFetchingEnvironment env) {
+//        String userId = toContext(env).requireUserId();
+//        String userName = toContext(env).requireUserName();
+//        String emailAddress = toContext(env).emailId();
+//
+//        // First check if the user is not already present. If so, revive if deleted or just ignore the request and return.
+//        User user = tryRetrieveUser(userId);
+//        if (user != null) {
+//            if (user.isDeleted()) {
+//                ReviveUserCommand cmd = new ReviveUserCommand(userId);
+//                gateway.sendAndWait(decorateWithMetaData(cmd, env));
+//            }
+//            return new InputAcceptedResponse(userId);
+//        }
+//        else {
+//            CreateUserCommand cmd = new CreateUserCommand(userId, userName, emailAddress);
+//            try {
+//                gateway.sendAndWait(decorateWithMetaData(cmd, env));
+//            }
+//            catch (Exception e) {
+//                if (e.getMessage().endsWith(" was already inserted")) {
+//                    // Ignore exception, duplicate createUser request or profile was not up to date resulting in an unnecessary createUser call
+//                    // Anyhow the user is present, so we can return a success response.
+//                    // Note that it is possible to due the race condition as the profiles are updated a-synchronously, that the user is present,
+//                    // but logically deleted, but the profile was not yet loaded before to detect this. In this, rare case, the end user will just
+//                    // have to refresh.
+//                }
+//                else
+//                    throw(e);
+//            }
+//        }
+//        return new InputAcceptedResponse(userId);
+//    }
+//
     public InputAcceptedResponse deleteUser(String input, DataFetchingEnvironment env) {
         String userId = toContext(env).requireUserId();
         DeleteUserCommand cmd = new DeleteUserCommand(userId);
@@ -88,9 +127,23 @@ public class UserMutation implements GraphQLMutationResolver {
 
     private void validateActorIsAuthorisedForUser(String userId, DataFetchingEnvironment env) {
         String actor = toContext(env).requireUserId();
-        if(!actor.equals(userId)) {
+        if (!actor.equals(userId)) {
             throw new DomainException(ErrorCode.UNAUTHORIZED.toString(),
                     "User is not authorised to perform this operation");
+        }
+    }
+
+    private void validateProfileIsReadyToBeCreated(SecurityContext securityContext) {
+        if (securityContext.getProfileStatus() != ProfileStatus.NEW) {
+            throw new DomainException("INVALID_PROFILE_STATUS",
+                    "A new user cannot be created");
+        }
+    }
+
+    private void validateProfileIsReadyToBeRevived(SecurityContext securityContext) {
+        if ( !(securityContext.getProfileStatus() == ProfileStatus.DELETED || securityContext.getProfileStatus() == ProfileStatus.DELETED_USER_NAME_CHANGED) ) {
+            throw new DomainException("INVALID_PROFILE_STATUS",
+                    "A user cannot be revived");
         }
     }
 
@@ -125,6 +178,12 @@ public class UserMutation implements GraphQLMutationResolver {
     private GenericCommandMessage<?> decorateWithMetaData(Object cmd, DataFetchingEnvironment env) {
         MetaData metaData = MetaData
                 .with(SmokefreeConstants.JWTClaimSet.USER_ID, toContext(env).requireUserId());
+        return new GenericCommandMessage<>(cmd, metaData);
+    }
+
+    private GenericCommandMessage<?> decorateWithMetaDataFutureUser(Object cmd, DataFetchingEnvironment env) {
+        MetaData metaData = MetaData
+                .with(SmokefreeConstants.JWTClaimSet.USER_ID, toContext(env).getProfile().getId());
         return new GenericCommandMessage<>(cmd, metaData);
     }
 

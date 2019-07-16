@@ -8,4 +8,5 @@ import lombok.*;
 @ToString
 public class UserRevivedEvent {
     String userId;
+    String userName;                // If not null the userName has changed.
 }

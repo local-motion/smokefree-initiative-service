@@ -16,7 +16,7 @@ schema {
 #
 type Query {
     profile: ProfileResponse!
-    userData: UserData!
+    userData: UserData
     playgrounds: [Playground]
     playground(id: String!): Playground
     auditTrail(initiativeId: String, actorId: String, fromTime: LocalDateTime, toTime: LocalDateTime, maxRecords: Int): AuditTrail!
@@ -156,6 +156,7 @@ type Mutation {
 
 # User
     createUser(doesNotMatter: String!): InputAcceptedResponse!
+    reviveUser(doesNotMatter: String!): InputAcceptedResponse!
     deleteUser(doesNotMatter: String!): InputAcceptedResponse!
     setNotificationPreferences(input: SetNotificationPreferencesCommand!): InputAcceptedResponse!
 
@@ -183,6 +184,7 @@ type PlaygroundMutation {
 
 type UserMutation {
     createUser(doesNotMatter: String!): Profile!
+    reviveUser(doesNotMatter: String!): InputAcceptedResponse!
     deleteUser(doesNotMatter: String!): InputAcceptedResponse!
     setNotificationPreferences(input: SetNotificationPreferencesCommand!): InputAcceptedResponse!
 }

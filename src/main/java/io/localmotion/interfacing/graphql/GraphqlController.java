@@ -17,10 +17,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static io.micronaut.security.rules.SecurityRule.IS_ANONYMOUS;
 import static java.util.stream.Collectors.toList;
@@ -41,6 +38,7 @@ public class GraphqlController {
     @Inject
     SecurityContextFactory securityContextFactory;
 
+    private static final List<String> AUTHENTICATION_EXCEPTIONS = List.of("mutation CreateUser", "mutation ReviveUser");
 
     @Post(consumes = MediaType.APPLICATION_JSON)
     public Map<String, Object> graphql(@Nullable Authentication authentication, @Size(max=4096) /* TODO Validation not yet enabled */  @Body GraphqlQuery query) throws Exception {
@@ -50,12 +48,21 @@ public class GraphqlController {
 
 
         // All mutations require an authenticated user
-        if (authentication == null && query.getQuery().trim().startsWith("mutation"))
+        final String queryString = query.getQuery().trim();
+        if (authentication == null && queryString.startsWith("mutation"))
             return getSingleErrorResult("User must be authenticated");
 
 
         // Establish the security context
         SecurityContext securityContext = securityContextFactory.createSecurityContext(authentication);
+
+        if (
+                !securityContext.isAuthenticated() &&
+                queryString.startsWith("mutation") &&
+                !AUTHENTICATION_EXCEPTIONS.stream().anyMatch(prefix -> queryString.startsWith(prefix))
+            )
+            return getSingleErrorResult("User must be authenticated");
+
 //        if ( authentication != null && securityContext == null  && !query.getQuery().trim().startsWith("mutation CreateUser") ) {
 //            // Authenticated user does not have a valid context yet. This will be a newly enrolled user. Fail and have the front-end do a CreateUser request
 //            log.trace("Authenticated user without profile: authentication.getName: " + authentication.getName() + " nr of profiles: " + profileProjection.getAllProfiles().size());

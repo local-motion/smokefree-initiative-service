@@ -5,6 +5,8 @@ import io.localmotion.user.projection.Profile;
 import io.localmotion.user.projection.ProfileProjection;
 import io.micronaut.security.authentication.Authentication;
 
+import java.util.HashSet;
+
 public class CognitoAuthenticationProvider implements AuthenticationProvider {
     @Override
     public String getProviderName() {
@@ -41,4 +43,13 @@ public class CognitoAuthenticationProvider implements AuthenticationProvider {
     public Profile getDeleteProfile(Authentication authentication, ProfileProjection profileProjection) {
         return authentication != null ? profileProjection.getDeletedProfileByEmailAddress(getUserEmailAddress(authentication)) : null;
     }
+
+    @Override
+    public Profile createProfile(Authentication authentication) {
+        return authentication != null ?
+                new Profile(getUserId(authentication), getUserName(authentication), getUserEmailAddress(authentication), Profile.DEFAULT_NOTIFICATION_LEVEL, new HashSet<>())
+                :
+                null;
+    }
+
 }

@@ -13,4 +13,5 @@ import javax.validation.constraints.NotBlank;
 public class ReviveUserCommand {
     @TargetAggregateIdentifier
     String userId;
+    String userName;
 }

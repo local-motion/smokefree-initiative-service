@@ -73,7 +73,9 @@ public class SecurityContextFactory {
             }
         }
 
-        return new SecurityContext(authentication);
+        // Create a new profile (to be used for create a user)
+        profile = authenticationProvider.get().createProfile(authentication);
+        return new SecurityContext(authentication, ProfileStatus.NEW, profile, null);
     }
 
 //    public SecurityContext createSecurityContext(Authentication authentication) {

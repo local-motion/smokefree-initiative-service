@@ -17,4 +17,6 @@ public interface AuthenticationProvider {
     public Profile getProfile(Authentication authentication, ProfileProjection profileProjection);
     public Profile getDeleteProfile(Authentication authentication, ProfileProjection profileProjection);
 
+    public Profile createProfile(Authentication authentication);
+
 }

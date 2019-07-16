@@ -72,9 +72,8 @@ public class ProfileProjection {
 //            profilesById.put(profile.getId(), profile);
 //            profilesByName.put(profile.getUsername(), profile);
 
-            activeProfiles.put(profile);
             deletedProfiles.remove(profile);
-
+            activeProfiles.put(evt.getUserName() == null ? profile : profile.withUsername(evt.getUserName()));
         }
         else
             log.warn("Trying to revive user with personal data removed, Ignoring...");

@@ -29,9 +29,13 @@ public class UserDataQuery implements GraphQLQueryResolver {
 
 
     public UserData userData(DataFetchingEnvironment env) {
-        String userId = toContext(env).requireUserId();
-        String UserDataString = userDataRepository.retrieve(userId);
-        return new Gson().fromJson(UserDataString, UserData.class);
+        SecurityContext securityContext = toContext(env);
+        if (securityContext.isAuthenticated()) {
+            String UserDataString = userDataRepository.retrieve(securityContext.requireUserId());
+            return new Gson().fromJson(UserDataString, UserData.class);
+        }
+        else
+            return null;
     }
 
 
