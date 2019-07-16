@@ -122,8 +122,21 @@ public class User {
         return deletedCount;
     }
 
+    /**
+     * Rename an active user
+     */
+    @CommandHandler
+    public void renameUser(RenameUserCommand cmd, MetaData metaData) {
+        validateUserIsActive();
+        // Verify that no other active users exist with the same username or email address (Should not occurs through normal usage of the LocalMotion frontend)
+        validateUsernameIsUnique(cmd.getNewUserName());
+
+        apply(new UserRenamedEvent(cmd.getUserId(), cmd.getNewUserName()), metaData);
+    }
+
     @CommandHandler
     public void setNotificationPreferences(SetNotificationPreferencesCommand cmd, MetaData metaData) {
+        validateUserIsActive();
         apply(new NotificationSettingsUpdatedEvent(cmd.getUserId(), cmd.getNotificationLevel()), metaData);
     }
 
@@ -137,6 +150,13 @@ public class User {
         if (username == null) {
             throw new DomainException("PERSONAL_DATA_REMOVED",
                     "The user's personal data has been removed");
+        }
+    }
+
+    private void validateUserIsActive() {
+        if (isDeleted()) {
+            throw new DomainException("USER_DELETED",
+                    "Action cannot be performed on a deleted user");
         }
     }
 
@@ -186,13 +206,19 @@ public class User {
     void on(UserRevivedEvent evt) {
         log.info("ON EVENT {}", evt);
         deletionTimestamp = null;
-        name = evt.getUserName() != null ? evt.getUserName() : name;
+        name = evt.getNewUserName() != null ? evt.getNewUserName() : name;
     }
 
     @EventSourcingHandler
     void on(UserDeletedEvent evt, EventMessage<?> eventMessage) {
         log.info("ON EVENT {}", evt);
         deletionTimestamp = eventMessage.getTimestamp();
+    }
+
+    @EventSourcingHandler
+    void on(UserRenamedEvent evt) {
+        log.info("ON EVENT {}", evt);
+        name = evt.getNewUserName();
     }
 
 }

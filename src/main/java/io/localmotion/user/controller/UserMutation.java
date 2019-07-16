@@ -114,6 +114,18 @@ public class UserMutation implements GraphQLMutationResolver {
         return new InputAcceptedResponse(userId);
     }
 
+    public InputAcceptedResponse changeUserName(String newName, DataFetchingEnvironment env) {
+        SecurityContext securityContext = toContext(env);
+
+        validateProfileIsReadyToBeRenamedTo(securityContext, newName);
+
+        Profile profile = securityContext.getProfile();
+        RenameUserCommand cmd = new RenameUserCommand(profile.getId(), newName);
+        gateway.sendAndWait(decorateWithMetaDataFutureUser(cmd, env));
+
+        return new InputAcceptedResponse(profile.getId());
+    }
+
     public InputAcceptedResponse setNotificationPreferences(SetNotificationPreferencesCommand cmd, DataFetchingEnvironment env) {
         validateActorIsAuthorisedForUser(cmd.getUserId(), env);
         gateway.sendAndWait(decorateWithMetaData(cmd, env));
@@ -144,6 +156,13 @@ public class UserMutation implements GraphQLMutationResolver {
         if ( !(securityContext.getProfileStatus() == ProfileStatus.DELETED || securityContext.getProfileStatus() == ProfileStatus.DELETED_USER_NAME_CHANGED) ) {
             throw new DomainException("INVALID_PROFILE_STATUS",
                     "A user cannot be revived");
+        }
+    }
+
+    private void validateProfileIsReadyToBeRenamedTo(SecurityContext securityContext, String newName) {
+        if ( !(securityContext.getProfileStatus() == ProfileStatus.ACTIVE_USER_NAME_CHANGED && securityContext.getNewUserName().equals(newName)) ) {
+            throw new DomainException("CANNOT_RENAME_USER",
+                    "The user's name cannot be changed");
         }
     }
 

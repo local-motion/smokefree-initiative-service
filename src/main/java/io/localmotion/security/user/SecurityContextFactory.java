@@ -95,7 +95,7 @@ public class SecurityContextFactory {
 //        Profile profile = authenticationProvider.get().getProfile(authentication, profileProjection);
 //        if (profile != null) {
 //            // Active profile found, test whether any of the attributes has changed
-//            if (!profile.getUsername().equals(authenticationProvider.get().getUserName(authentication))) {
+//            if (!profile.getUsername().equals(authenticationProvider.get().getNewUserName(authentication))) {
 //                log.info("User name changed, Submitting command");
 //            }
 //            return new SecurityContext(authentication, profile.getId(), profile.getUsername(), profile.getEmailAddress());
@@ -105,7 +105,7 @@ public class SecurityContextFactory {
 //        profile = authenticationProvider.get().getDeleteProfile(authentication, profileProjection);
 //        if (profile != null) {
 //            // Deleted profile found, test whether any of the attributes has changed
-//            if (!profile.getUsername().equals(authenticationProvider.get().getUserName(authentication))) {
+//            if (!profile.getUsername().equals(authenticationProvider.get().getNewUserName(authentication))) {
 //                log.info("User name changed, Submitting command");
 //            }
 //            return new SecurityContext(authentication, profile.getId(), profile.getUsername(), profile.getEmailAddress());

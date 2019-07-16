@@ -33,6 +33,7 @@ type ProfileResponse {
 
 enum ProfileStatus {
     NONE
+    NEW
     ACTIVE
     ACTIVE_USER_NAME_CHANGED
     DELETED
@@ -158,6 +159,7 @@ type Mutation {
     createUser(doesNotMatter: String!): InputAcceptedResponse!
     reviveUser(doesNotMatter: String!): InputAcceptedResponse!
     deleteUser(doesNotMatter: String!): InputAcceptedResponse!
+    changeUserName(newName: String!): InputAcceptedResponse!
     setNotificationPreferences(input: SetNotificationPreferencesCommand!): InputAcceptedResponse!
 
 # User data

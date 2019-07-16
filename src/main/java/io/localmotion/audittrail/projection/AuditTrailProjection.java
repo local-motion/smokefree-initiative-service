@@ -87,7 +87,7 @@ public class AuditTrailProjection {
         String actor = getUserId(eventMessage);
         String details = DetailsBuilder.instance()
                 .add("userId", event.getUserId())
-                .addIf(event.getUserName() != null, "userName", event.getUserName())
+                .addIf(event.getNewUserName() != null, "userName", event.getNewUserName())
                 .build();
         AuditTrailRecord record = createAuditTrailRecord(actor, eventMessage.getTimestamp(), EventType.USER_REVIVED, details);
         storeRecord(record, actor);

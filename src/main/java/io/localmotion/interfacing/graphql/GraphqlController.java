@@ -38,7 +38,7 @@ public class GraphqlController {
     @Inject
     SecurityContextFactory securityContextFactory;
 
-    private static final List<String> AUTHENTICATION_EXCEPTIONS = List.of("mutation CreateUser", "mutation ReviveUser");
+    private static final List<String> AUTHENTICATION_EXCEPTIONS = List.of("mutation CreateUser", "mutation ReviveUser", "mutation ChangeUserName");
 
     @Post(consumes = MediaType.APPLICATION_JSON)
     public Map<String, Object> graphql(@Nullable Authentication authentication, @Size(max=4096) /* TODO Validation not yet enabled */  @Body GraphqlQuery query) throws Exception {

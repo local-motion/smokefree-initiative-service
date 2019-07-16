@@ -46,7 +46,7 @@ public class DeletePersonalDataCommand implements AdminCommand {
         else
             return new JobResult(JobResultCode.FAIL, "User is still active. Offboard the user first.", "");
 
-        int deletedCount = gateway.sendAndWait(AdminJobController.decorateWithMetaData(new RetrieveUserCommand(securityContext.requireUserId()), securityContext));
+        int deletedCount = gateway.sendAndWait(AdminJobController.decorateWithMetaData(new io.localmotion.user.command.DeletePersonalDataCommand(securityContext.requireUserId()), securityContext));
 
         DeletePersonalDataResult result = new DeletePersonalDataResult(deletedCount);
 

@@ -7,7 +7,6 @@ import io.localmotion.user.event.*;
 import io.micronaut.context.annotation.Context;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventhandling.EventHandler;
-import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.messaging.MetaData;
 import io.localmotion.personaldata.PersonalDataRecord;
 import io.localmotion.personaldata.PersonalDataRepository;
@@ -16,9 +15,6 @@ import io.localmotion.user.domain.UserPII;
 import javax.inject.Inject;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map;
-
-import static com.google.common.collect.Maps.newConcurrentMap;
 
 @Slf4j
 @Context
@@ -73,7 +69,7 @@ public class ProfileProjection {
 //            profilesByName.put(profile.getUsername(), profile);
 
             deletedProfiles.remove(profile);
-            activeProfiles.put(evt.getUserName() == null ? profile : profile.withUsername(evt.getUserName()));
+            activeProfiles.put(evt.getNewUserName() == null ? profile : profile.withUsername(evt.getNewUserName()));
         }
         else
             log.warn("Trying to revive user with personal data removed, Ignoring...");
@@ -97,6 +93,17 @@ public class ProfileProjection {
         log.info("ON EVENT {}", evt);
 //        deletedProfilesById.put(evt.getUserId(), new Profile(evt.getUserId(), null, null, null, null));
         deletedProfiles.put(new Profile(evt.getUserId(), null, null, null, null));
+    }
+
+    @EventHandler
+    void on(UserRenamedEvent evt) {
+        log.info("ON EVENT {}", evt);
+        Profile profile = activeProfiles.getById(evt.getUserId());
+        if (profile.getUsername() != null) {
+            activeProfiles.put(profile.withUsername(evt.getNewUserName()));
+        }
+        else
+            log.warn("Trying to rename user with personal data removed, Ignoring...");
     }
 
     @EventHandler
