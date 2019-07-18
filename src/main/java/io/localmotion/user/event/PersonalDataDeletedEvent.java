@@ -6,7 +6,6 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
 @ToString
-public class UserRevivedEvent {
+public class PersonalDataDeletedEvent {
     String userId;
-    String newUserName;                // If null the userName remains unchanged.
 }

@@ -4,10 +4,7 @@ import com.google.gson.Gson;
 import io.localmotion.application.DomainException;
 import io.localmotion.user.command.*;
 import io.localmotion.user.domain.UserPII;
-import io.localmotion.user.event.NotificationSettingsUpdatedEvent;
-import io.localmotion.user.event.UserCreatedEvent;
-import io.localmotion.user.event.UserDeletedEvent;
-import io.localmotion.user.event.UserRevivedEvent;
+import io.localmotion.user.event.*;
 import io.localmotion.user.projection.ProfileProjection;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -68,8 +65,7 @@ public class User {
         validateEmailAddressIsUnique(cmd.getEmailAddress());
 
         UserPII userPII = new UserPII(cmd.getName(), cmd.getEmailAddress());
-        Gson gson = new Gson();
-        String piiString = gson.toJson(userPII);
+        String piiString = new Gson().toJson(userPII);
 
         PersonalDataRecord personalDataRecord = new PersonalDataRecord(cmd.getUserId(), piiString);
         personalDataRepository.storeRecord(personalDataRecord);
@@ -98,14 +94,15 @@ public class User {
             return;
 
         // Verify that no other active users exist with the same username or email address (Should not occurs through normal usage of the LocalMotion frontend)
-        validateUsernameIsUnique(name);
+        validatePersonalDataNotRemoved(name);
+        validateUsernameIsUnique(cmd.getUserName() != null ? cmd.getUserName() : name);
         validateEmailAddressIsUnique(emailAddress);
 
         // Allow for a cooldown period where the user cannot be revived after having been deleted. This to avoid race situations where
         // the user is revived again after just having been deleted, while the user credentials (Cognito) have already been destroyed.
         validateRevivalCooldownPeriod();
 
-        apply(new UserRevivedEvent(cmd.getUserId()), metaData);
+        apply(new UserRevivedEvent(cmd.getUserId(), cmd.getUserName() == null || name.equals(cmd.getUserName()) ? null : cmd.getUserName()), metaData);
     }
 
     @CommandHandler
@@ -115,7 +112,31 @@ public class User {
     }
 
     @CommandHandler
+    public int deletePersonalData(DeletePersonalDataCommand cmd, MetaData metaData) {
+        if (!isDeleted())
+            throw new DomainException("USER_NOT_DELETED", "Cannot delete personal data as the user is still active");
+
+        apply(new PersonalDataDeletedEvent(cmd.getUserId()), metaData);
+        int deletedCount = personalDataRepository.deleteRecordsOfPerson(cmd.getUserId());
+
+        return deletedCount;
+    }
+
+    /**
+     * Rename an active user
+     */
+    @CommandHandler
+    public void renameUser(RenameUserCommand cmd, MetaData metaData) {
+        validateUserIsActive();
+        // Verify that no other active users exist with the same username or email address (Should not occurs through normal usage of the LocalMotion frontend)
+        validateUsernameIsUnique(cmd.getNewUserName());
+
+        apply(new UserRenamedEvent(cmd.getUserId(), cmd.getNewUserName()), metaData);
+    }
+
+    @CommandHandler
     public void setNotificationPreferences(SetNotificationPreferencesCommand cmd, MetaData metaData) {
+        validateUserIsActive();
         apply(new NotificationSettingsUpdatedEvent(cmd.getUserId(), cmd.getNotificationLevel()), metaData);
     }
 
@@ -125,10 +146,23 @@ public class User {
      */
 
 
+    private void validatePersonalDataNotRemoved(String username) {
+        if (username == null) {
+            throw new DomainException("PERSONAL_DATA_REMOVED",
+                    "The user's personal data has been removed");
+        }
+    }
+
+    private void validateUserIsActive() {
+        if (isDeleted()) {
+            throw new DomainException("USER_DELETED",
+                    "Action cannot be performed on a deleted user");
+        }
+    }
+
     private void validateUsernameIsUnique(String username) {
         if (profileProjection.getProfileByName(username) != null) {
             throw new DomainException("DUPLICATE_USERNAME",
-                    "A user with the name " + username + " already exists",
                     "A user with the name " + username + " already exists");
         }
     }
@@ -136,7 +170,6 @@ public class User {
     private void validateEmailAddressIsUnique(String emailAddress) {
         if (profileProjection.emailExists(emailAddress)) {
             throw new DomainException("DUPLICATE_EMAIL_ADDRESS",
-                    "A user with the email address " + emailAddress + " already exists",
                     "A user with the email address " + emailAddress + " already exists");
         }
     }
@@ -152,15 +185,14 @@ public class User {
                Events
      */
 
-    @EventHandler
+    @EventSourcingHandler
     public void on(UserCreatedEvent evt, MetaData metaData) {
         log.info("ON EVENT {}", evt);
 
         this.id = evt.getUserId();
-        if (evt.getPiiRecordId() != 0) {
-            PersonalDataRecord personalDataRecord = personalDataRepository.getRecord(evt.getPiiRecordId());
-            Gson gson = new Gson();
-            UserPII userPII = gson.fromJson(personalDataRecord.getData(), UserPII.class);
+        PersonalDataRecord personalDataRecord = personalDataRepository.getRecord(evt.getPiiRecordId());
+        if (personalDataRecord != null) {
+            UserPII userPII = new Gson().fromJson(personalDataRecord.getData(), UserPII.class);
             this.name = userPII.getName();
             this.emailAddress = userPII.getEmailAddress();
         }
@@ -174,12 +206,19 @@ public class User {
     void on(UserRevivedEvent evt) {
         log.info("ON EVENT {}", evt);
         deletionTimestamp = null;
+        name = evt.getNewUserName() != null ? evt.getNewUserName() : name;
     }
 
     @EventSourcingHandler
     void on(UserDeletedEvent evt, EventMessage<?> eventMessage) {
         log.info("ON EVENT {}", evt);
         deletionTimestamp = eventMessage.getTimestamp();
+    }
+
+    @EventSourcingHandler
+    void on(UserRenamedEvent evt) {
+        log.info("ON EVENT {}", evt);
+        name = evt.getNewUserName();
     }
 
 }

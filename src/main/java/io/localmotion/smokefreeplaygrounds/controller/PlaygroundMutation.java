@@ -6,7 +6,7 @@ import io.localmotion.application.DomainException;
 import io.localmotion.initiative.command.JoinInitiativeCommand;
 import io.localmotion.initiative.controller.CreateInitiativeInput;
 import io.localmotion.initiative.controller.InputAcceptedResponse;
-import io.localmotion.interfacing.graphql.SecurityContext;
+import io.localmotion.security.user.SecurityContext;
 import io.localmotion.interfacing.graphql.error.ErrorCode;
 import io.localmotion.smokefreeplaygrounds.command.*;
 import io.localmotion.smokefreeplaygrounds.domain.CreationStatus;

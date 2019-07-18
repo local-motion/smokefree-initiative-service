@@ -2,7 +2,8 @@ package io.localmotion.user.controller;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
-import io.localmotion.interfacing.graphql.SecurityContext;
+import io.localmotion.security.user.SecurityContext;
+import io.localmotion.user.domain.ProfileStatus;
 import io.localmotion.user.projection.Profile;
 import io.localmotion.user.projection.ProfileProjection;
 import lombok.NoArgsConstructor;
@@ -21,12 +22,9 @@ public class UserQuery implements GraphQLQueryResolver {
     private ProfileProjection profiles;
 
 
-    public Profile profile(DataFetchingEnvironment env) {
-        String userId = toContext(env).userId();
-        if (userId == null) {
-            return null;
-        }
-        return profiles.profile(userId);
+    public ProfileResponse profile(DataFetchingEnvironment env) {
+        SecurityContext securityContext = toContext(env);
+        return new ProfileResponse(securityContext.getProfileStatus(), securityContext.getProfile(), securityContext.getNewUserName());
     }
 
     public boolean emailExists(String emailAddress) {

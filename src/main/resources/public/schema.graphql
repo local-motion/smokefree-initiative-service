@@ -15,13 +15,29 @@ schema {
 # Queries
 #
 type Query {
-    profile: Profile
-    userData: UserData!
+    profile: ProfileResponse!
+    userData: UserData
     playgrounds: [Playground]
     playground(id: String!): Playground
     auditTrail(initiativeId: String, actorId: String, fromTime: LocalDateTime, toTime: LocalDateTime, maxRecords: Int): AuditTrail!
     emailExists(emailAddress: String!): Boolean!
     totalVolunteers: Long
+    adminCommand: AdminJobCommandRecord
+}
+
+type ProfileResponse {
+    profileStatus: ProfileStatus!
+    profile: Profile
+    newUserName: String
+}
+
+enum ProfileStatus {
+    NONE
+    NEW
+    ACTIVE
+    ACTIVE_USER_NAME_CHANGED
+    DELETED
+    DELETED_USER_NAME_CHANGED
 }
 
 type Profile {
@@ -107,6 +123,20 @@ type UserData {
     lastAuditTrailView: LocalDateTime
 }
 
+type AdminJobCommandRecord {
+    commandIdentifier: String!
+    comment: String!
+    operatorEmail: String!
+    inputParameters: String!
+    validationCode: Int!
+}
+
+type JobResult {
+    resultCode: String!
+    message: String!
+    result: String                  # Json object
+}
+
 
 #
 # Mutations
@@ -127,11 +157,17 @@ type Mutation {
 
 # User
     createUser(doesNotMatter: String!): InputAcceptedResponse!
+    reviveUser(doesNotMatter: String!): InputAcceptedResponse!
     deleteUser(doesNotMatter: String!): InputAcceptedResponse!
+    changeUserName(newName: String!): InputAcceptedResponse!
     setNotificationPreferences(input: SetNotificationPreferencesCommand!): InputAcceptedResponse!
 
 # User data
     storeUserData(input: UserDataInput!):  InputAcceptedResponse!
+
+# Admin job
+    runAdminJob(input: RunAdminJobInput!): JobResult!
+    deleteAdminCommand(doesNotMatter: String!): InputAcceptedResponse!
 }
 
 
@@ -150,7 +186,14 @@ type PlaygroundMutation {
 
 type UserMutation {
     createUser(doesNotMatter: String!): Profile!
+    reviveUser(doesNotMatter: String!): InputAcceptedResponse!
     deleteUser(doesNotMatter: String!): InputAcceptedResponse!
+    setNotificationPreferences(input: SetNotificationPreferencesCommand!): InputAcceptedResponse!
+}
+
+type AdminJobMutation {
+    runAdminJob(input: RunAdminJobInput!): JobResult!
+    deleteAdminCommand(doesNotMatter: String!): InputAcceptedResponse!
 }
 
 type InputAcceptedResponse {
@@ -170,6 +213,11 @@ input CreateInitiativeInput {
 
 input JoinInitiativeInput {
     initiativeId: String!
+}
+
+input RunAdminJobInput {
+    validationCode: Int!
+    retainCommandFile: Boolean
 }
 
 input DecideToBecomeSmokeFreeCommand {

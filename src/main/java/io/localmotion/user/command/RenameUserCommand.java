@@ -5,13 +5,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
-import javax.validation.constraints.NotBlank;
-
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReviveUserCommand {
+public class RenameUserCommand {
     @TargetAggregateIdentifier
     String userId;
-    String userName;
+    String newUserName;
 }
