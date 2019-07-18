@@ -2,7 +2,7 @@ package io.localmotion.smokefreeplaygrounds.controller;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
-import io.localmotion.interfacing.graphql.SecurityContext;
+import io.localmotion.security.user.SecurityContext;
 import io.localmotion.smokefreeplaygrounds.projection.Playground;
 import io.localmotion.smokefreeplaygrounds.projection.PlaygroundProjection;
 import lombok.NoArgsConstructor;

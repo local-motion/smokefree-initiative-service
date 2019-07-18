@@ -4,7 +4,7 @@ import com.coxautodev.graphql.tools.GraphQLMutationResolver;
 import graphql.schema.DataFetchingEnvironment;
 import io.localmotion.initiative.command.JoinInitiativeCommand;
 import io.localmotion.initiative.command.UpdateChecklistCommand;
-import io.localmotion.interfacing.graphql.SecurityContext;
+import io.localmotion.security.user.SecurityContext;
 import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 import io.micronaut.validation.Validated;
 import lombok.NoArgsConstructor;

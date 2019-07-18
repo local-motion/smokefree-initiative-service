@@ -111,6 +111,9 @@ aws:
     enableSsl: false
     jdbcdriverclass: com.mysql.jdbc.Driver
 
+  s3:
+    region: eu-west-1
+
 google:
   maps:
     key: use_your_personal_key_for_localhost
@@ -119,3 +122,13 @@ google:
 localmotion:
   # These settings are valid for running the application locally, override with env variables on server environments
   logicalenvironment: Local
+  adminjob:
+#    location: location for the files below, aws S3 bucket (for example 'adminjob') or absolute folder path for local test
+    commandfilename: 'command'
+    executionmarkername: 'inexecution'
+    resultfilename: 'result'
+
+    historyfolder: 'history'    # folder for the job history files, will be located in the location specified above
+
+    cognitoimportfile:
+      filename: 'cognitoimport'

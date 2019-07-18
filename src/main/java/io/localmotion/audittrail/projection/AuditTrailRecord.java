@@ -16,7 +16,6 @@ import java.util.Set;
 @Getter
 public class AuditTrailRecord {
     String actorId;
-    String actorName = null;
     Instant instant;
     EventType eventType;
     String details;
@@ -40,16 +39,7 @@ public class AuditTrailRecord {
     }
 
     public String getActorName() {
-        if (actorName == null) {
-            Profile profile = profileProjection.profile(actorId);
-            if (profile != null) {
-                actorName = profile.getUsername();
-                return actorName;
-            }
-            else
-                return "onbekend";
-        }
-        else
-            return actorName;
+        Profile profile = profileProjection.profile(actorId);
+        return profile != null && profile.getUsername() != null ? profile.getUsername() : "onbekend";
     }
 }

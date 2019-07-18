@@ -3,10 +3,7 @@ package io.localmotion.userdata;
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import com.google.gson.Gson;
 import graphql.schema.DataFetchingEnvironment;
-import io.localmotion.initiative.controller.InputAcceptedResponse;
-import io.localmotion.interfacing.graphql.SecurityContext;
-import io.localmotion.user.projection.Profile;
-import io.localmotion.user.projection.ProfileProjection;
+import io.localmotion.security.user.SecurityContext;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,9 +29,13 @@ public class UserDataQuery implements GraphQLQueryResolver {
 
 
     public UserData userData(DataFetchingEnvironment env) {
-        String userId = toContext(env).requireUserId();
-        String UserDataString = userDataRepository.retrieve(userId);
-        return new Gson().fromJson(UserDataString, UserData.class);
+        SecurityContext securityContext = toContext(env);
+        if (securityContext.isAuthenticated()) {
+            String UserDataString = userDataRepository.retrieve(securityContext.requireUserId());
+            return new Gson().fromJson(UserDataString, UserData.class);
+        }
+        else
+            return null;
     }
 
 

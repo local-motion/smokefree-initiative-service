@@ -9,7 +9,9 @@ public enum EventType {
     // User events
     USER_CREATED,
     USER_DELETED,
+    PERSONAL_DATA_DELETED,
     USER_REVIVED,
+    USER_RENAMED,
     NOTIFICATION_SETTINGS_UPDATED,
 
     // Playground events
