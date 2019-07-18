@@ -39,8 +39,6 @@ public class UserMutation implements GraphQLMutationResolver {
     public InputAcceptedResponse createUser(String input, DataFetchingEnvironment env) {
         SecurityContext securityContext = toContext(env);
 
-        validateProfileIsReadyToBeCreated(securityContext);
-
         Profile toBeCreatedProfile = securityContext.getProfile();
         CreateUserCommand cmd = new CreateUserCommand(toBeCreatedProfile.getId(), toBeCreatedProfile.getUsername(), toBeCreatedProfile.getEmailAddress());
 
@@ -52,6 +50,9 @@ public class UserMutation implements GraphQLMutationResolver {
         // the User aggregate from create PII records prior to the event failing.
         if (tryRetrieveUser(cmd.getUserId()) != null)
             throw new DomainException("USER_PROFILE_ALREADY_BEING_CREATED", "User is already registered and profile will be created");
+
+        // This check should be done after the tryCreateUser to prevent it from triggering if the user is already active
+        validateProfileIsReadyToBeCreated(securityContext);
 
         try {
             gateway.sendAndWait(decorateWithMetaDataFutureUser(cmd, env));
