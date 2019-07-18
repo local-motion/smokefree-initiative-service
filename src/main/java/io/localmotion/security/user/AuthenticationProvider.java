@@ -15,7 +15,7 @@ public interface AuthenticationProvider {
     public String getUserEmailAddress(Authentication authentication);
 
     public Profile getProfile(Authentication authentication, ProfileProjection profileProjection);
-    public Profile getDeleteProfile(Authentication authentication, ProfileProjection profileProjection);
+    public Profile getDeletedProfile(Authentication authentication, ProfileProjection profileProjection);
 
     public Profile createProfile(Authentication authentication);
 

@@ -148,7 +148,7 @@ public class UserMutation implements GraphQLMutationResolver {
     private void validateProfileIsReadyToBeCreated(SecurityContext securityContext) {
         if (securityContext.getProfileStatus() != ProfileStatus.NEW) {
             throw new DomainException("INVALID_PROFILE_STATUS",
-                    "A new user cannot be created");
+                    "A new user cannot be created (profile status: " + securityContext.getProfileStatus() + ")");
         }
     }
 

@@ -28,14 +28,31 @@ public class ProfileStore {
 
 
     public void put(Profile profile) {
+        Profile prevProfile = profilesById.get(profile.getId());
+
+        if (prevProfile != null) {
+            if (prevProfile.getUsername() != null)
+                profilesByName.remove(prevProfile.getUsername());
+            if (prevProfile.getEmailAddress() != null)
+                profilesByEmailAddress.remove(prevProfile.getEmailAddress());
+        }
+
         profilesById.put(profile.getId(), profile);
-        profilesByName.put(profile.getUsername(), profile);
-        profilesByEmailAddress.put(profile.getEmailAddress(), profile);
+        if (profile.getUsername() != null)
+            profilesByName.put(profile.getUsername(), profile);
+        if (profile.getEmailAddress() != null)
+            profilesByEmailAddress.put(profile.getEmailAddress(), profile);
     }
 
-    public void remove(Profile profile) {
-        profilesById.remove(profile.getId());
-        profilesByName.remove(profile.getUsername());
-        profilesByEmailAddress.remove(profile.getEmailAddress());
+    public void remove(String userId) {
+        Profile profile = profilesById.get(userId);
+        profilesById.remove(userId);
+
+        if (profile != null) {
+            if (profile.getUsername() != null)
+                profilesByName.remove(profile.getUsername());
+            if (profile.getEmailAddress() != null)
+                profilesByEmailAddress.remove(profile.getEmailAddress());
+        }
     }
 }

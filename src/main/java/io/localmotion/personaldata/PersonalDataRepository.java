@@ -55,7 +55,7 @@ public class PersonalDataRepository {
     @Transactional
     public int deleteRecordsOfPerson(String personId) {
         Query query = entityManager.createQuery(
-                "DELETE r from PersonalDataRecord r " +
+                "DELETE from PersonalDataRecord r " +
                         "WHERE r.personId = :personId"
         );
         query.setParameter("personId", personId);

@@ -40,7 +40,7 @@ public class CognitoAuthenticationProvider implements AuthenticationProvider {
     }
 
     @Override
-    public Profile getDeleteProfile(Authentication authentication, ProfileProjection profileProjection) {
+    public Profile getDeletedProfile(Authentication authentication, ProfileProjection profileProjection) {
         return authentication != null ? profileProjection.getDeletedProfileByEmailAddress(getUserEmailAddress(authentication)) : null;
     }
 

@@ -114,7 +114,7 @@ public class User {
     @CommandHandler
     public int deletePersonalData(DeletePersonalDataCommand cmd, MetaData metaData) {
         if (!isDeleted())
-            throw new DomainException("USER_NOT_DELETED", "Cannot deleted personal data as the user is still active");
+            throw new DomainException("USER_NOT_DELETED", "Cannot delete personal data as the user is still active");
 
         apply(new PersonalDataDeletedEvent(cmd.getUserId()), metaData);
         int deletedCount = personalDataRepository.deleteRecordsOfPerson(cmd.getUserId());
@@ -185,7 +185,7 @@ public class User {
                Events
      */
 
-    @EventHandler
+    @EventSourcingHandler
     public void on(UserCreatedEvent evt, MetaData metaData) {
         log.info("ON EVENT {}", evt);
 

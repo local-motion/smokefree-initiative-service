@@ -15,7 +15,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public class CognitoImportFileCommand implements AdminCommand {
+public class CognitoImportFileJobCommand implements AdminCommand {
 
     private static final String COMMAND_IDENTIFIER = "GenerateCognitoInputFile";
     private static final String FILE_HEADERS =  "cognito:username,name,given_name,family_name,middle_name,nickname," +

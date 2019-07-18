@@ -1,7 +1,5 @@
 package io.localmotion.security.user;
 
-import io.localmotion.adminjob.domain.AdminJobCommandRecord;
-import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 import io.localmotion.user.domain.ProfileStatus;
 import io.localmotion.user.projection.Profile;
 import io.localmotion.user.projection.ProfileProjection;
@@ -9,12 +7,10 @@ import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.authentication.AuthenticationException;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -59,7 +55,7 @@ public class SecurityContextFactory {
         }
 
         // Try to retrieve a deleted profile
-        profile = authenticationProvider.get().getDeleteProfile(authentication, profileProjection);
+        profile = authenticationProvider.get().getDeletedProfile(authentication, profileProjection);
         if (profile != null) {
             // Deleted profile found, test whether any of the attributes has changed
             String providedUserName = authenticationProvider.get().getUserName(authentication);

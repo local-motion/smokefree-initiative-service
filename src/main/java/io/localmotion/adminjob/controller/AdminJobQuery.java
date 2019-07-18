@@ -1,8 +1,10 @@
 package io.localmotion.adminjob.controller;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
+import com.google.gson.stream.MalformedJsonException;
 import graphql.schema.DataFetchingEnvironment;
 import io.localmotion.adminjob.domain.AdminJobCommandRecord;
+import io.localmotion.application.DomainException;
 import io.localmotion.security.user.SecurityContext;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +31,6 @@ public class AdminJobQuery implements GraphQLQueryResolver {
             return adminJobCommandRecord;
         else
             return null;
-//            return new AdminJobCommandRecord("jopb-01", "just a test", "dimi@dekker.nl", "{ \"in\" : \"28\" }");
     }
 
 

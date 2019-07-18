@@ -1,8 +1,8 @@
 package io.localmotion.adminjob.commands;
 
-import io.localmotion.adminjob.commands.deletepersonaldata.DeletePersonalDataCommand;
+import io.localmotion.adminjob.commands.deletepersonaldata.DeletePersonalDataJobCommand;
 import io.localmotion.adminjob.domain.AdminCommand;
-import io.localmotion.adminjob.commands.cognitoimportfile.CognitoImportFileCommand;
+import io.localmotion.adminjob.commands.cognitoimportfile.CognitoImportFileJobCommand;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -13,16 +13,16 @@ import java.util.Map;
 @Singleton
 public class AdminJobRegistry {
 
-    @Inject private CognitoImportFileCommand cognitoImportFileCommand;
-    @Inject private DeletePersonalDataCommand deletePersonalDataCommand;
+    @Inject private CognitoImportFileJobCommand cognitoImportFileJobCommand;
+    @Inject private DeletePersonalDataJobCommand deletePersonalDataJobCommand;
 
     private final Map<String, AdminCommand> adminJobs = new HashMap<>();
 
     private boolean registryBuilt = false;
     private void buildRegistry() {
         if (!registryBuilt) {
-            registerAdminJob(cognitoImportFileCommand);
-            registerAdminJob(deletePersonalDataCommand);
+            registerAdminJob(cognitoImportFileJobCommand);
+            registerAdminJob(deletePersonalDataJobCommand);
             registryBuilt = true;
         }
     }

@@ -68,7 +68,7 @@ public class ProfileProjection {
 //            profilesById.put(profile.getId(), profile);
 //            profilesByName.put(profile.getUsername(), profile);
 
-            deletedProfiles.remove(profile);
+            deletedProfiles.remove(profile.getId());
             activeProfiles.put(evt.getNewUserName() == null ? profile : profile.withUsername(evt.getNewUserName()));
         }
         else
@@ -84,7 +84,7 @@ public class ProfileProjection {
 //        deletedProfilesById.put(userProfile.getId(), userProfile);
 
         Profile profile = activeProfiles.getById(evt.getUserId());
-        activeProfiles.remove(profile);
+        activeProfiles.remove(profile.getId());
         deletedProfiles.put(profile);
     }
 

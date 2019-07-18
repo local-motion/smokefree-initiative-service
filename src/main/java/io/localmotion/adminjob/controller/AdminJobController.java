@@ -1,8 +1,11 @@
 package io.localmotion.adminjob.controller;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.stream.MalformedJsonException;
 import io.localmotion.adminjob.commands.AdminJobRegistry;
 import io.localmotion.adminjob.domain.*;
+import io.localmotion.application.DomainException;
 import io.localmotion.security.user.SecurityContext;
 import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 import io.localmotion.storage.file.FileAccessor;
@@ -46,12 +49,17 @@ public class AdminJobController {
 
 
     public AdminJobCommandRecord readAdminJobCommandRecord() {
-        if (!fileAccessor.fileExists(fileLocation, commandFileName))
-            return null;
-        else {
-            Gson gson = new Gson();
-            String commandRecordString = fileAccessor.readFileToString(fileLocation, commandFileName);
-            return gson.fromJson(commandRecordString, AdminJobCommandRecord.class);
+        try {
+            if (!fileAccessor.fileExists(fileLocation, commandFileName))
+                return null;
+            else {
+                Gson gson = new Gson();
+                String commandRecordString = fileAccessor.readFileToString(fileLocation, commandFileName);
+                return gson.fromJson(commandRecordString, AdminJobCommandRecord.class);
+            }
+        } catch (JsonSyntaxException e) {
+            throw new DomainException("INVALID_COMMAND_RECORD", "Command record contains invalid Json");
+
         }
     }
 
@@ -123,8 +131,8 @@ public class AdminJobController {
                     fileAccessor.deleteFile(fileLocation, resultFileName);
                 fileAccessor.writeFile(fileLocation, resultFileName, content);
 
-                // Delete the command file unless it needs to be retained
-                if (!retainCommandFile)
+                // Delete the command file unless it needs to be retained or unless the job has failed
+                if (!retainCommandFile && jobResult.getResultCode() == JobResultCode.SUCCESS)
                     fileAccessor.deleteFile(fileLocation, commandFileName);
 
                 return jobResult;
@@ -143,7 +151,7 @@ public class AdminJobController {
     public static GenericCommandMessage<?> decorateWithMetaData(Object cmd, SecurityContext securityContext) {
         MetaData metaData = MetaData
                 .with(SmokefreeConstants.JWTClaimSet.USER_ID, securityContext.requireUserId())
-                .with("adminCommand", securityContext.getAdminCommand());
+                .and("adminCommand", securityContext.getAdminCommand());
         return new GenericCommandMessage<>(cmd, metaData);
     }
 }

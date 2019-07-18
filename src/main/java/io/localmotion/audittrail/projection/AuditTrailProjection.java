@@ -4,10 +4,7 @@ import io.localmotion.eventsourcing.axon.MetaDataManager;
 import io.localmotion.initiative.event.ChecklistUpdateEvent;
 import io.localmotion.initiative.event.MemberJoinedInitiativeEvent;
 import io.localmotion.smokefreeplaygrounds.event.*;
-import io.localmotion.user.event.NotificationSettingsUpdatedEvent;
-import io.localmotion.user.event.UserCreatedEvent;
-import io.localmotion.user.event.UserDeletedEvent;
-import io.localmotion.user.event.UserRevivedEvent;
+import io.localmotion.user.event.*;
 import io.localmotion.user.projection.Profile;
 import io.localmotion.user.projection.ProfileProjection;
 import io.micronaut.context.annotation.Context;
@@ -72,7 +69,6 @@ public class AuditTrailProjection {
 
     @EventHandler
     public void on(UserCreatedEvent event, EventMessage<?> eventMessage) {
-//        log.info("ON EVENT {}", event);
         String actor = getUserId(eventMessage);
         String details = DetailsBuilder.instance()
                 .add("userId", event.getUserId())
@@ -83,7 +79,6 @@ public class AuditTrailProjection {
 
     @EventHandler
     public void on(UserRevivedEvent event, EventMessage<?> eventMessage) {
-//        log.info("ON EVENT {}", event);
         String actor = getUserId(eventMessage);
         String details = DetailsBuilder.instance()
                 .add("userId", event.getUserId())
@@ -94,8 +89,18 @@ public class AuditTrailProjection {
     }
 
     @EventHandler
+    public void on(UserRenamedEvent event, EventMessage<?> eventMessage) {
+        String actor = getUserId(eventMessage);
+        String details = DetailsBuilder.instance()
+                .add("userId", event.getUserId())
+                .add("newName", event.getNewUserName())
+                .build();
+        AuditTrailRecord record = createAuditTrailRecord(actor, eventMessage.getTimestamp(), EventType.USER_RENAMED, details);
+        storeRecord(record, actor);
+    }
+
+    @EventHandler
     public void on(UserDeletedEvent event, EventMessage<?> eventMessage) {
-//        log.info("ON EVENT {}", event);
         String actor = getUserId(eventMessage);
         String details = DetailsBuilder.instance()
                 .add("userId", event.getUserId())
@@ -105,8 +110,17 @@ public class AuditTrailProjection {
     }
 
     @EventHandler
+    public void on(PersonalDataDeletedEvent event, EventMessage<?> eventMessage) {
+        String actor = getUserId(eventMessage);
+        String details = DetailsBuilder.instance()
+                .add("userId", event.getUserId())
+                .build();
+        AuditTrailRecord record = createAuditTrailRecord(actor, eventMessage.getTimestamp(), EventType.PERSONAL_DATA_DELETED, details);
+        storeRecord(record, actor);
+    }
+
+    @EventHandler
     void on(NotificationSettingsUpdatedEvent event, EventMessage<?> eventMessage) {
-//        log.info("ON EVENT {}", event);
         String actor = getUserId(eventMessage);
         String details = DetailsBuilder.instance()
                 .add("userId", event.getUserId())
@@ -236,8 +250,6 @@ public class AuditTrailProjection {
      */
 
     private AuditTrailRecord createAuditTrailRecord(String actorId, Instant eventTimestamp, EventType eventType, String details) {
-//        Profile profile = profileProjection.profile(actorId);
-//        String actorName = profile != null ? profile.getUsername() : "onbekend";
         return new AuditTrailRecord(actorId, eventTimestamp, eventType, details, profileProjection);
     }
 

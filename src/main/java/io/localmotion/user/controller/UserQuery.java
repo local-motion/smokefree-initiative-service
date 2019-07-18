@@ -23,28 +23,10 @@ public class UserQuery implements GraphQLQueryResolver {
 
 
     public ProfileResponse profile(DataFetchingEnvironment env) {
-
         SecurityContext securityContext = toContext(env);
         return new ProfileResponse(securityContext.getProfileStatus(), securityContext.getProfile(), securityContext.getNewUserName());
-
-//        switch (securityContext.getProfileStatus()) {
-//            case NONE:
-//                return new ProfileResponse(securityContext.getProfileStatus(), null, null);
-//            case ACTIVE:
-//                return new ProfileResponse(securityContext.getProfileStatus(), securityContext.getProfile(), null);
-//
-//        }
-
     }
 
-//    public Profile profile(DataFetchingEnvironment env) {
-//        String userId = toContext(env).userId();
-//        if (userId == null) {
-//            return null;
-//        }
-//        return profiles.profile(userId);
-//    }
-//
     public boolean emailExists(String emailAddress) {
         return profiles.emailExists(emailAddress);
     }
