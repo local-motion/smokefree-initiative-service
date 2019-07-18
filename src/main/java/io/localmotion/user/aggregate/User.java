@@ -95,7 +95,7 @@ public class User {
 
         // Verify that no other active users exist with the same username or email address (Should not occurs through normal usage of the LocalMotion frontend)
         validatePersonalDataNotRemoved(name);
-        validateUsernameIsUnique(cmd.getUserName());
+        validateUsernameIsUnique(cmd.getUserName() != null ? cmd.getUserName() : name);
         validateEmailAddressIsUnique(emailAddress);
 
         // Allow for a cooldown period where the user cannot be revived after having been deleted. This to avoid race situations where

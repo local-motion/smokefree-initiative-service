@@ -31,8 +31,6 @@ public class Initiative {
     // Note that the checklist are actually sets containing those items that have been check. All other items are considered not to be checked.
     private ConcurrentSet<String> jointChecklistItems = new ConcurrentSet<>();
     private ConcurrentMap<String,ConcurrentSet<String>> individualChecklistItems = new ConcurrentHashMap<>();         // key = user
-//    private Set<String> jointChecklistItems = new HashSet<>();
-//    private Map<String,Set<String>> individualChecklistItems = new HashMap<>();         // key = user
     private ConcurrentSet<String> ownChecklistItems = null;                                       // see getInitiativeForUser
 
 
@@ -105,7 +103,6 @@ public class Initiative {
 
     Initiative setChecklistItem(String actor, String item, Boolean checked) {
         ConcurrentSet<String> actorChecklistItems = individualChecklistItems.containsKey(actor) ? individualChecklistItems.get(actor) : new ConcurrentSet<>();
-//        Set<String> actorChecklistItems = individualChecklistItems.containsKey(actor) ? individualChecklistItems.get(actor) : new HashSet<>();
         if (checked) {
             jointChecklistItems.add(item);
             actorChecklistItems.add(item);
@@ -142,8 +139,6 @@ public class Initiative {
     public Initiative getInitiativeForUser(@Nullable String userId) {
         ConcurrentSet<String> usersChecklistItems = userId != null && individualChecklistItems.containsKey(userId) ?
                                                     individualChecklistItems.get(userId) : new ConcurrentSet<>();
-//        Set<String> usersChecklistItems = userId != null && individualChecklistItems.containsKey(userId) ?
-//                                                    individualChecklistItems.get(userId) : Collections.emptySet();
         return new Initiative(  profileProjection, id, name, lat, lng, status, votes, memberIds,
                                 jointChecklistItems, usersChecklistItems, lastEventMessage);
     }

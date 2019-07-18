@@ -43,17 +43,22 @@ public class UserMutation implements GraphQLMutationResolver {
 
         Profile toBeCreatedProfile = securityContext.getProfile();
         CreateUserCommand cmd = new CreateUserCommand(toBeCreatedProfile.getId(), toBeCreatedProfile.getUsername(), toBeCreatedProfile.getEmailAddress());
+
+        // During system startup a (still logged in) user could access the system while the profile has not been loaded in the projection
+        // yet causing the front-end to submit a createUser command. Therefore we need to check whether the aggregate actually does not
+        // exist. If so, send an appropriate signal to the frontend.
+
+        // Note that we are doing this check here as opposed to just letting the event creation fail in the aggregate to avoid
+        // the User aggregate from create PII records prior to the event failing.
+        if (tryRetrieveUser(cmd.getUserId()) != null)
+            throw new DomainException("USER_PROFILE_ALREADY_BEING_CREATED", "User is already registered and profile will be created");
+
         try {
             gateway.sendAndWait(decorateWithMetaDataFutureUser(cmd, env));
         }
         catch (Exception e) {
-            if (e.getMessage().endsWith(" was already inserted")) {
-                // Ignore exception, duplicate createUser request or profile was not up to date resulting in an unnecessary createUser call
-                // Anyhow the user is present, so we can return a success response.
-                // Note that it is possible to due the race condition as the profiles are updated a-synchronously, that the user is present,
-                // but logically deleted, but the profile was not yet loaded before to detect this. In this, rare case, the end user will just
-                // have to refresh.
-            }
+            if (e.getMessage().endsWith(" was already inserted"))
+                throw new DomainException("USER_PROFILE_ALREADY_BEING_CREATED", "User is already registered and profile will be created");
             else
                 throw(e);
         }
