@@ -43,10 +43,7 @@ public class S3FileAccessor implements FileAccessor {
                     .build();
 
             // Get an object and print its contents.
-            System.out.println("Downloading an object");
             fullObject = s3Client.getObject(new GetObjectRequest(location, getS3Key(path, name)));
-            System.out.println("Content-Type: " + fullObject.getObjectMetadata().getContentType());
-            System.out.println("Content: ");
             result = readLinesFromStream(fullObject.getObjectContent());
         } finally {
             // To ensure that the network connection doesn't remain open, close any open input streams.
@@ -70,9 +67,7 @@ public class S3FileAccessor implements FileAccessor {
         String line = null;
         while ((line = reader.readLine()) != null) {
             result.add(line);
-            System.out.println(line);
         }
-        System.out.println();
         return result;
     }
 
