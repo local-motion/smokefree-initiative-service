@@ -63,19 +63,6 @@ public class GraphqlController {
             )
             return getSingleErrorResult("User must be authenticated");
 
-//        if ( authentication != null && securityContext == null  && !query.getQuery().trim().startsWith("mutation CreateUser") ) {
-//            // Authenticated user does not have a valid context yet. This will be a newly enrolled user. Fail and have the front-end do a CreateUser request
-//            log.trace("Authenticated user without profile: authentication.getName: " + authentication.getName() + " nr of profiles: " + profileProjection.getAllProfiles().size());
-//            return getSingleErrorResult("NO_PROFILE", "No user profile present");
-//        }
-
-
-//        if ( authentication != null && profileProjection.profile(authentication.getName()) == null  && !query.getQuery().trim().startsWith("mutation CreateUser") ) {
-//            // Authenticated user does not have a profile yet. This will be a newly enrolled user. Fail and have the front-end do a CreateUser request
-//            log.trace("Authenticated user without profile: authentication.getName: " + authentication.getName() + " nr of profiles: " + profileProjection.getAllProfiles().size());
-//            return getSingleErrorResult("NO_PROFILE", "No user profile present");
-//        }
-
 
         // create a fingerprint of the request
         int fingerPrint = query.getQuery().hashCode() + query.getVariables().hashCode();    // TODO filter out meta variables?
@@ -86,9 +73,9 @@ public class GraphqlController {
         // execute the query
         ExecutionInput.Builder builder = new ExecutionInput.Builder()
                 .query(query.getQuery())
-                .variables(query.getVariables());
-//        builder.context(new SecurityContext(authentication));
-        builder.context(securityContext);
+                .variables(query.getVariables())
+                .context(securityContext);
+//        builder.context(securityContext);
         ExecutionResult executionResult = graphQL.execute(builder);
 
 
