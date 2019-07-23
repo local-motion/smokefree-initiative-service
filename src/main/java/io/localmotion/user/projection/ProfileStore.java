@@ -36,6 +36,11 @@ public class ProfileStore {
             if (prevProfile.getEmailAddress() != null)
                 profilesByEmailAddress.remove(prevProfile.getEmailAddress());
         }
+        else {
+            // Debug
+            if (profilesById.values().stream().anyMatch(p -> p.getEmailAddress() != null && p.getEmailAddress().equals(profile.getEmailAddress())))
+                System.out.println(("ERROOOOOOR"));
+        }
 
         profilesById.put(profile.getId(), profile);
         if (profile.getUsername() != null)

@@ -4,8 +4,8 @@ import com.coxautodev.graphql.tools.GraphQLMutationResolver;
 import graphql.schema.DataFetchingEnvironment;
 import io.localmotion.application.DomainException;
 import io.localmotion.initiative.controller.InputAcceptedResponse;
-import io.localmotion.security.user.SecurityContext;
 import io.localmotion.interfacing.graphql.error.ErrorCode;
+import io.localmotion.security.user.SecurityContext;
 import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 import io.localmotion.user.aggregate.User;
 import io.localmotion.user.command.*;
@@ -42,12 +42,18 @@ public class UserMutation implements GraphQLMutationResolver {
         Profile toBeCreatedProfile = securityContext.getProfile();
         CreateUserCommand cmd = new CreateUserCommand(toBeCreatedProfile.getId(), toBeCreatedProfile.getUsername(), toBeCreatedProfile.getEmailAddress());
 
+
+
         // During system startup a (still logged in) user could access the system while the profile has not been loaded in the projection
         // yet causing the front-end to submit a createUser command. Therefore we need to check whether the aggregate actually does not
         // exist. If so, send an appropriate signal to the frontend.
+        // Note that this will be rare as the GraphQLController not checks for the projections to be up-to-date before allowing mutations in the system.
+
 
         // Note that we are doing this check here as opposed to just letting the event creation fail in the aggregate to avoid
         // the User aggregate from create PII records prior to the event failing.
+        // NOTE: This will only work for users that have not been revived before. For revived (Cognito) users the userid from the authentication
+        // object will differ from the aggregate id, so no collision can be detected.
         if (tryRetrieveUser(cmd.getUserId()) != null)
             throw new DomainException("USER_PROFILE_ALREADY_BEING_CREATED", "User is already registered and profile will be created");
 

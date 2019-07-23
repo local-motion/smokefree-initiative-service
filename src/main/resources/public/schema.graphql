@@ -33,6 +33,7 @@ type ProfileResponse {
 
 enum ProfileStatus {
     NONE
+    UNDETERMINED
     NEW
     ACTIVE
     ACTIVE_USER_NAME_CHANGED

@@ -1,6 +1,7 @@
 package io.localmotion.interfacing.graphql;
 
 import graphql.*;
+import io.localmotion.eventsourcing.tracker.TrackerProjection;
 import io.localmotion.security.user.SecurityContext;
 import io.localmotion.security.user.SecurityContextFactory;
 import io.micronaut.http.MediaType;
@@ -33,6 +34,9 @@ public class GraphqlController {
     private Configuration configuration; // TODO: Trick to trigger bean creation. Can be done differently?
 
     @Inject
+    private TrackerProjection trackerProjection;
+
+    @Inject
     private ProfileProjection profileProjection;
 
     @Inject
@@ -40,9 +44,11 @@ public class GraphqlController {
 
     private static final List<String> AUTHENTICATION_EXCEPTIONS = List.of("mutation CreateUser", "mutation ReviveUser", "mutation ChangeUserName");
 
+
     @Post(consumes = MediaType.APPLICATION_JSON)
     public Map<String, Object> graphql(@Nullable Authentication authentication, @Size(max=4096) /* TODO Validation not yet enabled */  @Body GraphqlQuery query) throws Exception {
         log.trace("PlaygroundQuery: {}", query.getQuery());
+        trackerProjection.markStartup();
 
         Assert.assertNotNull(query.getQuery());
 
@@ -51,6 +57,10 @@ public class GraphqlController {
         final String queryString = query.getQuery().trim();
         if (authentication == null && queryString.startsWith("mutation"))
             return getSingleErrorResult("User must be authenticated");
+
+        // Block mutations while the projections are not yet up to date
+        if (!trackerProjection.isUpToDate() && queryString.startsWith("mutation"))
+            return getSingleErrorResult("System is starting up");
 
 
         // Establish the security context

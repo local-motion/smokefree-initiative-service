@@ -6,6 +6,7 @@ import io.localmotion.user.domain.NotificationLevel;
 import io.localmotion.user.event.*;
 import io.micronaut.context.annotation.Context;
 import lombok.extern.slf4j.Slf4j;
+import org.axonframework.config.Configuration;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.messaging.MetaData;
 import io.localmotion.personaldata.PersonalDataRecord;
@@ -22,17 +23,25 @@ public class ProfileProjection {
 
     public static final String PROPERTY_REMOVED = "removed";
 
-//    private final Map<String, Profile> profilesById = newConcurrentMap();
-//    private final Map<String, Profile> profilesByName = newConcurrentMap();
-//
-//    private final Map<String, Profile> deletedProfilesById = newConcurrentMap();
-
     private final ProfileStore activeProfiles = new ProfileStore();
     private final ProfileStore deletedProfiles = new ProfileStore();
+
+//    // After the projection startup has been set, wait for an amount of time. If no event occur in this period
+//    // we assume there are no events (empty system) and we consider this projection to be up-to-date.
+//    private static final long WAIT_FOR_EVENT_STREAM_AFTER_STARTUP = 10*1000;         // 10 secs
+//
+//    // If no profile-related events are received after the last event for some time, the projection is considered to be
+//    // up-to-date.
+//    private static final long EVENT_UPDATE_STREAM_COMPLETE_THRESHOLD = 3*1000;         // 3 secs
+//
+//    private long projectionStartupTimestamp = 0;
+//    private long lastEventReceivedTimestamp = 0;
+//    private boolean isUpToDate = false;
 
 
     @Inject
     PersonalDataRepository personalDataRepository;
+
 
     /*
             Event handlers
@@ -51,22 +60,16 @@ public class ProfileProjection {
         }
         else {
             profile = new Profile(evt.getUserId(), "*PROPERTY_REMOVED*", "*PROPERTY_REMOVED*", NotificationLevel.NONE, new HashSet<>());
-//            profile = new Profile(evt.getUserId(), null, null, null, null);
         }
 
-//        profilesById.put(profile.getId(), profile);
-//        profilesByName.put(profile.getUsername(), profile);
         activeProfiles.put(profile);
     }
 
     @EventHandler
     void on(UserRevivedEvent evt) {
         log.info("ON EVENT {}", evt);
-//        Profile profile = deletedProfilesById.get(evt.getUserId());
         Profile profile = deletedProfiles.getById(evt.getUserId());
         if (profile.getUsername() != null) {
-//            profilesById.put(profile.getId(), profile);
-//            profilesByName.put(profile.getUsername(), profile);
 
             deletedProfiles.remove(profile.getId());
             activeProfiles.put(evt.getNewUserName() == null ? profile : profile.withUsername(evt.getNewUserName()));
@@ -78,10 +81,6 @@ public class ProfileProjection {
     @EventHandler
     void on(UserDeletedEvent evt) {
         log.info("ON EVENT {}", evt);
-//        Profile userProfile = profilesById.get(evt.getUserId());
-//        profilesByName.remove(userProfile.getUsername());
-//        profilesById.remove(evt.getUserId());
-//        deletedProfilesById.put(userProfile.getId(), userProfile);
 
         Profile profile = activeProfiles.getById(evt.getUserId());
         activeProfiles.remove(profile.getId());
@@ -91,7 +90,6 @@ public class ProfileProjection {
     @EventHandler
     void on(PersonalDataDeletedEvent evt) {
         log.info("ON EVENT {}", evt);
-//        deletedProfilesById.put(evt.getUserId(), new Profile(evt.getUserId(), null, null, null, null));
         deletedProfiles.put(new Profile(evt.getUserId(), null, null, null, null));
     }
 
@@ -109,14 +107,11 @@ public class ProfileProjection {
     @EventHandler
     void on(NotificationSettingsUpdatedEvent evt) {
         log.info("ON EVENT {}", evt);
-//        Profile userProfile = profilesById.get(evt.getUserId());
         Profile userProfile = activeProfiles.getById(evt.getUserId());
         if (userProfile == null)
             log.warn("Ignoring event because user profile not present: {}", evt);
         else {
             Profile newUserProfile = userProfile.withNotificationLevel(evt.getNotificationLevel());
-//            profilesByName.put(newUserProfile.getUsername(), newUserProfile);
-//            profilesById.put(newUserProfile.getId(), newUserProfile);
             activeProfiles.put(userProfile);
         }
     }
@@ -124,7 +119,6 @@ public class ProfileProjection {
     @EventHandler
     void on(MemberJoinedInitiativeEvent evt) {
         log.info("ON EVENT {}", evt);
-//        Profile userProfile = profilesById.get(evt.getMemberId());
         Profile userProfile = activeProfiles.getById(evt.getMemberId());
         if (userProfile == null)
             log.warn("Ignoring event because user profile not present: {}", evt);
@@ -133,17 +127,37 @@ public class ProfileProjection {
         }
     }
 
+//    public void markProjectionStartup() {
+//        projectionStartupTimestamp = projectionStartupTimestamp > 0 ? projectionStartupTimestamp : System.currentTimeMillis();
+//    }
+//    private void markEventReceived() {
+//        markProjectionStartup();
+//        lastEventReceivedTimestamp = System.currentTimeMillis();
+//    }
+//
+//    /**
+//     * Based on the handling of incoming events this projection tries to determine whether it is up-to-date, ie whether
+//     * all events that were emitted prior to startup of this projection have been handled.
+//     * This fact can be used to assess the accuracy of this projection for instance when user mutations need to be validated.
+//     * Note that this projection is eventually consistent, so even when this method return true, some events may still
+//     * not be processed.
+//     * @return whether this projection has processed (nearly) all events
+//     */
+//    public boolean isUpToDate() {
+//        return  projectionStartupTimestamp > 0 &&
+//                (System.currentTimeMillis())
+//        return lastEventReceivedTimestamp > 0 && (System.currentTimeMillis() - lastEventReceivedTimestamp) > EVENT_UPDATE_STREAM_COMPLETE_THRESHOLD;
+//    }
+
     /*
             Retrieval methods
      */
 
     public Profile profile(String id) {
-//        return profilesById.get(id);
         return activeProfiles.getById(id);
     }
 
     public Profile getProfileByName(String username) {
-//        return profilesByName.get(username);
         return activeProfiles.getByName(username);
     }
 
@@ -152,7 +166,6 @@ public class ProfileProjection {
     }
 
     public Profile getDeletedProfile(String id) {
-//        return deletedProfilesById.get(id);
         return deletedProfiles.getById(id);
     }
 
@@ -161,12 +174,10 @@ public class ProfileProjection {
     }
 
     public Collection<Profile> getAllProfiles() {
-//        return profilesById.values();
         return activeProfiles.getAllProfiles();
     }
 
     public boolean emailExists(String emailAddress) {
-//        return profilesById.values().stream().anyMatch(profile -> profile.getEmailAddress().equals(emailAddress));
         return activeProfiles.getByEmailAddress(emailAddress) != null;
     }
 }
