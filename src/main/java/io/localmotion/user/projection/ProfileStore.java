@@ -1,10 +1,13 @@
 package io.localmotion.user.projection;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.Collection;
 import java.util.Map;
 
 import static com.google.common.collect.Maps.newConcurrentMap;
 
+@Slf4j
 public class ProfileStore {
     private final Map<String, Profile> profilesById = newConcurrentMap();
     private final Map<String, Profile> profilesByName = newConcurrentMap();
@@ -37,9 +40,9 @@ public class ProfileStore {
                 profilesByEmailAddress.remove(prevProfile.getEmailAddress());
         }
         else {
-            // Debug
+            // Check for duplicate users, should only occur in eventual consistency race conditions
             if (profilesById.values().stream().anyMatch(p -> p.getEmailAddress() != null && p.getEmailAddress().equals(profile.getEmailAddress())))
-                System.out.println(("ERROOOOOOR"));
+                log.error("Duplicate active user detected: " + profile.getEmailAddress());
         }
 
         profilesById.put(profile.getId(), profile);
