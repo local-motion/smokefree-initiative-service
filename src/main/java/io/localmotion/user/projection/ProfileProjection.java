@@ -26,18 +26,6 @@ public class ProfileProjection {
     private final ProfileStore activeProfiles = new ProfileStore();
     private final ProfileStore deletedProfiles = new ProfileStore();
 
-//    // After the projection startup has been set, wait for an amount of time. If no event occur in this period
-//    // we assume there are no events (empty system) and we consider this projection to be up-to-date.
-//    private static final long WAIT_FOR_EVENT_STREAM_AFTER_STARTUP = 10*1000;         // 10 secs
-//
-//    // If no profile-related events are received after the last event for some time, the projection is considered to be
-//    // up-to-date.
-//    private static final long EVENT_UPDATE_STREAM_COMPLETE_THRESHOLD = 3*1000;         // 3 secs
-//
-//    private long projectionStartupTimestamp = 0;
-//    private long lastEventReceivedTimestamp = 0;
-//    private boolean isUpToDate = false;
-
 
     @Inject
     PersonalDataRepository personalDataRepository;
@@ -72,7 +60,7 @@ public class ProfileProjection {
         if (profile.getUsername() != null) {
 
             deletedProfiles.remove(profile.getId());
-            activeProfiles.put(evt.getNewUserName() == null ? profile : profile.withUsername(evt.getNewUserName()));
+            activeProfiles.put(updateProfileFromPersonalData(profile, evt.getPiiRecordId()));
         }
         else
             log.warn("Trying to revive user with personal data removed, Ignoring...");
@@ -98,7 +86,7 @@ public class ProfileProjection {
         log.info("ON EVENT {}", evt);
         Profile profile = activeProfiles.getById(evt.getUserId());
         if (profile.getUsername() != null) {
-            activeProfiles.put(profile.withUsername(evt.getNewUserName()));
+            activeProfiles.put(updateProfileFromPersonalData(profile, evt.getPiiRecordId()));
         }
         else
             log.warn("Trying to rename user with personal data removed, Ignoring...");
@@ -127,27 +115,6 @@ public class ProfileProjection {
         }
     }
 
-//    public void markProjectionStartup() {
-//        projectionStartupTimestamp = projectionStartupTimestamp > 0 ? projectionStartupTimestamp : System.currentTimeMillis();
-//    }
-//    private void markEventReceived() {
-//        markProjectionStartup();
-//        lastEventReceivedTimestamp = System.currentTimeMillis();
-//    }
-//
-//    /**
-//     * Based on the handling of incoming events this projection tries to determine whether it is up-to-date, ie whether
-//     * all events that were emitted prior to startup of this projection have been handled.
-//     * This fact can be used to assess the accuracy of this projection for instance when user mutations need to be validated.
-//     * Note that this projection is eventually consistent, so even when this method return true, some events may still
-//     * not be processed.
-//     * @return whether this projection has processed (nearly) all events
-//     */
-//    public boolean isUpToDate() {
-//        return  projectionStartupTimestamp > 0 &&
-//                (System.currentTimeMillis())
-//        return lastEventReceivedTimestamp > 0 && (System.currentTimeMillis() - lastEventReceivedTimestamp) > EVENT_UPDATE_STREAM_COMPLETE_THRESHOLD;
-//    }
 
     /*
             Retrieval methods
@@ -180,4 +147,25 @@ public class ProfileProjection {
     public boolean emailExists(String emailAddress) {
         return activeProfiles.getByEmailAddress(emailAddress) != null;
     }
+
+
+    /*
+            PII support methods
+     */
+
+    private Profile updateProfileFromPersonalData(Profile profile, Long recordId) {
+        Profile newProfile = profile;
+        if (recordId != null) {
+            PersonalDataRecord personalDataRecord = personalDataRepository.getRecord(recordId);
+            if (personalDataRecord != null) {
+                UserPII userPII = new Gson().fromJson(personalDataRecord.getData(), UserPII.class);
+                if (userPII.getName() != null)
+                    newProfile = newProfile.withUsername(userPII.getName());
+                if (userPII.getEmailAddress() != null)
+                    newProfile = newProfile.withEmailAddress(userPII.getEmailAddress());
+            }
+        }
+        return newProfile;
+    }
+
 }

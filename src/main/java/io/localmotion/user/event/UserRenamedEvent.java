@@ -8,5 +8,5 @@ import lombok.*;
 @ToString
 public class UserRenamedEvent {
     String userId;
-    String newUserName;
+    Long piiRecordId;       // UserPII record type, only userName property is valid
 }

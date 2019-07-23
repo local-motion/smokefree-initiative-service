@@ -11,5 +11,5 @@ import javax.validation.constraints.NotNull;
 @ToString
 public class UserCreatedEvent {
     String userId;
-    long piiRecordId;
+    long piiRecordId;           // UserPII record type, all properties valid
 }

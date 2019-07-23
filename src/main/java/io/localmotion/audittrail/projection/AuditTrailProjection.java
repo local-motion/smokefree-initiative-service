@@ -1,9 +1,12 @@
 package io.localmotion.audittrail.projection;
 
+import com.google.gson.Gson;
 import io.localmotion.eventsourcing.axon.MetaDataManager;
 import io.localmotion.initiative.event.ChecklistUpdateEvent;
 import io.localmotion.initiative.event.MemberJoinedInitiativeEvent;
+import io.localmotion.personaldata.PersonalDataRecord;
 import io.localmotion.smokefreeplaygrounds.event.*;
+import io.localmotion.user.domain.UserPII;
 import io.localmotion.user.event.*;
 import io.localmotion.user.projection.Profile;
 import io.localmotion.user.projection.ProfileProjection;
@@ -82,7 +85,7 @@ public class AuditTrailProjection {
         String actor = getUserId(eventMessage);
         String details = DetailsBuilder.instance()
                 .add("userId", event.getUserId())
-                .addIf(event.getNewUserName() != null, "userName", event.getNewUserName())
+//                .addIf(event.getNewUserName() != null, "userName", event.getNewUserName())
                 .build();
         AuditTrailRecord record = createAuditTrailRecord(actor, eventMessage.getTimestamp(), EventType.USER_REVIVED, details);
         storeRecord(record, actor);
@@ -93,7 +96,7 @@ public class AuditTrailProjection {
         String actor = getUserId(eventMessage);
         String details = DetailsBuilder.instance()
                 .add("userId", event.getUserId())
-                .add("newName", event.getNewUserName())
+//                .add("newName", event.getNewUserName())
                 .build();
         AuditTrailRecord record = createAuditTrailRecord(actor, eventMessage.getTimestamp(), EventType.USER_RENAMED, details);
         storeRecord(record, actor);
