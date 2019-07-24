@@ -1,23 +1,9 @@
 package io.localmotion.eventsourcing.tracker;
 
-import com.google.gson.Gson;
-import io.localmotion.initiative.event.MemberJoinedInitiativeEvent;
-import io.localmotion.personaldata.PersonalDataRecord;
-import io.localmotion.personaldata.PersonalDataRepository;
-import io.localmotion.user.domain.NotificationLevel;
-import io.localmotion.user.domain.UserPII;
-import io.localmotion.user.event.*;
-import io.localmotion.user.projection.Profile;
-import io.localmotion.user.projection.ProfileStore;
 import io.micronaut.context.annotation.Context;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.eventhandling.EventMessage;
-import org.axonframework.messaging.MetaData;
-
-import javax.inject.Inject;
-import java.util.Collection;
-import java.util.HashSet;
 
 /**
  * This projection can be used to estimate whether the replaying of events on system startup has been completed and
@@ -33,6 +19,8 @@ import java.util.HashSet;
  *
  * The replay-is-finished status is evaluated on request and on receipt of each event (clean startup rule is ignored in this case).
  * When replay is determined to be complete, its status will remain complete.
+ *
+ * Note however that the replayComplete method will only retain true after a GRACE_PERIOD to allow for other projections to catch up.
  */
 @Slf4j
 @Context
@@ -41,10 +29,11 @@ public class TrackerProjection {
     private static final long WAIT_FOR_EVENT_STREAM_AFTER_STARTUP = 20*1000;            // 20 secs
     private static final long EVENT_UPDATE_STREAM_COMPLETE_MARGIN = 3*1000;             // 3 secs
     private static final long EVENT_IS_CURRENT_MARGIN = 10;                             // 10 milli-secs
+    private static final long GRACE_PERIOD = 3*1000;                                    // 3 secs
 
     private long projectionStartupTimestamp = 0;
     private long lastEventReceivedTimestamp = 0;
-    private boolean isUpToDate = false;
+    private long replayCompleteTimestamp = 0;
 
 
     @EventHandler
@@ -53,8 +42,11 @@ public class TrackerProjection {
         long currentTime = System.currentTimeMillis();
         long eventTime = eventMessage.getTimestamp().toEpochMilli();
 
-        isUpToDate |=   ( currentTime - eventTime < EVENT_IS_CURRENT_MARGIN ) ||
-                        ( lastEventReceivedTimestamp > 0 && currentTime - lastEventReceivedTimestamp > EVENT_UPDATE_STREAM_COMPLETE_MARGIN );
+        if (replayCompleteTimestamp == 0 && (
+                ( currentTime - eventTime < EVENT_IS_CURRENT_MARGIN ) ||
+                ( lastEventReceivedTimestamp > 0 && currentTime - lastEventReceivedTimestamp > EVENT_UPDATE_STREAM_COMPLETE_MARGIN )
+            ) )
+            replayCompleteTimestamp = currentTime;
 
         lastEventReceivedTimestamp = currentTime;
     }
@@ -69,9 +61,14 @@ public class TrackerProjection {
      */
     public boolean isUpToDate() {
         long currentTime = System.currentTimeMillis();
-        isUpToDate |=   ( projectionStartupTimestamp > 0 && lastEventReceivedTimestamp == 0 && currentTime - projectionStartupTimestamp > WAIT_FOR_EVENT_STREAM_AFTER_STARTUP ) ||
-                        ( lastEventReceivedTimestamp > 0 && currentTime - lastEventReceivedTimestamp > EVENT_UPDATE_STREAM_COMPLETE_MARGIN );
-        return isUpToDate;
+
+        if (replayCompleteTimestamp == 0 && (
+                ( projectionStartupTimestamp > 0 && lastEventReceivedTimestamp == 0 && currentTime - projectionStartupTimestamp > WAIT_FOR_EVENT_STREAM_AFTER_STARTUP ) ||
+                ( lastEventReceivedTimestamp > 0 && currentTime - lastEventReceivedTimestamp > EVENT_UPDATE_STREAM_COMPLETE_MARGIN )
+            ) )
+            replayCompleteTimestamp = currentTime;
+
+        return replayCompleteTimestamp > 0 && (currentTime - replayCompleteTimestamp > GRACE_PERIOD);
     }
 
 }
