@@ -3,7 +3,7 @@ directive @auth(role : String!) on FIELD_DEFINITION
 scalar Date
 scalar LocalDate
 scalar LocalDateTime
-scalar LocalTime
+#scalar LocalTime
 
 schema {
     query: Query
