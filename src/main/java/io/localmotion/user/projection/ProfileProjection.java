@@ -100,7 +100,7 @@ public class ProfileProjection {
             log.warn("Ignoring event because user profile not present: {}", evt);
         else {
             Profile newUserProfile = userProfile.withNotificationLevel(evt.getNotificationLevel());
-            activeProfiles.put(userProfile);
+            activeProfiles.put(newUserProfile);
         }
     }
 

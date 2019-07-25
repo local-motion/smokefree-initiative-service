@@ -3,6 +3,7 @@ package io.localmotion.user.aggregate;
 import com.google.gson.Gson;
 import io.localmotion.application.DomainException;
 import io.localmotion.user.command.*;
+import io.localmotion.user.domain.NotificationLevel;
 import io.localmotion.user.domain.UserPII;
 import io.localmotion.user.event.*;
 import io.localmotion.user.projection.ProfileProjection;
@@ -41,6 +42,8 @@ public class User {
     private String emailAddress;
 
     private Instant deletionTimestamp = null;   // When not equal to null the user is 'logically' deleted leaving the option to rejoin
+
+    private NotificationLevel notificationLevel = null;
 
     // 'Injecting' using the application context
     private PersonalDataRepository personalDataRepository = Application.getApplicationContext().getBean(PersonalDataRepository.class);
@@ -147,7 +150,8 @@ public class User {
     @CommandHandler
     public void setNotificationPreferences(SetNotificationPreferencesCommand cmd, MetaData metaData) {
         validateUserIsActive();
-        apply(new NotificationSettingsUpdatedEvent(cmd.getUserId(), cmd.getNotificationLevel()), metaData);
+        if (!cmd.getNotificationLevel().equals(notificationLevel));
+            apply(new NotificationSettingsUpdatedEvent(cmd.getUserId(), cmd.getNotificationLevel()), metaData);
     }
 
 
@@ -229,6 +233,12 @@ public class User {
     void on(UserRenamedEvent evt) {
         log.info("ON EVENT {}", evt);
         updateFromPersonalData(evt.getPiiRecordId());
+    }
+
+    @EventSourcingHandler
+    void on(NotificationSettingsUpdatedEvent evt) {
+        log.info("ON EVENT {}", evt);
+        this.notificationLevel = evt.getNotificationLevel();
     }
 
 
