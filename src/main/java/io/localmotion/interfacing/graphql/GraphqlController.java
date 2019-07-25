@@ -60,7 +60,7 @@ public class GraphqlController {
 
         // Block mutations while the projections are not yet up to date
         if (!trackerProjection.isUpToDate() && queryString.startsWith("mutation"))
-            return getSingleErrorResult("System is starting up");
+            return getSingleErrorResult("SYSTEM_STARTUP", "System is starting up");
 
 
         // Establish the security context
@@ -85,7 +85,6 @@ public class GraphqlController {
                 .query(query.getQuery())
                 .variables(query.getVariables())
                 .context(securityContext);
-//        builder.context(securityContext);
         ExecutionResult executionResult = graphQL.execute(builder);
 
 

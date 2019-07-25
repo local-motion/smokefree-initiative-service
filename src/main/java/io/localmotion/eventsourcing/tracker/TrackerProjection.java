@@ -18,9 +18,9 @@ import org.axonframework.eventhandling.EventMessage;
  * - timestamp of an event is very close (EVENT_IS_CURRENT_MARGIN) to the current time
  *
  * The replay-is-finished status is evaluated on request and on receipt of each event (clean startup rule is ignored in this case).
- * When replay is determined to be complete, its status will remain complete.
+ * When replay is determined once to be complete, its status will remain complete.
  *
- * Note however that the replayComplete method will only retain true after a GRACE_PERIOD to allow for other projections to catch up.
+ * Note however that the replayComplete method will only return true after a GRACE_PERIOD to allow for other projections to catch up.
  */
 @Slf4j
 @Context

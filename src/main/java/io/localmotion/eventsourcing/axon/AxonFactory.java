@@ -2,6 +2,7 @@ package io.localmotion.eventsourcing.axon;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.localmotion.audittrail.projection.AuditTrailProjection;
+import io.localmotion.eventsourcing.tracker.TrackerProjection;
 import io.localmotion.smokefreeplaygrounds.aggregate.PlaygroundInitiative;
 import io.localmotion.smokefreeplaygrounds.projection.PlaygroundProjection;
 import io.micronaut.context.annotation.Factory;
@@ -48,7 +49,9 @@ public class AxonFactory {
                                        InitiativeProjection initiativeProjection,
                                        PlaygroundProjection playgroundProjection,
                                        AuditTrailProjection auditTrailProjection,
-                                       ProfileProjection profileProjection) {
+                                       ProfileProjection profileProjection,
+                                       TrackerProjection trackerProjection
+                                        ) {
 
         // TODO: How to avoid hard-coding aggregates, event- and query handlers?
         Configurer configurer = DefaultConfigurer.defaultConfiguration()
@@ -62,13 +65,15 @@ public class AxonFactory {
                 .registerQueryHandler(c -> initiativeProjection)
                 .registerQueryHandler(c -> playgroundProjection)
                 .registerQueryHandler(c -> auditTrailProjection)
-                .registerQueryHandler(c -> profileProjection);
+                .registerQueryHandler(c -> profileProjection)
+                .registerQueryHandler(c -> trackerProjection);
 
         configurer.eventProcessing()
                 .registerEventHandler(c -> initiativeProjection)
                 .registerEventHandler(c -> playgroundProjection)
                 .registerEventHandler(c -> auditTrailProjection)
-                .registerEventHandler(c -> profileProjection);
+                .registerEventHandler(c -> profileProjection)
+                .registerEventHandler(c -> trackerProjection);
 
         Configuration configuration = configurer.buildConfiguration();
         configuration.start();
