@@ -13,13 +13,8 @@ import javax.annotation.Nullable;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Getter
-@SuppressWarnings("WeakerAccess")
 public class SecurityContext {
     private final Authentication authentication;
-//    private final String userId;
-//    private final String userName;
-//    private final String emailAddress;
-
     private final ProfileStatus profileStatus;
     private final Profile profile;
     private final String newUserName;
@@ -33,27 +28,13 @@ public class SecurityContext {
     public SecurityContext(Authentication authentication) {
         this(authentication, ProfileStatus.NONE, null, null);
     }
-//    public SecurityContext(Authentication authentication) {
-//        this(
-//                authentication,
-//                authentication != null ? authentication.getName() : null,
-//                authentication != null ? (String) authentication.getAttributes().get(SmokefreeConstants.JWTClaimSet.COGNITO_USER_NAME) : null,
-//                authentication != null ? (String) authentication.getAttributes().get(SmokefreeConstants.JWTClaimSet.EMAIL_ADDRESS) : null
-//        );
-//    }
+
     public SecurityContext(Authentication authentication, ProfileStatus profileStatus, Profile profile, String newUserName) {
         this.authentication = authentication;
         this.profileStatus = profileStatus;
         this.profile = profile;
         this.newUserName = newUserName;
     }
-
-//    ication authentication, String userId, String userName, String emailAddress) {
-//        this.authentication = authentication;
-//        this.userId = userId;
-//        this.userName = userName;
-//        this.emailAddress = emailAddress;
-//    }
 
     public Authentication authentication() {
         return authentication;
@@ -68,17 +49,11 @@ public class SecurityContext {
         return profileStatus == ProfileStatus.ACTIVE;
     }
 
-    /**
-     * In JWT / Cognito, the 'sub' ID is considered the unique 'username'.
-     */
     public @Nullable
     String userId() {
         return profile != null ? profile.getId() : null;
     }
 
-    /**
-     * In JWT / Cognito, the 'sub' ID is considered the unique 'username'.
-     */
     public String requireUserId() {
         if (!isAuthenticated())
             throw new AuthenticationException("Not logged in");

@@ -1,6 +1,7 @@
 package io.localmotion.interfacing.graphql;
 
 import graphql.*;
+import io.localmotion.eventsourcing.tracker.TrackerProjection;
 import io.localmotion.security.user.SecurityContext;
 import io.localmotion.security.user.SecurityContextFactory;
 import io.micronaut.http.MediaType;
@@ -33,6 +34,9 @@ public class GraphqlController {
     private Configuration configuration; // TODO: Trick to trigger bean creation. Can be done differently?
 
     @Inject
+    private TrackerProjection trackerProjection;
+
+    @Inject
     private ProfileProjection profileProjection;
 
     @Inject
@@ -40,9 +44,11 @@ public class GraphqlController {
 
     private static final List<String> AUTHENTICATION_EXCEPTIONS = List.of("mutation CreateUser", "mutation ReviveUser", "mutation ChangeUserName");
 
+
     @Post(consumes = MediaType.APPLICATION_JSON)
     public Map<String, Object> graphql(@Nullable Authentication authentication, @Size(max=4096) /* TODO Validation not yet enabled */  @Body GraphqlQuery query) throws Exception {
         log.trace("PlaygroundQuery: {}", query.getQuery());
+        trackerProjection.markStartup();
 
         Assert.assertNotNull(query.getQuery());
 
@@ -51,6 +57,10 @@ public class GraphqlController {
         final String queryString = query.getQuery().trim();
         if (authentication == null && queryString.startsWith("mutation"))
             return getSingleErrorResult("User must be authenticated");
+
+        // Block mutations while the projections are not yet up to date
+        if (!trackerProjection.isUpToDate() && queryString.startsWith("mutation"))
+            return getSingleErrorResult("SYSTEM_STARTUP", "System is starting up");
 
 
         // Establish the security context
@@ -63,19 +73,6 @@ public class GraphqlController {
             )
             return getSingleErrorResult("User must be authenticated");
 
-//        if ( authentication != null && securityContext == null  && !query.getQuery().trim().startsWith("mutation CreateUser") ) {
-//            // Authenticated user does not have a valid context yet. This will be a newly enrolled user. Fail and have the front-end do a CreateUser request
-//            log.trace("Authenticated user without profile: authentication.getName: " + authentication.getName() + " nr of profiles: " + profileProjection.getAllProfiles().size());
-//            return getSingleErrorResult("NO_PROFILE", "No user profile present");
-//        }
-
-
-//        if ( authentication != null && profileProjection.profile(authentication.getName()) == null  && !query.getQuery().trim().startsWith("mutation CreateUser") ) {
-//            // Authenticated user does not have a profile yet. This will be a newly enrolled user. Fail and have the front-end do a CreateUser request
-//            log.trace("Authenticated user without profile: authentication.getName: " + authentication.getName() + " nr of profiles: " + profileProjection.getAllProfiles().size());
-//            return getSingleErrorResult("NO_PROFILE", "No user profile present");
-//        }
-
 
         // create a fingerprint of the request
         int fingerPrint = query.getQuery().hashCode() + query.getVariables().hashCode();    // TODO filter out meta variables?
@@ -86,9 +83,8 @@ public class GraphqlController {
         // execute the query
         ExecutionInput.Builder builder = new ExecutionInput.Builder()
                 .query(query.getQuery())
-                .variables(query.getVariables());
-//        builder.context(new SecurityContext(authentication));
-        builder.context(securityContext);
+                .variables(query.getVariables())
+                .context(securityContext);
         ExecutionResult executionResult = graphQL.execute(builder);
 
 

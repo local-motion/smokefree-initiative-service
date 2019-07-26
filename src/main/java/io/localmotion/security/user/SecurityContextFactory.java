@@ -1,5 +1,6 @@
 package io.localmotion.security.user;
 
+import io.localmotion.eventsourcing.tracker.TrackerProjection;
 import io.localmotion.user.domain.ProfileStatus;
 import io.localmotion.user.projection.Profile;
 import io.localmotion.user.projection.ProfileProjection;
@@ -21,8 +22,10 @@ public class SecurityContextFactory {
     @Inject
     ProfileProjection profileProjection;
 
-    public SecurityContext createSecurityContext(Authentication authentication) {
+    @Inject
+    private TrackerProjection trackerProjection;
 
+    public SecurityContext createSecurityContext(Authentication authentication) {
 
         // Return an empty security context for unauthenticated users
         if (authentication == null)
@@ -32,6 +35,10 @@ public class SecurityContextFactory {
         Optional<AuthenticationProvider> authenticationProvider = authenticationProviders.stream().filter(provider -> provider.appliesTo(authentication)).findFirst();
         if (!authenticationProvider.isPresent())
             throw new AuthenticationException("Authentication context cannot be handled by any authentication provider");
+
+        // Check whether the projections are up-to-date
+        if (!trackerProjection.isUpToDate())
+            return new SecurityContext(authentication, ProfileStatus.UNDETERMINED, null, null);
 
         // Try to retrieve the profile
         Profile profile = authenticationProvider.get().getProfile(authentication, profileProjection);

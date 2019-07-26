@@ -24,32 +24,12 @@ public class UserDataRepository {
 
     @Transactional
     public void store(String userId, String userData) {
-//        entityManager.persist(new UserDataRecord(userId, new Date(), userData));
         retrieveRecord(userId).setText(userData);
     }
 
     @Transactional(readOnly = true)
     public String retrieve(String userId) {
         return retrieveRecord(userId).getText();
-//        try {
-//            Query query = entityManager.createQuery(
-//                    "SELECT m from UserDataRecord m " +
-//                            "WHERE m.userId = :userId "
-//            );
-//            query.setParameter("userId", userId);
-//            UserDataRecord userDataRecord = (UserDataRecord) query.getSingleResult();
-//            return userDataRecord.getText();
-//        } catch (NoResultException e) {
-//            return "{}";
-//        } catch (IllegalArgumentException e) {
-//            if (e.getCause() instanceof  QuerySyntaxException && e.getCause().getMessage().startsWith("UserDataRecord is not mapped")) {
-//                log.warn("No user data table present, serving empty user data");
-//                entityManager.persist(new UserDataRecord(userId, new Date(), "{}"));
-//                return "{}";
-//            }
-//            else
-//                throw e;
-//        }
     }
 
 @Transactional(readOnly = true)

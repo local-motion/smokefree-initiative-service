@@ -6,6 +6,7 @@ import io.localmotion.user.domain.NotificationLevel;
 import io.localmotion.user.event.*;
 import io.micronaut.context.annotation.Context;
 import lombok.extern.slf4j.Slf4j;
+import org.axonframework.config.Configuration;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.messaging.MetaData;
 import io.localmotion.personaldata.PersonalDataRecord;
@@ -22,17 +23,13 @@ public class ProfileProjection {
 
     public static final String PROPERTY_REMOVED = "removed";
 
-//    private final Map<String, Profile> profilesById = newConcurrentMap();
-//    private final Map<String, Profile> profilesByName = newConcurrentMap();
-//
-//    private final Map<String, Profile> deletedProfilesById = newConcurrentMap();
-
     private final ProfileStore activeProfiles = new ProfileStore();
     private final ProfileStore deletedProfiles = new ProfileStore();
 
 
     @Inject
     PersonalDataRepository personalDataRepository;
+
 
     /*
             Event handlers
@@ -51,25 +48,19 @@ public class ProfileProjection {
         }
         else {
             profile = new Profile(evt.getUserId(), "*PROPERTY_REMOVED*", "*PROPERTY_REMOVED*", NotificationLevel.NONE, new HashSet<>());
-//            profile = new Profile(evt.getUserId(), null, null, null, null);
         }
 
-//        profilesById.put(profile.getId(), profile);
-//        profilesByName.put(profile.getUsername(), profile);
         activeProfiles.put(profile);
     }
 
     @EventHandler
     void on(UserRevivedEvent evt) {
         log.info("ON EVENT {}", evt);
-//        Profile profile = deletedProfilesById.get(evt.getUserId());
         Profile profile = deletedProfiles.getById(evt.getUserId());
         if (profile.getUsername() != null) {
-//            profilesById.put(profile.getId(), profile);
-//            profilesByName.put(profile.getUsername(), profile);
 
             deletedProfiles.remove(profile.getId());
-            activeProfiles.put(evt.getNewUserName() == null ? profile : profile.withUsername(evt.getNewUserName()));
+            activeProfiles.put(updateProfileFromPersonalData(profile, evt.getPiiRecordId()));
         }
         else
             log.warn("Trying to revive user with personal data removed, Ignoring...");
@@ -78,10 +69,6 @@ public class ProfileProjection {
     @EventHandler
     void on(UserDeletedEvent evt) {
         log.info("ON EVENT {}", evt);
-//        Profile userProfile = profilesById.get(evt.getUserId());
-//        profilesByName.remove(userProfile.getUsername());
-//        profilesById.remove(evt.getUserId());
-//        deletedProfilesById.put(userProfile.getId(), userProfile);
 
         Profile profile = activeProfiles.getById(evt.getUserId());
         activeProfiles.remove(profile.getId());
@@ -91,7 +78,6 @@ public class ProfileProjection {
     @EventHandler
     void on(PersonalDataDeletedEvent evt) {
         log.info("ON EVENT {}", evt);
-//        deletedProfilesById.put(evt.getUserId(), new Profile(evt.getUserId(), null, null, null, null));
         deletedProfiles.put(new Profile(evt.getUserId(), null, null, null, null));
     }
 
@@ -100,7 +86,7 @@ public class ProfileProjection {
         log.info("ON EVENT {}", evt);
         Profile profile = activeProfiles.getById(evt.getUserId());
         if (profile.getUsername() != null) {
-            activeProfiles.put(profile.withUsername(evt.getNewUserName()));
+            activeProfiles.put(updateProfileFromPersonalData(profile, evt.getPiiRecordId()));
         }
         else
             log.warn("Trying to rename user with personal data removed, Ignoring...");
@@ -109,22 +95,18 @@ public class ProfileProjection {
     @EventHandler
     void on(NotificationSettingsUpdatedEvent evt) {
         log.info("ON EVENT {}", evt);
-//        Profile userProfile = profilesById.get(evt.getUserId());
         Profile userProfile = activeProfiles.getById(evt.getUserId());
         if (userProfile == null)
             log.warn("Ignoring event because user profile not present: {}", evt);
         else {
             Profile newUserProfile = userProfile.withNotificationLevel(evt.getNotificationLevel());
-//            profilesByName.put(newUserProfile.getUsername(), newUserProfile);
-//            profilesById.put(newUserProfile.getId(), newUserProfile);
-            activeProfiles.put(userProfile);
+            activeProfiles.put(newUserProfile);
         }
     }
 
     @EventHandler
     void on(MemberJoinedInitiativeEvent evt) {
         log.info("ON EVENT {}", evt);
-//        Profile userProfile = profilesById.get(evt.getMemberId());
         Profile userProfile = activeProfiles.getById(evt.getMemberId());
         if (userProfile == null)
             log.warn("Ignoring event because user profile not present: {}", evt);
@@ -133,17 +115,16 @@ public class ProfileProjection {
         }
     }
 
+
     /*
             Retrieval methods
      */
 
     public Profile profile(String id) {
-//        return profilesById.get(id);
         return activeProfiles.getById(id);
     }
 
     public Profile getProfileByName(String username) {
-//        return profilesByName.get(username);
         return activeProfiles.getByName(username);
     }
 
@@ -152,7 +133,6 @@ public class ProfileProjection {
     }
 
     public Profile getDeletedProfile(String id) {
-//        return deletedProfilesById.get(id);
         return deletedProfiles.getById(id);
     }
 
@@ -161,12 +141,31 @@ public class ProfileProjection {
     }
 
     public Collection<Profile> getAllProfiles() {
-//        return profilesById.values();
         return activeProfiles.getAllProfiles();
     }
 
     public boolean emailExists(String emailAddress) {
-//        return profilesById.values().stream().anyMatch(profile -> profile.getEmailAddress().equals(emailAddress));
         return activeProfiles.getByEmailAddress(emailAddress) != null;
     }
+
+
+    /*
+            PII support methods
+     */
+
+    private Profile updateProfileFromPersonalData(Profile profile, Long recordId) {
+        Profile newProfile = profile;
+        if (recordId != null) {
+            PersonalDataRecord personalDataRecord = personalDataRepository.getRecord(recordId);
+            if (personalDataRecord != null) {
+                UserPII userPII = new Gson().fromJson(personalDataRecord.getData(), UserPII.class);
+                if (userPII.getName() != null)
+                    newProfile = newProfile.withUsername(userPII.getName());
+                if (userPII.getEmailAddress() != null)
+                    newProfile = newProfile.withEmailAddress(userPII.getEmailAddress());
+            }
+        }
+        return newProfile;
+    }
+
 }

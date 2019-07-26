@@ -48,7 +48,8 @@ public class CognitoImportFileJobCommand implements AdminCommand {
         int hashcode = 0;
         StringBuilder sb = new StringBuilder(FILE_HEADERS + "\r\n");
         for (Profile i : profileProjection.getAllProfiles()) {
-            String record = i.getUsername() + ",,,,,,,,,," + i.getEmailAddress() + ",FALSE,,,,,,,,,FALSE\r\n";
+//            String record = i.getId() +  " - " + i.getUsername() + ",,,,,,,,,," + i.getEmailAddress() + ",TRUE,,,,,,,,,FALSE\r\n";
+            String record = i.getUsername() + ",,,,,,,,,," + i.getEmailAddress() + ",TRUE,,,,,,,,,FALSE\r\n";
             sb.append(record);
             recordsWritten++;
             hashcode += record.hashCode();

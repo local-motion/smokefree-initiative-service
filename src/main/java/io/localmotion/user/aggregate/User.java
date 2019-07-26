@@ -3,6 +3,7 @@ package io.localmotion.user.aggregate;
 import com.google.gson.Gson;
 import io.localmotion.application.DomainException;
 import io.localmotion.user.command.*;
+import io.localmotion.user.domain.NotificationLevel;
 import io.localmotion.user.domain.UserPII;
 import io.localmotion.user.event.*;
 import io.localmotion.user.projection.ProfileProjection;
@@ -42,6 +43,8 @@ public class User {
 
     private Instant deletionTimestamp = null;   // When not equal to null the user is 'logically' deleted leaving the option to rejoin
 
+    private NotificationLevel notificationLevel = null;
+
     // 'Injecting' using the application context
     private PersonalDataRepository personalDataRepository = Application.getApplicationContext().getBean(PersonalDataRepository.class);
     private ProfileProjection profileProjection = Application.getApplicationContext().getBean(ProfileProjection.class);
@@ -64,16 +67,20 @@ public class User {
         validateUsernameIsUnique(cmd.getName());
         validateEmailAddressIsUnique(cmd.getEmailAddress());
 
-        UserPII userPII = new UserPII(cmd.getName(), cmd.getEmailAddress());
-        String piiString = new Gson().toJson(userPII);
+//        UserPII userPII = new UserPII(cmd.getName(), cmd.getEmailAddress());
+//        String piiString = new Gson().toJson(userPII);
+//
+//        PersonalDataRecord personalDataRecord = new PersonalDataRecord(cmd.getUserId(), piiString);
+//        personalDataRepository.storeRecord(personalDataRecord);
+//
+//        long recordId = personalDataRecord.getRecordId();
+//        log.info("created pii record " + recordId + " for " + cmd.getUserId() + " with data " + piiString);
 
-        PersonalDataRecord personalDataRecord = new PersonalDataRecord(cmd.getUserId(), piiString);
-        personalDataRepository.storeRecord(personalDataRecord);
-
-        long recordId = personalDataRecord.getRecordId();
-        log.info("created pii record " + recordId + " for " + cmd.getUserId() + " with data " + piiString);
+        long recordId = createPIIRecord(cmd.getUserId(), cmd.getName(), cmd.getEmailAddress());
         apply(new UserCreatedEvent(cmd.getUserId(), recordId), metaData);
     }
+
+
 
     /**
      * Return this aggregate
@@ -102,7 +109,12 @@ public class User {
         // the user is revived again after just having been deleted, while the user credentials (Cognito) have already been destroyed.
         validateRevivalCooldownPeriod();
 
-        apply(new UserRevivedEvent(cmd.getUserId(), cmd.getUserName() == null || name.equals(cmd.getUserName()) ? null : cmd.getUserName()), metaData);
+        if (cmd.getUserName() == null || name.equals(cmd.getUserName()))
+                apply(new UserRevivedEvent(cmd.getUserId(), null), metaData);
+        else {
+            long recordId = createPIIRecord(cmd.getUserId(), cmd.getUserName(), null);
+            apply(new UserRevivedEvent(cmd.getUserId(), recordId), metaData);
+        }
     }
 
     @CommandHandler
@@ -131,13 +143,15 @@ public class User {
         // Verify that no other active users exist with the same username or email address (Should not occurs through normal usage of the LocalMotion frontend)
         validateUsernameIsUnique(cmd.getNewUserName());
 
-        apply(new UserRenamedEvent(cmd.getUserId(), cmd.getNewUserName()), metaData);
+        long recordId = createPIIRecord(cmd.getUserId(), cmd.getNewUserName(), null);
+        apply(new UserRenamedEvent(cmd.getUserId(), recordId), metaData);
     }
 
     @CommandHandler
     public void setNotificationPreferences(SetNotificationPreferencesCommand cmd, MetaData metaData) {
         validateUserIsActive();
-        apply(new NotificationSettingsUpdatedEvent(cmd.getUserId(), cmd.getNotificationLevel()), metaData);
+        if (!cmd.getNotificationLevel().equals(notificationLevel));
+            apply(new NotificationSettingsUpdatedEvent(cmd.getUserId(), cmd.getNotificationLevel()), metaData);
     }
 
 
@@ -206,7 +220,7 @@ public class User {
     void on(UserRevivedEvent evt) {
         log.info("ON EVENT {}", evt);
         deletionTimestamp = null;
-        name = evt.getNewUserName() != null ? evt.getNewUserName() : name;
+        updateFromPersonalData(evt.getPiiRecordId());
     }
 
     @EventSourcingHandler
@@ -218,7 +232,43 @@ public class User {
     @EventSourcingHandler
     void on(UserRenamedEvent evt) {
         log.info("ON EVENT {}", evt);
-        name = evt.getNewUserName();
+        updateFromPersonalData(evt.getPiiRecordId());
+    }
+
+    @EventSourcingHandler
+    void on(NotificationSettingsUpdatedEvent evt) {
+        log.info("ON EVENT {}", evt);
+        this.notificationLevel = evt.getNotificationLevel();
+    }
+
+
+
+    /*
+            PII support methods
+     */
+
+    private long createPIIRecord(String useriId, String userName, String emailAddress) {
+        UserPII userPII = new UserPII(userName, emailAddress);
+        String piiString = new Gson().toJson(userPII);
+
+        PersonalDataRecord personalDataRecord = new PersonalDataRecord(useriId, piiString);
+        personalDataRepository.storeRecord(personalDataRecord);
+
+        long recordId = personalDataRecord.getRecordId();
+        log.info("created pii record " + recordId + " for " + useriId + " with data " + piiString);
+
+        return recordId;
+    }
+
+    private void updateFromPersonalData(Long recordId) {
+        if (recordId != null) {
+            PersonalDataRecord personalDataRecord = personalDataRepository.getRecord(recordId);
+            if (personalDataRecord != null) {
+                UserPII userPII = new Gson().fromJson(personalDataRecord.getData(), UserPII.class);
+                this.name = userPII.getName() != null ? userPII.getName() : this.name;
+                this.emailAddress = userPII.getEmailAddress() != null ? userPII.getEmailAddress() : this.emailAddress;
+            }
+        }
     }
 
 }
