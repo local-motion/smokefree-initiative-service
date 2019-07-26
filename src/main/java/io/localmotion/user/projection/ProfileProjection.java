@@ -144,6 +144,10 @@ public class ProfileProjection {
         return activeProfiles.getAllProfiles();
     }
 
+    public Collection<Profile> getAllDeletedProfiles() {
+        return deletedProfiles.getAllProfiles();
+    }
+
     public boolean emailExists(String emailAddress) {
         return activeProfiles.getByEmailAddress(emailAddress) != null;
     }
