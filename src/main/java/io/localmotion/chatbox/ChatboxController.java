@@ -1,5 +1,7 @@
 package io.localmotion.chatbox;
 
+import io.localmotion.chatbox.model.ChatBox;
+import io.localmotion.chatbox.model.User;
 import io.localmotion.eventsourcing.tracker.TrackerProjection;
 import io.localmotion.initiative.projection.Initiative;
 import io.localmotion.security.user.SecurityContext;
@@ -22,6 +24,7 @@ import javax.validation.Valid;
 import javax.validation.ValidationException;
 import javax.validation.constraints.Size;
 import java.util.Collection;
+import java.util.Collections;
 
 import static io.micronaut.security.rules.SecurityRule.IS_ANONYMOUS;
 import static io.micronaut.security.rules.SecurityRule.IS_AUTHENTICATED;
@@ -68,23 +71,63 @@ public class ChatboxController {
         if (!isUserAuthorisedForChatbox(securityContext.requireUserId(), chatboxId))
             return HttpResponse.status(HttpStatus.UNAUTHORIZED, "User not authorised for chatbox");
 
-        chatMessage.setAuthor(userName);
-        chatMessage.setChatboxId(chatboxId);
+//        chatMessage.setAuthor(userName);
+//        chatMessage.setChatboxId(chatboxId);
+//        chatboxRepository.storeMessage(chatboxId, chatMessage);
 
-        chatboxRepository.storeMessage(chatboxId, chatMessage);
+        ChatBox chatBox = chatboxRepository.getChatBoxWithExternalId(chatboxId);
+        User user = chatboxRepository.getUserWithExternalId(securityContext.requireUserId());
+        chatboxRepository.storeMessage(chatBox, user, chatMessage.getText());
 
         return HttpResponse.ok(chatMessage);
     }
+
+//    @Post("/{chatboxId}")
+//    public HttpResponse<ChatMessage> postMessage(Authentication authentication, String chatboxId, @Body ChatMessage chatMessage) {
+//
+//        // Validate that the projections are up-to-date
+//        if (!trackerProjection.isUpToDate())
+//            return HttpResponse.status(HttpStatus.SERVICE_UNAVAILABLE, "System is starting up");
+//
+//        // Establish the security context
+//        SecurityContext securityContext = securityContextFactory.createSecurityContext(authentication);
+//
+//        if (!securityContext.isAuthenticated())
+//            return HttpResponse.status(HttpStatus.UNAUTHORIZED, "User must be authenticated");
+//
+//        final String userName = securityContext.requireUserName();
+//
+//        log.info("chat message for"  + chatboxId + ": " + chatMessage + " from: " + userName);
+//
+//        if (!isValidChatboxId(chatboxId))
+//            return HttpResponse.status(HttpStatus.NOT_FOUND, "Invalid chatbox");
+//
+//        if (!isUserAuthorisedForChatbox(securityContext.requireUserId(), chatboxId))
+//            return HttpResponse.status(HttpStatus.UNAUTHORIZED, "User not authorised for chatbox");
+//
+//        chatMessage.setAuthor(userName);
+//        chatMessage.setChatboxId(chatboxId);
+//
+//        chatboxRepository.storeMessage(chatboxId, chatMessage);
+//
+//        return HttpResponse.ok(chatMessage);
+//    }
+//
+
 
     @Secured(IS_ANONYMOUS)
     @Get("/{chatboxId}{?since}")
     public Collection<ChatMessage> getMessages(String chatboxId, @Nullable String since) {
         log.info("fetching for: " + chatboxId + ", since: " + since);
 
+        ChatBox chatBox = chatboxRepository.getChatBoxWithExternalId(chatboxId);
+        if (chatBox == null)
+            return Collections.emptyList();
+
         if (since == null)
-            return chatboxRepository.getMessages(chatboxId);
+            return chatboxRepository.getMessages(chatBox);
         else
-            return chatboxRepository.getMessagesSince(chatboxId, since);
+            return chatboxRepository.getMessagesSince(chatBox, since);
     }
 
     private boolean isValidChatboxId(String chatboxId) {

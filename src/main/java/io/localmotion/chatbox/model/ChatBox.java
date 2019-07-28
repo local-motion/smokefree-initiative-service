@@ -12,19 +12,19 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-@Entity(name="CHATBOX")
+@Entity(name="chatbox")
 public class ChatBox {
 
     @Id
-    @Column(name = "ID", nullable = false)
+    @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
-    @Column(name = "EXTERNAL_ID")
+    @Column(name = "external_id")
     private String externalId;
 
     // Last modification time of this entity
-    @Column(name = "LAST_UPDATE", nullable = false)
+    @Column(name = "last_update", nullable = false)
     private Date lastUpdateTime = new Date();
 
 
@@ -32,7 +32,7 @@ public class ChatBox {
         Relationships
      */
 
-    @OneToMany(mappedBy="chatBox",targetEntity= ChatBoxUser.class, fetch=FetchType.EAGER)
-    private Collection<ChatBoxUser> users;
+    @OneToMany(mappedBy="chatBox",targetEntity= Participation.class, fetch=FetchType.EAGER)
+    private Collection<Participation> participations;
 
 }

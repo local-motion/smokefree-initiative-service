@@ -12,34 +12,34 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-@Entity(name="CHATBOX_USER")
-@IdClass(ChatBoxId.class)
-public class ChatBoxUser {
+@Entity(name="participation")
+@IdClass(ParticipationId.class)
+public class Participation {
 
     @Id
     @ManyToOne(optional=false)
-    @JoinColumn(name="CHATBOX", referencedColumnName="ID")
+    @JoinColumn(name="chatbox", referencedColumnName="id")
     private ChatBox chatBox;
 
     @Id
     @ManyToOne(optional=false)
-    @JoinColumn(name="USER", referencedColumnName="ID")
+    @JoinColumn(name="chatbox_user", referencedColumnName="id")
     private User user;
 
     // Last modification time of this entity
-    @Column(name = "LAST_UPDATE", nullable = false)
+    @Column(name = "last_update", nullable = false)
     private Date lastUpdateTime = new Date();
 
 
     // Soft reference to the most-recent message that was presented to the user
-    @Column(name = "LAST_READ_MESSAGE_ID")
+    @Column(name = "last_read_message_id")
     private int lastReadMessageId;
 
-    @Column(name = "LAST_ACCESS_TIME")
+    @Column(name = "last_access_time")
     private Date lastAccessTime;
 
     // Soft reference to the most-recent message that was notified to the user
-    @Column(name = "LAST_NOTIFIED_MESSAGE_ID")
+    @Column(name = "last_notified_message_id")
     private int lastNotifiedMessageId;
 
 
@@ -48,7 +48,7 @@ public class ChatBoxUser {
         Other relationships
      */
 
-    @OneToMany(mappedBy="author",targetEntity= ChatMessageV2.class, fetch=FetchType.LAZY)
-    private Collection<ChatMessageV2> messages;
+//    @OneToMany(mappedBy="author",targetEntity= ChatMessageV2.class, fetch=FetchType.LAZY)
+//    private Collection<ChatMessageV2> messages;
 
 }

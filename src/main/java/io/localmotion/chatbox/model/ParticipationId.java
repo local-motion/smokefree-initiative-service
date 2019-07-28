@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 import java.io.Serializable;
 @EqualsAndHashCode
 @AllArgsConstructor
-public class ChatBoxId implements Serializable {
+public class ParticipationId implements Serializable {
     private int chatBox;
     private int user;
 }

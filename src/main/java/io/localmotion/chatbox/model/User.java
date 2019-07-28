@@ -13,23 +13,26 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-@Entity(name="USER")
+@Entity(name="chatbox_user")
 public class User {
 
     @Id
-    @Column(name = "ID", nullable = false)
+    @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
-    @Column(name = "NAME", nullable = false)
+    @Column(name = "name", nullable = false)
     @NotBlank
     private String name;
 
-    @Column(name = "EXTERNAL_ID")
+    @Column(name = "external_id")
     private String externalId;
 
+    @Column(name = "deleted")
+    private boolean deleted;
+
     // Last modification time of this entity
-    @Column(name = "LAST_UPDATE", nullable = false)
+    @Column(name = "last_update", nullable = false)
     private Date lastUpdateTime = new Date();
 
 
@@ -37,7 +40,7 @@ public class User {
         Relationships
      */
 
-    @OneToMany(mappedBy="user",targetEntity= ChatBoxUser.class, fetch=FetchType.EAGER)
-    private Collection<ChatBox> chatBoxes;
+    @OneToMany(mappedBy="user",targetEntity= Participation.class, fetch=FetchType.LAZY)
+    private Collection<Participation> participations;
 
 }
