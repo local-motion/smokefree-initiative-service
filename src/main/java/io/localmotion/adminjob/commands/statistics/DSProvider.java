@@ -28,7 +28,7 @@ public class DSProvider {
         HikariDataSource dataSource = new HikariDataSource(config);
         log.info("Local datasource initialized successfully");
 
-        log.info("RDSTEST: Created local datasource {}, hashcode {}", dataSource, dataSource.hashCode());
+        log.info("RDSTEST: Created datasource {}, hashcode {} and password {}", dataSource, dataSource.hashCode(), password);
 
 
         return dataSource;
