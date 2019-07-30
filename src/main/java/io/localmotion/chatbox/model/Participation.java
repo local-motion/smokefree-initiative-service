@@ -18,12 +18,12 @@ public class Participation {
 
     @Id
     @ManyToOne(optional=false)
-    @JoinColumn(name="chatbox", referencedColumnName="id")
+    @JoinColumn(name="chat_box", referencedColumnName="id")
     private ChatBox chatBox;
 
     @Id
     @ManyToOne(optional=false)
-    @JoinColumn(name="chatbox_user", referencedColumnName="id")
+    @JoinColumn(name="chat_box_user", referencedColumnName="id")
     private User user;
 
     // Last modification time of this entity

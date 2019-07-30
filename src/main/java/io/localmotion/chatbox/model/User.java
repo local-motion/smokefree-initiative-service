@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
 
@@ -13,7 +14,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-@Entity(name="chatbox_user")
+@Entity(name="chat_box_user")
 public class User {
 
     @Id
@@ -33,7 +34,7 @@ public class User {
 
     // Last modification time of this entity
     @Column(name = "last_update", nullable = false)
-    private Date lastUpdateTime = new Date();
+    private Instant lastUpdateTime = Instant.now();
 
 
     /*

@@ -8,6 +8,7 @@ import javax.inject.Singleton;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
 
@@ -34,8 +35,8 @@ public class ChatboxRepository {
     public User getUserWithExternalId(String externalId) {
         try {
             Query query = entityManager.createQuery(
-                    "SELECT m from USER m " +
-                            "WHERE m.externalId = :externalId"
+                    "SELECT m from chat_box_user m " +
+                            "WHERE m.external_id = :externalId"
             );
             query.setParameter("externalId", externalId);
             return (User) query.getSingleResult();
@@ -60,11 +61,11 @@ public class ChatboxRepository {
 
     @Transactional
     public void deleteUser(User user) {
-        deleteUser(user, new Date());
+        deleteUser(user, Instant.now());
     }
 
     @Transactional
-    public void deleteUser(User user, Date updateDateTime) {
+    public void deleteUser(User user, Instant updateDateTime) {
         user.setDeleted(true);
         user.setLastUpdateTime(updateDateTime);
     }
@@ -84,8 +85,8 @@ public class ChatboxRepository {
     public ChatBox getChatBoxWithExternalId(String externalId) {
         try {
             Query query = entityManager.createQuery(
-                    "SELECT m from CHATBOX  m " +
-                            "WHERE m.externalId = :externalId"
+                    "SELECT m from chat_box  m " +
+                            "WHERE m.external_id = :externalId"
             );
             query.setParameter("externalId", externalId);
             return (ChatBox) query.getSingleResult();
@@ -131,9 +132,9 @@ public class ChatboxRepository {
     @Transactional(readOnly = true)
     public Collection<ChatMessage> getMessages(ChatBox chatbox) {
         Query query = entityManager.createQuery(
-                "SELECT m from ChatMessageV2 " +
-                        "WHERE chatBox = :chatboxId " +
-                        "ORDER BY m.creationTime ASC"
+                "SELECT m from chat_message " +
+                        "WHERE chat_box = :chatboxId " +
+                        "ORDER BY m.creation_time ASC"
         );
         query.setParameter("chatboxId", chatbox.getId());
         return query.getResultList();
@@ -142,10 +143,10 @@ public class ChatboxRepository {
     @Transactional(readOnly = true)
     public Collection<ChatMessage> getMessagesSince(ChatBox chatbox, String messageId) {
         Query query = entityManager.createQuery(
-                "SELECT m from ChatMessageV2 " +
-                        "WHERE chatBox = :chatboxId " +
-                        "AND m.creationTime > (SELECT n.creationTime FROM ChatMessageV2 n WHERE n.messageId = :messageId) " +
-                        "ORDER BY m.creationTime ASC"
+                "SELECT m from chat_message " +
+                        "WHERE chat_box = :chatboxId " +
+                        "AND m.creation_time > (SELECT n.creation_time FROM chat_message n WHERE n.message_id = :messageId) " +
+                        "ORDER BY m.creation_time ASC"
         );
         query.setParameter("chatboxId", chatbox.getId());
         query.setParameter("messageId", messageId);

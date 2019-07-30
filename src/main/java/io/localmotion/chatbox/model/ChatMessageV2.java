@@ -6,6 +6,7 @@ import lombok.*;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.time.Instant;
 import java.util.Date;
 
 
@@ -23,7 +24,7 @@ public class ChatMessageV2 {
     private int id;
 
     @Column(name = "creation_time", nullable = false)
-    private final Date creationTime = new Date();
+    private Instant creationTime = Instant.now();
 
     @Column(name = "text", nullable = false)
     @NotBlank(message = "Message must have at least " + SmokefreeConstants.ChatBox.MINIMUM_MESSAGE_LENGTH + " characters")
@@ -39,26 +40,19 @@ public class ChatMessageV2 {
 
     // Last modification time of this entity
     @Column(name = "last_update", nullable = false)
-    private Date lastUpdateTime = new Date();
+    private Instant lastUpdateTime = Instant.now();
 
 
     /*
         Relationships
      */
 
-//    @ManyToOne(targetEntity = Participation.class, optional=false)
-//    @JoinColumns({
-//        @JoinColumn(name = "CHATBOX_ID", referencedColumnName = "CHATBOX"),
-//        @JoinColumn(name = "USER_ID", referencedColumnName = "USER")
-//    })
-//    private Participation author;
-
     @ManyToOne(targetEntity = User.class, optional=false)
     @JoinColumn(name = "author_id", referencedColumnName = "id")
     private User author;
 
     @ManyToOne(targetEntity = ChatBox.class, optional=false)
-    @JoinColumn(name = "chatbox_id", referencedColumnName = "id")
+    @JoinColumn(name = "chat_box_id", referencedColumnName = "id")
     private ChatBox chatBox;
 
 }

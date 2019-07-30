@@ -47,12 +47,12 @@ public class ChatBoxProjection {
     }
 
     @EventHandler
-    void on(UserDeletedEvent evt) {
+    void on(UserDeletedEvent evt, EventMessage<?> eventMessage) {
         log.info("ON EVENT {}", evt);
 
         User user = chatboxRepository.getUserWithExternalId(evt.getUserId());
-        if (user != null) {
-            chatboxRepository.deleteUser(user);
+        if (user != null && user.getLastUpdateTime().isBefore(eventMessage.getTimestamp())) {
+            chatboxRepository.deleteUser(user, eventMessage.getTimestamp());
         }
     }
 
