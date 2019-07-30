@@ -28,8 +28,8 @@ class CognitoSettingsTest {
 		Assertions.assertEquals("3nkh1qomocr39s893jf0dp44cd", cognitoSettings.getUserPoolWebClientId());
 	}
 
-	@Test
-	void getDomain() {
-		Assertions.assertEquals("smokefree-dev.auth.eu-west-1.amazoncognito.com",cognitoSettings.getDomain());
-	}
+//	@Test
+//	void getDomain() {
+//		Assertions.assertEquals("smokefree-dev.auth.eu-west-1.amazoncognito.com",cognitoSettings.getDomain());
+//	}
 }

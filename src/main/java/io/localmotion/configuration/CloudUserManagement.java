@@ -8,5 +8,5 @@ public interface CloudUserManagement {
 
 	String getUserPoolWebClientId();
 
-	String getDomain();
+//	String getDomain();
 }

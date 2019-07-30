@@ -103,9 +103,9 @@ aws:
     region: eu-west-1
 
 # LocalMotion2 pool
-    userpoolid: eu-west-1_1nKYURwwe
-    userpoolwebclientid: 66b4h2jtrk309tlf2hlq5khkk2
-    domain: localmotion-dev2.auth.eu-west-1.amazoncognito.com
+    userpoolid: eu-west-1_UecSmcY4v
+    userpoolwebclientid: 3g22ut7okb1i14sjh90a5ahptm
+#    domain: localmotion-dev2.auth.eu-west-1.amazoncognito.com
 
   rds:
     enableSsl: false

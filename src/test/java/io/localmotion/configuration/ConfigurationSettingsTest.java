@@ -29,7 +29,7 @@ class ConfigurationSettingsTest {
 		when(cognitoUserPool.getRegion()).thenReturn("eu-west-3");
 		when(cognitoUserPool.getUserPoolId()).thenReturn("");
 		when(cognitoUserPool.getUserPoolWebClientId()).thenReturn("");
-		when(cognitoUserPool.getDomain()).thenReturn("");
+//		when(cognitoUserPool.getDomain()).thenReturn("");
 
 		Assertions.assertEquals("eu-west-3", configurationSettings.getCognitoSettings().getRegion());
 
