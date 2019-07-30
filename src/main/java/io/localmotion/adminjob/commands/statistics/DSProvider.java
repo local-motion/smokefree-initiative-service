@@ -25,6 +25,7 @@ public class DSProvider {
         config.setUsername(username);
         config.setPassword(password);
         config.setDriverClassName(driverClassName);
+        log.info("RDSTEST: Trying to create datasource with password {}", password);
         HikariDataSource dataSource = new HikariDataSource(config);
         log.info("Local datasource initialized successfully");
 

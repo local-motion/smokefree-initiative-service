@@ -34,6 +34,8 @@ public class RdsDataSourceFactory {
         config.setUsername(rdsSecretManager.getUsername());
         config.setPassword(pw);
         config.setDriverClassName(rdsSecretManager.getJDBCDriverClass());
+        log.info("RDSTEST: Trying to create RDS datasource with password {}", pw);
+
         HikariDataSource dataSource = new HikariDataSource(config);
         log.info("RDS datasource initialized successfully");
 
