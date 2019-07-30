@@ -9,6 +9,8 @@ import io.localmotion.eventsourcing.tracker.TrackerProjection;
 import io.localmotion.initiative.projection.InitiativeProjection;
 import io.localmotion.security.user.SecurityContext;
 import io.localmotion.user.projection.ProfileProjection;
+import io.micronaut.context.ApplicationContext;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -18,6 +20,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+@Slf4j
 @Singleton
 public class StatisticsJobCommand implements AdminCommand {
 
@@ -33,8 +36,11 @@ public class StatisticsJobCommand implements AdminCommand {
     private TrackerProjection trackerProjection;
 
     @Inject
-    private DataSource dataSource;
+//    private DataSource dataSource;
+    DSProvider dsProvider;
 
+    @Inject
+    ApplicationContext applicationContext;
 
     @Override
     public String getIdentifier() {
@@ -70,9 +76,16 @@ public class StatisticsJobCommand implements AdminCommand {
 
     private int getCountFromTable(String tableName) throws SQLException {
 
+//        DSProvider dsProvider =
+        DataSource dataSource = dsProvider.getDataSource();
+
+//        DataSource dataSource = applicationContext.getBean(DataSource.class);
+
         Connection connection = null;
         try {
             connection = dataSource.getConnection();
+            log.info("RDSTEST: Using datasource {}, hashcode {} to get statistics", dataSource, dataSource.hashCode());
+            log.info("RDSTEST: Using connection {}, hashcode {} to get statistics", connection, connection.hashCode());
             PreparedStatement statement = connection.prepareStatement("select count(*) from " + tableName + ";");
             ResultSet resultSet = statement.executeQuery();
             resultSet.next();
