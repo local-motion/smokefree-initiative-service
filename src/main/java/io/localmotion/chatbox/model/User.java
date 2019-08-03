@@ -13,7 +13,6 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 @Entity(name="chat_box_user")
 public class User {
 
@@ -44,4 +43,8 @@ public class User {
     @OneToMany(mappedBy="user",targetEntity= Participation.class, fetch=FetchType.LAZY)
     private Collection<Participation> participations;
 
+    @Override
+    public String toString() {
+        return id + "-" + name;
+    }
 }

@@ -1,5 +1,6 @@
 package io.localmotion.adminjob.commands;
 
+import io.localmotion.adminjob.commands.chatverification.ChatVerificationCommand;
 import io.localmotion.adminjob.commands.deletepersonaldata.DeletePersonalDataJobCommand;
 import io.localmotion.adminjob.commands.statistics.StatisticsJobCommand;
 import io.localmotion.adminjob.domain.AdminCommand;
@@ -17,6 +18,7 @@ public class AdminJobRegistry {
     @Inject private CognitoImportFileJobCommand cognitoImportFileJobCommand;
     @Inject private DeletePersonalDataJobCommand deletePersonalDataJobCommand;
     @Inject private StatisticsJobCommand statisticsJobCommand;
+    @Inject private ChatVerificationCommand chatVerificationCommand;
 
     private final Map<String, AdminCommand> adminJobs = new HashMap<>();
 
@@ -26,6 +28,7 @@ public class AdminJobRegistry {
             registerAdminJob(cognitoImportFileJobCommand);
             registerAdminJob(deletePersonalDataJobCommand);
             registerAdminJob(statisticsJobCommand);
+            registerAdminJob(chatVerificationCommand);
             registryBuilt = true;
         }
     }

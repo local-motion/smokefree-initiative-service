@@ -12,7 +12,6 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 @Entity(name="chat_box")
 public class ChatBox {
 
@@ -23,6 +22,9 @@ public class ChatBox {
 
     @Column(name = "external_id")
     private String externalId;
+
+    @Column(name = "deleted")
+    private boolean deleted;
 
     // Last modification time of this entity
     @Column(name = "last_update", nullable = false)
@@ -36,4 +38,8 @@ public class ChatBox {
     @OneToMany(mappedBy="chatBox",targetEntity= Participation.class, fetch=FetchType.EAGER)
     private Collection<Participation> participations;
 
+    @Override
+    public String toString() {
+        return id + "-" + externalId;
+    }
 }

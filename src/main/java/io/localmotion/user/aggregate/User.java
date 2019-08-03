@@ -7,6 +7,7 @@ import io.localmotion.user.domain.NotificationLevel;
 import io.localmotion.user.domain.UserPII;
 import io.localmotion.user.event.*;
 import io.localmotion.user.projection.ProfileProjection;
+import io.micronaut.context.annotation.Context;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
@@ -21,6 +22,7 @@ import io.localmotion.personaldata.PersonalDataRepository;
 import io.localmotion.application.Application;
 
 
+import javax.inject.Inject;
 import java.time.Instant;
 
 import static org.axonframework.modelling.command.AggregateLifecycle.apply;
@@ -48,7 +50,6 @@ public class User {
     // 'Injecting' using the application context
     private PersonalDataRepository personalDataRepository = Application.getApplicationContext().getBean(PersonalDataRepository.class);
     private ProfileProjection profileProjection = Application.getApplicationContext().getBean(ProfileProjection.class);
-
 
 
     /*

@@ -76,7 +76,7 @@ public class AxonFactory {
                 .registerEventHandler(c -> auditTrailProjection)
                 .registerEventHandler(c -> profileProjection)
                 .registerEventHandler(c -> chatBoxProjection)
-                .registerEventHandler(c -> trackerProjection);
+                .registerEventHandler(c -> trackerProjection);              // The tracker must be the last, so it receives the events after the others do
 
         Configuration configuration = configurer.buildConfiguration();
         configuration.start();
