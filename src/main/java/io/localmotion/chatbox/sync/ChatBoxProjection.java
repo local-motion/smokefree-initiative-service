@@ -56,7 +56,7 @@ public class ChatBoxProjection {
         if (user != null && user.getLastUpdateTime().isBefore(eventMessage.getTimestamp()) && evt.getPiiRecordId() != null) {
             String eventUserName = getUserNameFromPersonalDataRecord(evt.getPiiRecordId());
             if (eventUserName != null && !eventUserName.equals(user.getName()))
-            chatboxRepository.changeUserName(user, eventUserName, eventMessage.getTimestamp());
+            chatboxRepository.changeUserName(user.getId(), eventUserName, eventMessage.getTimestamp());
         }
     }
 
@@ -68,7 +68,7 @@ public class ChatBoxProjection {
         if (user != null && user.getLastUpdateTime().isBefore(eventMessage.getTimestamp())) {
             String eventUserName = getUserNameFromPersonalDataRecord(evt.getPiiRecordId());
             if (eventUserName != null && !eventUserName.equals(user.getName()))
-                chatboxRepository.changeUserName(user, eventUserName, eventMessage.getTimestamp());
+                chatboxRepository.changeUserName(user.getId(), eventUserName, eventMessage.getTimestamp());
         }
     }
 
@@ -78,7 +78,7 @@ public class ChatBoxProjection {
 
         User user = chatboxRepository.getUserWithExternalId(evt.getUserId());
         if (user != null && user.getLastUpdateTime().isBefore(eventMessage.getTimestamp())) {
-            chatboxRepository.deleteUser(user, eventMessage.getTimestamp());
+            chatboxRepository.deleteUser(user.getId(), eventMessage.getTimestamp());
         }
     }
 
@@ -88,7 +88,7 @@ public class ChatBoxProjection {
 
         User user = chatboxRepository.getUserWithExternalId(evt.getUserId());
         if (user != null && user.getLastUpdateTime().isBefore(eventMessage.getTimestamp())) {
-            chatboxRepository.changeUserName(user, "onbekend", eventMessage.getTimestamp());
+            chatboxRepository.changeUserName(user.getId(), "onbekend", eventMessage.getTimestamp());
         }
     }
 

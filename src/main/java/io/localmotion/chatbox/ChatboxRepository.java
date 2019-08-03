@@ -31,19 +31,20 @@ public class ChatboxRepository {
     @Transactional(readOnly = true)
     public List<User> getAllUsers() {
         // Note that a join fetch is required here as otherwise the participations should be lazily loaded, which in practice result in an LazyInitializationException
-        return entityManager.createQuery("select u from chat_box_user u join fetch u.participations where u.id > 0   ", User.class).getResultList();
+//        return entityManager.createQuery("select u from chat_box_user u join fetch u.participations where u.id > 0   ", User.class).getResultList();
+        return entityManager.createQuery("select u from User u", User.class).getResultList();
     }
 
     @Transactional(readOnly = true)
     public User getUser(int id) {
         try {
             // Note that a join fetch is required here as otherwise the participations should be lazily loaded, which in practice result in an LazyInitializationException
-//            return entityManager
-            User user = entityManager
-                    .createQuery("select u from chat_box_user u left join u.participations where u.id = :id", User.class)
-//                    .createQuery("select u from chat_box_user u  where u.id = :id", User.class)
-                    .setParameter("id", id)
-                    .getSingleResult();
+//            User user = entityManager
+//                    .createQuery("select u from chat_box_user u left join u.participations where u.id = :id", User.class)
+////                    .createQuery("select u from chat_box_user u  where u.id = :id", User.class)
+//                    .setParameter("id", id)
+//                    .getSingleResult();
+            User user = entityManager.find(User.class, id);
             Hibernate.initialize(user.getParticipations());
             return user;
         } catch (NoResultException e) {
@@ -54,13 +55,12 @@ public class ChatboxRepository {
     @Transactional(readOnly = true)
     public User getUserWithExternalId(String externalId) {
         try {
-            Query query = entityManager.createQuery(
-                    "SELECT m from chat_box_user m " +
-                            "WHERE m.externalId = :externalId " +
-                            "AND deleted = false"
-            );
-            query.setParameter("externalId", externalId);
-            User user = (User) query.getSingleResult();
+            User user = entityManager
+//                    .createQuery("select m from User m where m.externalId = :externalId and deleted = false", User.class)
+                    .createQuery("select m from User m where m.externalId = :externalId", User.class)
+                    .setParameter("externalId", externalId)
+                    .getSingleResult();
+            Hibernate.initialize(user.getParticipations());
             return user;
         } catch (NoResultException e) {
             return null;
@@ -82,24 +82,24 @@ public class ChatboxRepository {
     }
 
     @Transactional
-    public void changeUserName(User user, String newName) {
-        user.setName(newName);
+    public void changeUserName(int userId, String newName) {
+        changeUserName(userId, newName, Instant.now());
     }
     @Transactional
-    public void changeUserName(User u, String newName, Instant updateDateTime) {
-        User user = entityManager.find(User.class, u.getId());
-
+    public void changeUserName(int userId, String newName, Instant updateDateTime) {
+        User user = entityManager.find(User.class, userId);
         user.setName(newName);
         user.setLastUpdateTime(updateDateTime);
     }
 
     @Transactional
-    public void deleteUser(User user) {
-        deleteUser(user, Instant.now());
+    public void deleteUser(int userId) {
+        deleteUser(userId, Instant.now());
     }
 
     @Transactional
-    public void deleteUser(User user, Instant updateDateTime) {
+    public void deleteUser(int userId, Instant updateDateTime) {
+        User user = entityManager.find(User.class, userId);
         user.setDeleted(true);
         user.setLastUpdateTime(updateDateTime);
     }
@@ -112,7 +112,8 @@ public class ChatboxRepository {
 
     @Transactional(readOnly = true)
     public List<ChatBox> getAllChatBoxes() {
-        return entityManager.createQuery("select m from chat_box m", ChatBox.class).getResultList();
+        return entityManager.createQuery("select m from ChatBox m", ChatBox.class).getResultList();
+//        return entityManager.createQuery("select m from chat_box m", ChatBox.class).getResultList();
     }
 
     @Transactional(readOnly = true)
@@ -124,7 +125,7 @@ public class ChatboxRepository {
     public ChatBox getChatBoxWithExternalId(String externalId) {
         try {
             Query query = entityManager.createQuery(
-                    "SELECT m from chat_box  m " +
+                    "SELECT m from ChatBox  m " +
                             "WHERE m.externalId = :externalId " +
                             "AND deleted = false"
             );
@@ -183,7 +184,7 @@ public class ChatboxRepository {
 
         Collection<Participation> participations = entityManager
                 .createQuery(
-                "SELECT p from participation p " +
+                "SELECT p from Participation p " +
                         "join fetch p.user " +
                         "join fetch p.chatBox " +
                         "WHERE p.user = :user "
@@ -254,7 +255,7 @@ public class ChatboxRepository {
     @Transactional(readOnly = true)
     public Collection<ChatMessage> getMessages(ChatBox chatbox) {
         Query query = entityManager.createQuery(
-                "SELECT m from chat_message " +
+                "SELECT m from ChatMessage " +
                         "WHERE chatBox = :chatboxId " +
                         "ORDER BY m.creationTime ASC"
         );
@@ -265,7 +266,7 @@ public class ChatboxRepository {
     @Transactional(readOnly = true)
     public Collection<ChatMessage> getMessagesSince(ChatBox chatbox, String messageId) {
         Query query = entityManager.createQuery(
-                "SELECT m from chat_message " +
+                "SELECT m from ChatMessage " +
                         "WHERE chatBox = :chatboxId " +
                         "AND m.creationTime > (SELECT n.creationTime FROM chat_message n WHERE n.messageId = :messageId) " +
                         "ORDER BY m.creationTime ASC"

@@ -13,7 +13,8 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-@Entity(name="participation")
+@Entity
+@Table(name="participation")
 @IdClass(ParticipationId.class)
 public class Participation {
 

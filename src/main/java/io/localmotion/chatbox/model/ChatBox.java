@@ -12,7 +12,8 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name="chat_box")
+@Entity
+@Table(name="chat_box")
 public class ChatBox {
 
     @Id

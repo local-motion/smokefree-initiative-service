@@ -13,7 +13,8 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name="chat_box_user")
+@Entity
+@Table(name="chat_box_user")
 public class User {
 
     @Id
