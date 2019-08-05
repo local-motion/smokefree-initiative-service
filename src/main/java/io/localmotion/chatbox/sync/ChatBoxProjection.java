@@ -116,7 +116,7 @@ public class ChatBoxProjection {
         ChatBox chatBox = chatboxRepository.getChatBoxWithExternalId(evt.getInitiativeId());
         User user = chatboxRepository.getUserWithExternalId(evt.getMemberId());
         if (chatBox != null && user != null) {
-            Participation participation = chatboxRepository.getParticipation(chatBox, user);
+            Participation participation = chatboxRepository.getParticipation(chatBox.getId(), user.getId());
             if (participation == null)
                 chatboxRepository.createParticipation(chatBox.getId(), user.getId(), eventMessage.getTimestamp());
         }

@@ -8,10 +8,10 @@ import org.hibernate.Hibernate;
 import javax.inject.Singleton;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
-import javax.persistence.Query;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
+import java.util.Collections;
 import java.util.List;
 
 @Singleton
@@ -24,26 +24,28 @@ public class ChatboxRepository {
         this.entityManager = entityManager;
     }
 
+
     /*
         User
      */
 
+    /**
+     *
+     * @return All users without the participations
+     */
     @Transactional(readOnly = true)
     public List<User> getAllUsers() {
-        // Note that a join fetch is required here as otherwise the participations should be lazily loaded, which in practice result in an LazyInitializationException
-//        return entityManager.createQuery("select u from chat_box_user u join fetch u.participations where u.id > 0   ", User.class).getResultList();
         return entityManager.createQuery("select u from User u", User.class).getResultList();
     }
 
+    /**
+     *
+     * @param id of the user to fetch
+     * @return user including participations
+     */
     @Transactional(readOnly = true)
     public User getUser(int id) {
         try {
-            // Note that a join fetch is required here as otherwise the participations should be lazily loaded, which in practice result in an LazyInitializationException
-//            User user = entityManager
-//                    .createQuery("select u from chat_box_user u left join u.participations where u.id = :id", User.class)
-////                    .createQuery("select u from chat_box_user u  where u.id = :id", User.class)
-//                    .setParameter("id", id)
-//                    .getSingleResult();
             User user = entityManager.find(User.class, id);
             Hibernate.initialize(user.getParticipations());
             return user;
@@ -52,11 +54,15 @@ public class ChatboxRepository {
         }
     }
 
+    /**
+     *
+     * @param externalId of the user to fetch
+     * @return user including participations
+     */
     @Transactional(readOnly = true)
     public User getUserWithExternalId(String externalId) {
         try {
             User user = entityManager
-//                    .createQuery("select m from User m where m.externalId = :externalId and deleted = false", User.class)
                     .createQuery("select m from User m where m.externalId = :externalId", User.class)
                     .setParameter("externalId", externalId)
                     .getSingleResult();
@@ -105,32 +111,44 @@ public class ChatboxRepository {
     }
 
 
-
     /*
         ChatBox
      */
 
+    /**
+     *
+     * @return all chatboxes including participations
+     */
     @Transactional(readOnly = true)
     public List<ChatBox> getAllChatBoxes() {
         return entityManager.createQuery("select m from ChatBox m", ChatBox.class).getResultList();
-//        return entityManager.createQuery("select m from chat_box m", ChatBox.class).getResultList();
     }
 
+    /**
+     *
+     * @param id of the chatbox to fetch
+     * @return chatbox including participations
+     */
     @Transactional(readOnly = true)
     public ChatBox getChatBox(int id) {
         return entityManager.find(ChatBox.class, id);
     }
 
+    /**
+     *
+     * @param externalId of the chatbox to fetch
+     * @return chatbox including participations
+     */
     @Transactional(readOnly = true)
     public ChatBox getChatBoxWithExternalId(String externalId) {
         try {
-            Query query = entityManager.createQuery(
-                    "SELECT m from ChatBox  m " +
-                            "WHERE m.externalId = :externalId " +
-                            "AND deleted = false"
-            );
-            query.setParameter("externalId", externalId);
-            return (ChatBox) query.getSingleResult();
+            return entityManager.createQuery(
+                "SELECT m from ChatBox  m " +
+                        "WHERE m.externalId = :externalId",
+                    ChatBox.class
+                )
+                .setParameter("externalId", externalId)
+                .getSingleResult();
         } catch (NoResultException e) {
             return null;
         }
@@ -150,11 +168,12 @@ public class ChatboxRepository {
     }
 
     @Transactional
-    public void deleteChatBox(ChatBox chatBox) {
-        deleteChatBox(chatBox, Instant.now());
+    public void deleteChatBox(int chatBoxId) {
+        deleteChatBox(chatBoxId, Instant.now());
     }
     @Transactional
-    public void deleteChatBox(ChatBox chatBox, Instant updateDateTime) {
+    public void deleteChatBox(int chatBoxId, Instant updateDateTime) {
+        ChatBox chatBox = entityManager.find(ChatBox.class, chatBoxId);
         chatBox.setDeleted(true);
         chatBox.setLastUpdateTime(updateDateTime);
     }
@@ -165,18 +184,21 @@ public class ChatboxRepository {
      */
 
     @Transactional(readOnly = true)
-    public Participation getParticipation(ChatBox chatBox, User user) {
-        return entityManager.find(Participation.class, new ParticipationId(chatBox.getId(), user.getId()));
-    }
-
-    @Transactional(readOnly = true)
     public Participation getParticipation(int chatBoxId, int userId) {
+        try {
         return entityManager.find(Participation.class, new ParticipationId(chatBoxId, userId));
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
     @Transactional(readOnly = true)
     public Participation getParticipation(ParticipationId participationId) {
+        try {
         return entityManager.find(Participation.class, participationId);
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
     @Transactional(readOnly = true)
@@ -197,18 +219,10 @@ public class ChatboxRepository {
         return participations;
     }
 
+
     @Transactional
-    public Participation createParticipation(ChatBox chatBox, User user) {
-        return createParticipation(chatBox, user, Instant.now());
-    }
-    @Transactional
-    public Participation createParticipation(ChatBox chatBox, User user, Instant updateDateTime) {
-        Participation participation = new Participation();
-        participation.setChatBox(chatBox);
-        participation.setUser(user);
-        participation.setLastUpdateTime(updateDateTime);
-        entityManager.persist(participation);
-        return participation;
+    public Participation createParticipation(int chatBoxId, int userId) {
+        return createParticipation(chatBoxId, userId, Instant.now());
     }
 
     @Transactional
@@ -229,21 +243,33 @@ public class ChatboxRepository {
         return participation;
     }
 
+
     /*
         Message
      */
 
     @Transactional
     public void storeMessage(String externalChatboxId, String externalAuthorId, String text) {
-        storeMessage(getChatBoxWithExternalId(externalChatboxId), getUserWithExternalId(externalAuthorId), text);
+        storeMessage(
+                getChatBoxWithExternalId(externalChatboxId).getId(),
+                getUserWithExternalId(externalAuthorId).getId(),
+                text
+        );
     }
 
     @Transactional
-    public void storeMessage(ChatBox chatBox, User author, String text) {
+    public void storeMessage(int chatBoxId, int authorId, String text) {
+        storeMessage(chatBoxId, authorId, text, Instant.now());
+    }
+
+    @Transactional
+    public void storeMessage(int chatBoxId, int authorId, String text, Instant updateDateTime) {
         ChatMessageV2 chatMessage = new ChatMessageV2();
-        chatMessage.setChatBox(chatBox);
-        chatMessage.setAuthor(author);
+        chatMessage.setChatBox(getChatBox(chatBoxId));
+        chatMessage.setAuthor(getUser(authorId));
         chatMessage.setText(text);
+        chatMessage.setCreationTime(updateDateTime);
+        chatMessage.setLastUpdateTime(updateDateTime);
 
         entityManager.persist(chatMessage);
     }
@@ -253,30 +279,59 @@ public class ChatboxRepository {
     }
 
     @Transactional(readOnly = true)
-    public Collection<ChatMessage> getMessages(ChatBox chatbox) {
-        Query query = entityManager.createQuery(
-                "SELECT m from ChatMessage " +
-                        "WHERE chatBox = :chatboxId " +
-                        "ORDER BY m.creationTime ASC"
-        );
-        query.setParameter("chatboxId", chatbox.getId());
-        return query.getResultList();
+    public List<ChatMessageDTO> getMessages(int chatBoxId) {
+        ChatBox chatBox = getChatBox(chatBoxId);
+
+        List<ChatMessageV2> messages = entityManager.createQuery(
+        "SELECT m from ChatMessageV2 m " +
+                "WHERE chatBox = :chatBoxId " +
+                "ORDER BY m.creationTime ASC"
+            )
+            .setParameter("chatBoxId", chatBox)
+            .getResultList();
+
+        return convertChatMessages(messages);
     }
 
     @Transactional(readOnly = true)
-    public Collection<ChatMessage> getMessagesSince(ChatBox chatbox, String messageId) {
-        Query query = entityManager.createQuery(
-                "SELECT m from ChatMessage " +
-                        "WHERE chatBox = :chatboxId " +
-                        "AND m.creationTime > (SELECT n.creationTime FROM chat_message n WHERE n.messageId = :messageId) " +
-                        "ORDER BY m.creationTime ASC"
-        );
-        query.setParameter("chatboxId", chatbox.getId());
-        query.setParameter("messageId", messageId);
-        return query.getResultList();
+    public List<ChatMessageDTO> getMessagesSince(int chatBoxId, String messageId) {
+
+        int id;
+        try {
+            id = Integer.valueOf(messageId);
+        } catch (NumberFormatException e) {
+            return Collections.emptyList();
+        }
+
+        ChatBox chatBox = getChatBox(chatBoxId);
+
+        List<ChatMessageV2> messages = entityManager.createQuery(
+        "SELECT m from ChatMessageV2 m " +
+                "WHERE chatBox = :chatBoxId " +
+                "AND m.creationTime > (SELECT n.creationTime FROM ChatMessageV2 n WHERE n.id = :id) " +
+                "ORDER BY m.creationTime ASC"
+            )
+            .setParameter("chatBoxId", chatBox)
+            .setParameter("id", id)
+            .getResultList();
+
+        return convertChatMessages(messages);
     }
 
 
+    private List<ChatMessageDTO> convertChatMessages(Collection<ChatMessageV2> messages) {
+        List<ChatMessageDTO> result = new ArrayList<>();
+        for (ChatMessageV2 i : messages) {
+            result.add(new ChatMessageDTO(
+                    i.getId() + "",
+                    i.getChatBox().getId() + "",
+                    i.getAuthor().getName(),
+                    i.getCreationTime(),
+                    i.getText()
+            ));
+        }
+        return result;
+    }
 
 
 //    public Collection<ChatMessage> getMessages(String chatbox) {

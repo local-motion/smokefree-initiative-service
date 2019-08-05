@@ -25,6 +25,7 @@ import javax.validation.ValidationException;
 import javax.validation.constraints.Size;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import static io.micronaut.security.rules.SecurityRule.IS_ANONYMOUS;
 import static io.micronaut.security.rules.SecurityRule.IS_AUTHENTICATED;
@@ -61,23 +62,21 @@ public class ChatboxController {
         if (!securityContext.isAuthenticated())
             return HttpResponse.status(HttpStatus.UNAUTHORIZED, "User must be authenticated");
 
-        final String userName = securityContext.requireUserName();
-
-        log.info("chat message for"  + chatboxId + ": " + chatMessage + " from: " + userName);
-
-        if (!isValidChatboxId(chatboxId))
-            return HttpResponse.status(HttpStatus.NOT_FOUND, "Invalid chatbox");
-
-        if (!isUserAuthorisedForChatbox(securityContext.requireUserId(), chatboxId))
-            return HttpResponse.status(HttpStatus.UNAUTHORIZED, "User not authorised for chatbox");
-
-//        chatMessage.setAuthor(userName);
-//        chatMessage.setChatboxId(chatboxId);
-//        chatboxRepository.storeMessage(chatboxId, chatMessage);
 
         ChatBox chatBox = chatboxRepository.getChatBoxWithExternalId(chatboxId);
+        if (chatBox == null)
+            return HttpResponse.status(HttpStatus.NOT_FOUND, "Invalid chatbox");
+
         User user = chatboxRepository.getUserWithExternalId(securityContext.requireUserId());
-        chatboxRepository.storeMessage(chatBox, user, chatMessage.getText());
+        if (user == null)
+            return HttpResponse.status(HttpStatus.NOT_FOUND, "Invalid chatbox user");
+
+        if (!isUserAuthorisedForChatbox(user.getId(), chatBox.getId()))
+            return HttpResponse.status(HttpStatus.UNAUTHORIZED, "User not authorised for chatbox");
+
+
+        log.info("chat message for"  + chatboxId + ": " + chatMessage + " from: " + user.getName());
+        chatboxRepository.storeMessage(chatBox.getId(), user.getId(), chatMessage.getText());
 
         return HttpResponse.ok(chatMessage);
     }
@@ -117,7 +116,7 @@ public class ChatboxController {
 
     @Secured(IS_ANONYMOUS)
     @Get("/{chatboxId}{?since}")
-    public Collection<ChatMessage> getMessages(String chatboxId, @Nullable String since) {
+    public List<ChatMessageDTO> getMessages(String chatboxId, @Nullable String since) {
         log.info("fetching for: " + chatboxId + ", since: " + since);
 
         ChatBox chatBox = chatboxRepository.getChatBoxWithExternalId(chatboxId);
@@ -125,9 +124,9 @@ public class ChatboxController {
             return Collections.emptyList();
 
         if (since == null)
-            return chatboxRepository.getMessages(chatBox);
+            return chatboxRepository.getMessages(chatBox.getId());
         else
-            return chatboxRepository.getMessagesSince(chatBox, since);
+            return chatboxRepository.getMessagesSince(chatBox.getId(), since);
     }
 
     private boolean isValidChatboxId(String chatboxId) {
@@ -141,10 +140,14 @@ public class ChatboxController {
         return null;
     }
 
-    private boolean isUserAuthorisedForChatbox(String userId, String chatboxId) {
+    private boolean isUserAuthorisedForChatboxOld(String userId, String chatboxId) {
         final Initiative initiative = getPlayground(chatboxId);
         if (initiative != null)
             return initiative.getMembers().stream().anyMatch(volunteer -> volunteer.getUserId().equals(userId));
         return false;
+    }
+
+    private boolean isUserAuthorisedForChatbox(int userId, int chatboxId) {
+        return chatboxRepository.getParticipation(chatboxId, userId) != null;
     }
 }
