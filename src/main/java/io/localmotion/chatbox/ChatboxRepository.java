@@ -249,11 +249,12 @@ public class ChatboxRepository {
      */
 
     @Transactional
-    public void storeMessage(String externalChatboxId, String externalAuthorId, String text) {
+    public void storeMessage(String externalChatboxId, String externalAuthorId, String text, Instant updateDateTime) {
         storeMessage(
                 getChatBoxWithExternalId(externalChatboxId).getId(),
                 getUserWithExternalId(externalAuthorId).getId(),
-                text
+                text,
+                updateDateTime
         );
     }
 

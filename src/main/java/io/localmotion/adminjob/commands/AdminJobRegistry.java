@@ -1,5 +1,6 @@
 package io.localmotion.adminjob.commands;
 
+import io.localmotion.adminjob.commands.chatmigration_v1_0_18_v1_0_19.ChatMigrationCommand;
 import io.localmotion.adminjob.commands.chatverification.ChatVerificationCommand;
 import io.localmotion.adminjob.commands.deletepersonaldata.DeletePersonalDataJobCommand;
 import io.localmotion.adminjob.commands.statistics.StatisticsJobCommand;
@@ -19,6 +20,7 @@ public class AdminJobRegistry {
     @Inject private DeletePersonalDataJobCommand deletePersonalDataJobCommand;
     @Inject private StatisticsJobCommand statisticsJobCommand;
     @Inject private ChatVerificationCommand chatVerificationCommand;
+    @Inject private ChatMigrationCommand chatMigrationCommand;
 
     private final Map<String, AdminCommand> adminJobs = new HashMap<>();
 
@@ -29,6 +31,7 @@ public class AdminJobRegistry {
             registerAdminJob(deletePersonalDataJobCommand);
             registerAdminJob(statisticsJobCommand);
             registerAdminJob(chatVerificationCommand);
+            registerAdminJob(chatMigrationCommand);
             registryBuilt = true;
         }
     }
