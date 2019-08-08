@@ -1,10 +1,13 @@
 package io.localmotion.adminjob.commands.chatmigration_v1_0_18_v1_0_19;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import io.localmotion.adminjob.commands.deletepersonaldata.DeletePersonalDataInput;
 import io.localmotion.adminjob.domain.AdminCommand;
 import io.localmotion.adminjob.domain.AdminJobCommandRecord;
 import io.localmotion.adminjob.domain.JobResult;
 import io.localmotion.adminjob.domain.JobResultCode;
+import io.localmotion.application.DomainException;
 import io.localmotion.chatbox.ChatboxRepository;
 import io.localmotion.chatbox.model.ChatBox;
 import io.localmotion.chatbox.model.Participation;
@@ -54,6 +57,8 @@ public class ChatMigrationCommand implements AdminCommand {
 
         Connection connection = null;
         try {
+            ChatMigrationInput input = new Gson().fromJson(adminJobCommandRecord.getInputParameters(), ChatMigrationInput.class);
+
             try {
                 List<String> conversions = new ArrayList<>();
                 int failCount = 0;
@@ -66,7 +71,7 @@ public class ChatMigrationCommand implements AdminCommand {
                     String messageId = resultSet.getString("messageId");
                     String authorName = resultSet.getString("author");
                     String chatboxId = resultSet.getString("chatboxId");
-                    Date creationTime = resultSet.getDate("creationTime");
+                    Date creationTime = new Date(resultSet.getDate("creationTime").getTime());
                     String text = resultSet.getString("text");
 
                     Profile profile = profileProjection.getProfileByName(authorName);
@@ -98,8 +103,10 @@ public class ChatMigrationCommand implements AdminCommand {
                         continue;
                     }
 
-                    chatboxRepository.storeMessage(chatBox.getId(), author.getId(), text, creationTime.toInstant());
-                    conversions.add("m-" + messageId + " cb-" + chatboxId + " " + authorName + " " + text);
+                    if (!input.isDryRun())
+                        chatboxRepository.storeMessage(chatBox.getId(), author.getId(), text, creationTime.toInstant());
+
+                    conversions.add("m-" + messageId + " cb-" + chatboxId + " " + authorName + " '" + text + "'");
                 }
 
                 return new JobResult(
@@ -114,7 +121,8 @@ public class ChatMigrationCommand implements AdminCommand {
         } catch (SQLException e) {
             e.printStackTrace();
             return new JobResult(JobResultCode.FAIL, e.getMessage());
-        }
+        } catch (JsonSyntaxException e) {
+            throw new DomainException("INVALID_COMMAND_RECORD", "Command record contains invalid Json");        }
     }
 
 }
