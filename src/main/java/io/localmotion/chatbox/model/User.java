@@ -14,7 +14,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name="chat_box_user")
+@Table(name="cb1_user")
 public class User {
 
     @Id
@@ -22,7 +22,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = true)     // Will be set to null when user data is removed
     @NotBlank
     private String name;
 

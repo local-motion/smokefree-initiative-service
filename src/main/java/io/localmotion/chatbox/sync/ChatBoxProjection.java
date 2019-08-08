@@ -28,11 +28,6 @@ public class ChatBoxProjection {
     @Inject
     private ChatboxRepository chatboxRepository;
 
-
-    /*
-            Event handlers
-     */
-
     /*
             User events
      */
@@ -41,7 +36,7 @@ public class ChatBoxProjection {
     public void on(UserCreatedEvent evt, EventMessage<?> eventMessage) {
         log.info("ON EVENT {}", evt);
 
-        String userName = getUserNameFromPersonalDataRecord(evt.getPiiRecordId(), "onbekend");
+        String userName = getUserNameFromPersonalDataRecord(evt.getPiiRecordId());      // Can be null when user data is removed
 
         User user = chatboxRepository.getUserWithExternalId(evt.getUserId());
         if (user == null)
@@ -54,9 +49,11 @@ public class ChatBoxProjection {
 
         User user = chatboxRepository.getUserWithExternalId(evt.getUserId());
         if (user != null && user.getLastUpdateTime().isBefore(eventMessage.getTimestamp()) && evt.getPiiRecordId() != null) {
+            chatboxRepository.undeleteUser(user.getId());
+
             String eventUserName = getUserNameFromPersonalDataRecord(evt.getPiiRecordId());
             if (eventUserName != null && !eventUserName.equals(user.getName()))
-            chatboxRepository.changeUserName(user.getId(), eventUserName, eventMessage.getTimestamp());
+                chatboxRepository.changeUserName(user.getId(), eventUserName, eventMessage.getTimestamp());
         }
     }
 
@@ -88,7 +85,7 @@ public class ChatBoxProjection {
 
         User user = chatboxRepository.getUserWithExternalId(evt.getUserId());
         if (user != null && user.getLastUpdateTime().isBefore(eventMessage.getTimestamp())) {
-            chatboxRepository.changeUserName(user.getId(), "onbekend", eventMessage.getTimestamp());
+            chatboxRepository.changeUserName(user.getId(), null, eventMessage.getTimestamp());
         }
     }
 
@@ -123,15 +120,10 @@ public class ChatBoxProjection {
     }
 
 
-
     /*
             PII support methods
      */
 
-    private String getUserNameFromPersonalDataRecord(long recordId, String fallbackUserName) {
-        String userName = getUserNameFromPersonalDataRecord(recordId);
-        return userName != null ? userName : fallbackUserName;
-    }
     private String getUserNameFromPersonalDataRecord(long recordId) {
         PersonalDataRecord personalDataRecord = personalDataRepository.getRecord(recordId);
         return personalDataRecord != null ?

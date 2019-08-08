@@ -60,60 +60,75 @@ public class ChatMigrationCommand implements AdminCommand {
             ChatMigrationInput input = new Gson().fromJson(adminJobCommandRecord.getInputParameters(), ChatMigrationInput.class);
 
             try {
-                List<String> conversions = new ArrayList<>();
-                int failCount = 0;
+                    // Drop table action
+                if (input.getMigrationAction() == ChatMigrationAction.DROPTABLE) {
+                    connection = dataSource.getConnection();
+                    PreparedStatement statement = connection.prepareStatement("drop table ChatMessage;");
+                    statement.executeUpdate();
 
-                connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement("select * from ChatMessage;");
-                ResultSet resultSet = statement.executeQuery();
-
-                while (resultSet.next()) {
-                    String messageId = resultSet.getString("messageId");
-                    String authorName = resultSet.getString("author");
-                    String chatboxId = resultSet.getString("chatboxId");
-                    Date creationTime = new Date(resultSet.getDate("creationTime").getTime());
-                    String text = resultSet.getString("text");
-
-                    Profile profile = profileProjection.getProfileByName(authorName);
-                    if (profile == null) {
-                        conversions.add("FAIL: no profile present for author " + authorName);
-                        failCount++;
-                        continue;
-                    }
-
-                    String authorId = profileProjection.getProfileByName(authorName).getId();
-                    User author = chatboxRepository.getUserWithExternalId(authorId);
-                    if (author == null) {
-                        conversions.add("FAIL: author not known in chatbox " + authorName);
-                        failCount++;
-                        continue;
-                    }
-
-                    ChatBox chatBox = chatboxRepository.getChatBoxWithExternalId(chatboxId);
-                    if (chatBox == null) {
-                        conversions.add("FAIL: chatbox unknown for external id " + chatboxId);
-                        failCount++;
-                        continue;
-                    }
-
-                    Participation participation = chatboxRepository.getParticipation(chatBox.getId(), author.getId());
-                    if (participation == null) {
-                        conversions.add("FAIL: author " + authorName + " does not participate in chatbox with external id " + chatboxId);
-                        failCount++;
-                        continue;
-                    }
-
-                    if (!input.isDryRun())
-                        chatboxRepository.storeMessage(chatBox.getId(), author.getId(), text, creationTime.toInstant());
-
-                    conversions.add("m-" + messageId + " cb-" + chatboxId + " " + authorName + " '" + text + "'");
+                    return new JobResult(
+                            JobResultCode.SUCCESS,
+                            "Successfully dropped table",
+                            new Gson().toJson(new ChatMigrationResult(Collections.emptyList()))
+                    );
                 }
+                else {
+                    // Migrate action (for real or dry run)
+                    List<String> conversions = new ArrayList<>();
+                    int failCount = 0;
 
-                return new JobResult(
-                        JobResultCode.SUCCESS,
-                        "Successfully migrated " + (conversions.size() - failCount) + "  messages with " + failCount + " failures",
-                        new Gson().toJson(new ChatMigrationResult(conversions))
-                );
+                    connection = dataSource.getConnection();
+                    PreparedStatement statement = connection.prepareStatement("select * from ChatMessage;");
+                    ResultSet resultSet = statement.executeQuery();
+
+                    while (resultSet.next()) {
+                        String messageId = resultSet.getString("messageId");
+                        String authorName = resultSet.getString("author");
+                        String chatboxId = resultSet.getString("chatboxId");
+                        Date creationTime = new Date(resultSet.getDate("creationTime").getTime());
+                        String text = resultSet.getString("text");
+
+                        Profile profile = profileProjection.getProfileByName(authorName);
+                        if (profile == null) {
+                            conversions.add("FAIL: no profile present for author " + authorName);
+                            failCount++;
+                            continue;
+                        }
+
+                        String authorId = profileProjection.getProfileByName(authorName).getId();
+                        User author = chatboxRepository.getUserWithExternalId(authorId);
+                        if (author == null) {
+                            conversions.add("FAIL: author not known in chatbox " + authorName);
+                            failCount++;
+                            continue;
+                        }
+
+                        ChatBox chatBox = chatboxRepository.getChatBoxWithExternalId(chatboxId);
+                        if (chatBox == null) {
+                            conversions.add("FAIL: chatbox unknown for external id " + chatboxId);
+                            failCount++;
+                            continue;
+                        }
+
+                        Participation participation = chatboxRepository.getParticipation(chatBox.getId(), author.getId());
+                        if (participation == null) {
+                            conversions.add("FAIL: author " + authorName + " does not participate in chatbox with external id " + chatboxId);
+                            failCount++;
+                            continue;
+                        }
+
+                        if (input.getMigrationAction() != ChatMigrationAction.DRYRUN)
+                            chatboxRepository.storeMessage(chatBox.getId(), author.getId(), text, creationTime.toInstant());
+
+                        conversions.add("m-" + messageId + " cb-" + chatboxId + " " + authorName + " '" + text + "'");
+                    }
+
+                    return new JobResult(
+                            JobResultCode.SUCCESS,
+                            "Successfully migrated " + (conversions.size() - failCount) + "  messages with " + failCount + " failures",
+                            new Gson().toJson(new ChatMigrationResult(conversions))
+                    );
+                }
 
             } finally {
                 connection.close();

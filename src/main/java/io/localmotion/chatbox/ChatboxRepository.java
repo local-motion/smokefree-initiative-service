@@ -110,6 +110,18 @@ public class ChatboxRepository {
         user.setLastUpdateTime(updateDateTime);
     }
 
+    @Transactional
+    public void undeleteUser(int userId) {
+        undeleteUser(userId, Instant.now());
+    }
+
+    @Transactional
+    public void undeleteUser(int userId, Instant updateDateTime) {
+        User user = entityManager.find(User.class, userId);
+        user.setDeleted(false);
+        user.setLastUpdateTime(updateDateTime);
+    }
+
 
     /*
         ChatBox
@@ -326,7 +338,7 @@ public class ChatboxRepository {
             result.add(new ChatMessageDTO(
                     i.getId() + "",
                     i.getChatBox().getId() + "",
-                    i.getAuthor().getName(),
+                    i.getAuthor().getName() != null ? i.getAuthor().getName() : "** onbekend **",
                     i.getCreationTime(),
                     i.getText()
             ));

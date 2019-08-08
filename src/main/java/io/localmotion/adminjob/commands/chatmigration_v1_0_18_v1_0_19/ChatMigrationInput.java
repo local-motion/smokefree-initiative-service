@@ -4,5 +4,5 @@ import lombok.Value;
 
 @Value
 public class ChatMigrationInput {
-    private boolean dryRun;
+    private ChatMigrationAction migrationAction;
 }

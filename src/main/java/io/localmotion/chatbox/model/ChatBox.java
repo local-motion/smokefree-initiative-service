@@ -13,7 +13,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name="chat_box")
+@Table(name="cb1_chat_box")
 public class ChatBox {
 
     @Id

@@ -14,7 +14,7 @@ import java.util.Date;
 @NoArgsConstructor
 @ToString
 @Entity
-@Table(name="participation")
+@Table(name="cb1_participation")
 @IdClass(ParticipationId.class)
 public class Participation {
 
@@ -47,14 +47,5 @@ public class Participation {
     // Soft reference to the most-recent message that was notified to the user
     @Column(name = "last_notified_message_id")
     private int lastNotifiedMessageId;
-
-
-
-    /*
-        Other relationships
-     */
-
-//    @OneToMany(mappedBy="author",targetEntity= ChatMessageV2.class, fetch=FetchType.LAZY)
-//    private Collection<ChatMessageV2> messages;
 
 }

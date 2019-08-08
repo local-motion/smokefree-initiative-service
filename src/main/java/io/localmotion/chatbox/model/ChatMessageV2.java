@@ -16,7 +16,7 @@ import java.util.Date;
 @NoArgsConstructor
 @ToString
 @Entity
-@Table(name="chat_message")
+@Table(name="cb1_chat_message")
 public class ChatMessageV2 {
 
     @Id
