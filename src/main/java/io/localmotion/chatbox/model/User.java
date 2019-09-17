@@ -23,7 +23,6 @@ public class User {
     private int id;
 
     @Column(name = "name", nullable = true)     // Will be set to null when user data is removed
-    @NotBlank
     private String name;
 
     @Column(name = "external_id")

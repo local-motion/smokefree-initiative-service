@@ -1,5 +1,6 @@
 package io.localmotion.chatbox;
 
+import io.localmotion.chatbox.model.ChatMessage;
 import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -20,10 +21,7 @@ class ChatMessageTest {
 
 	@Test
 	void should_allow_when_messageIsValid() {
-		ChatMessage message = new ChatMessage();
-		message.setMessageId("123");
-		message.setChatboxId("2345");
-		message.setAuthor("dev-user-1");
+		ChatMessage message = createChatMessage();
 		message.setText("Hi Volunteers, Can this \n playground be smokefree");
 
 		Set<ConstraintViolation<ChatMessage>> violations = validatorFactory.getValidator().validate(message);
@@ -31,27 +29,20 @@ class ChatMessageTest {
 
 	}
 
-	@Disabled("It's done on the React side")
+	@Disabled("Currently we allow all characters")
 	@Test
 	void should_notAllow_when_messageContainsNotAllowedCharacters() {
-		ChatMessage message = new ChatMessage();
-		message.setMessageId("123");
-		message.setChatboxId("2345");
-		message.setAuthor("dev-user-1");
+		ChatMessage message = createChatMessage();
 		message.setText("~");
 
 		Set<ConstraintViolation<ChatMessage>> violations = validatorFactory.getValidator().validate(message);
 		assertEquals("Please enter only allowed special charaxters: @&(),.?\": ", violations.iterator().next().getMessage());
 		assertEquals(1, violations.size());
-
 	}
 
 	@Test
 	void should_notAllow_when_messageHasOnlySpaces() {
-		ChatMessage message = new ChatMessage();
-		message.setMessageId("123");
-		message.setChatboxId("2345");
-		message.setAuthor("dev-user-1");
+		ChatMessage message = createChatMessage();
 		message.setText("                                         ");
 
 		Set<ConstraintViolation<ChatMessage>> violations = validatorFactory.getValidator().validate(message);
@@ -62,11 +53,8 @@ class ChatMessageTest {
 
 	@Test
 	void should_notAllow_when_messageIsExceedMaxLength() {
-		ChatMessage message = new ChatMessage();
-		message.setMessageId("123");
-		message.setChatboxId("2345");
-		message.setAuthor("dev-user-1");
-		message.setText(getMessage(4000));
+		ChatMessage message = createChatMessage();
+		message.setText(getMessageText(4000));
 
 		Set<ConstraintViolation<ChatMessage>> violations = validatorFactory.getValidator().validate(message);
 		assertEquals("Message length must not exceed "+ SmokefreeConstants.ChatBox.MAXIMUM_MESSAGE_LENGTH +" characters", violations.iterator().next().getMessage());
@@ -74,8 +62,12 @@ class ChatMessageTest {
 
 	}
 
+	private ChatMessage createChatMessage() {
+		ChatMessage chatMessage = new ChatMessage();
+		return chatMessage;
+	}
 
-	private String getMessage(int length) {
+	private String getMessageText(int length) {
 		return Stream.iterate(0, i -> i).limit(length).map(i -> Integer.toString(i)).collect(Collectors.joining(""));
 	}
 

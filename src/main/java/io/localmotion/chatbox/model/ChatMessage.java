@@ -17,7 +17,7 @@ import java.util.Date;
 @ToString
 @Entity
 @Table(name="cb1_chat_message")
-public class ChatMessageV2 {
+public class ChatMessage {
 
     @Id
     @Column(name = "id", nullable = false)

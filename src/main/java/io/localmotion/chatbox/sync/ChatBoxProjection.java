@@ -48,12 +48,13 @@ public class ChatBoxProjection {
         log.info("ON EVENT {}", evt);
 
         User user = chatboxRepository.getUserWithExternalId(evt.getUserId());
-        if (user != null && user.getLastUpdateTime().isBefore(eventMessage.getTimestamp()) && evt.getPiiRecordId() != null) {
-            chatboxRepository.undeleteUser(user.getId());
-
-            String eventUserName = getUserNameFromPersonalDataRecord(evt.getPiiRecordId());
-            if (eventUserName != null && !eventUserName.equals(user.getName()))
-                chatboxRepository.changeUserName(user.getId(), eventUserName, eventMessage.getTimestamp());
+        if (user != null && user.getLastUpdateTime().isBefore(eventMessage.getTimestamp())) {
+            chatboxRepository.undeleteUser(user.getId(), eventMessage.getTimestamp());
+            if (evt.getPiiRecordId() != null) {
+                String eventUserName = getUserNameFromPersonalDataRecord(evt.getPiiRecordId());
+                if (eventUserName != null && !eventUserName.equals(user.getName()))
+                    chatboxRepository.changeUserName(user.getId(), eventUserName, eventMessage.getTimestamp());
+            }
         }
     }
 

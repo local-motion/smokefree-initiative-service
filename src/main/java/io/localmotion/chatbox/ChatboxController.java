@@ -4,6 +4,7 @@ import io.localmotion.chatbox.model.ChatBox;
 import io.localmotion.chatbox.model.User;
 import io.localmotion.eventsourcing.tracker.TrackerProjection;
 import io.localmotion.initiative.projection.Initiative;
+import io.localmotion.initiative.projection.InitiativeProjection;
 import io.localmotion.security.user.SecurityContext;
 import io.localmotion.security.user.SecurityContextFactory;
 import io.micronaut.http.HttpResponse;
@@ -16,14 +17,9 @@ import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.validation.Validated;
 import lombok.extern.slf4j.Slf4j;
-import io.localmotion.initiative.projection.InitiativeProjection;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
-import javax.validation.Valid;
-import javax.validation.ValidationException;
-import javax.validation.constraints.Size;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -50,7 +46,7 @@ public class ChatboxController {
 
 
     @Post("/{chatboxId}")
-    public HttpResponse<ChatMessage> postMessage(Authentication authentication, String chatboxId, @Body ChatMessage chatMessage) {
+    public HttpResponse<SimpleResponse> postMessage(Authentication authentication, String chatboxId, @Body ChatMessageDTO chatMessage /* note that we only use the text attribute */ ) {
 
         // Validate that the projections are up-to-date
         if (!trackerProjection.isUpToDate())
@@ -78,7 +74,7 @@ public class ChatboxController {
         log.info("chat message for"  + chatboxId + ": " + chatMessage + " from: " + user.getName());
         chatboxRepository.storeMessage(chatBox.getId(), user.getId(), chatMessage.getText());
 
-        return HttpResponse.ok(chatMessage);
+        return HttpResponse.ok(new SimpleResponse("ok"));
     }
 
     @Secured(IS_ANONYMOUS)

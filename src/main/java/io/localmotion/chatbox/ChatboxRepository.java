@@ -277,7 +277,7 @@ public class ChatboxRepository {
 
     @Transactional
     public void storeMessage(int chatBoxId, int authorId, String text, Instant updateDateTime) {
-        ChatMessageV2 chatMessage = new ChatMessageV2();
+        ChatMessage chatMessage = new ChatMessage();
         chatMessage.setChatBox(getChatBox(chatBoxId));
         chatMessage.setAuthor(getUser(authorId));
         chatMessage.setText(text);
@@ -288,15 +288,12 @@ public class ChatboxRepository {
     }
 
 
-    public void storeMessage(String author, ChatMessage chatMessage) {
-    }
-
     @Transactional(readOnly = true)
     public List<ChatMessageDTO> getMessages(int chatBoxId) {
         ChatBox chatBox = getChatBox(chatBoxId);
 
-        List<ChatMessageV2> messages = entityManager.createQuery(
-        "SELECT m from ChatMessageV2 m " +
+        List<ChatMessage> messages = entityManager.createQuery(
+        "SELECT m from ChatMessage m " +
                 "WHERE chatBox = :chatBoxId " +
                 "ORDER BY m.creationTime ASC"
             )
@@ -318,10 +315,10 @@ public class ChatboxRepository {
 
         ChatBox chatBox = getChatBox(chatBoxId);
 
-        List<ChatMessageV2> messages = entityManager.createQuery(
-        "SELECT m from ChatMessageV2 m " +
+        List<ChatMessage> messages = entityManager.createQuery(
+        "SELECT m from ChatMessage m " +
                 "WHERE chatBox = :chatBoxId " +
-                "AND m.creationTime > (SELECT n.creationTime FROM ChatMessageV2 n WHERE n.id = :id) " +
+                "AND m.creationTime > (SELECT n.creationTime FROM ChatMessage n WHERE n.id = :id) " +
                 "ORDER BY m.creationTime ASC"
             )
             .setParameter("chatBoxId", chatBox)
@@ -332,9 +329,9 @@ public class ChatboxRepository {
     }
 
 
-    private List<ChatMessageDTO> convertChatMessages(Collection<ChatMessageV2> messages) {
+    private List<ChatMessageDTO> convertChatMessages(Collection<ChatMessage> messages) {
         List<ChatMessageDTO> result = new ArrayList<>();
-        for (ChatMessageV2 i : messages) {
+        for (ChatMessage i : messages) {
             result.add(new ChatMessageDTO(
                     i.getId() + "",
                     i.getChatBox().getId() + "",
@@ -345,26 +342,5 @@ public class ChatboxRepository {
         }
         return result;
     }
-
-
-//    public Collection<ChatMessage> getMessages(String chatbox) {
-//        return null;
-//    }
-//
-//
-//
-//
-//    @Transactional(readOnly = true)
-//    public Collection<ChatMessage> getMessagesSince(String chatboxId, String messageId) {
-//        Query query = entityManager.createQuery(
-//                "SELECT m from ChatMessage m " +
-//                        "WHERE m.chatboxId = :chatboxId " +
-//                        "AND m.creationTime > (SELECT n.creationTime FROM ChatMessage n WHERE n.messageId = :messageId) " +
-//                        "ORDER BY m.creationTime ASC"
-//        );
-//        query.setParameter("chatboxId", chatboxId);
-//        query.setParameter("messageId", messageId);
-//        return query.getResultList();
-//    }
 
 }
