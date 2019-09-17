@@ -65,6 +65,8 @@ public class ChatMigrationCommand implements AdminCommand {
         Connection connection = null;
         try {
             ChatMigrationInput input = new Gson().fromJson(adminJobCommandRecord.getInputParameters(), ChatMigrationInput.class);
+            if (input.getMigrationAction() == null)
+                return new JobResult(JobResultCode.FAIL, "No migration action specified");
 
             try {
                     // Drop table action
