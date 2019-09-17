@@ -28,9 +28,16 @@ import java.sql.SQLException;
 import java.util.*;
 
 /**
- * This command migrates chat message between the v1.0.18-beta version and the v1.0.19-beta version.
+ * This command migrates chat messages between the v1.0.18-beta version and the v1.0.19-beta version.
  * In v1.0.19-beta all chat tables/entities will auto-populate from the event synchronisation, only the
  * chat messages needs to be migrated.
+ *
+ * It is advised to use the following migration scenario:
+ * - first create a database backup
+ * - run a DRY_RUN
+ * - then MIGRATE
+ * - finally use DROP_TABLE to remove the v1_0_18 chat messages table
+ *
  */
 @Singleton
 public class ChatMigrationCommand implements AdminCommand {
