@@ -130,4 +130,4 @@ localmotion:
     historyfolder: 'history'    # folder for the job history files, will be located in the location specified above
 
     cognitoimportfile:
-      filename: 'cognitoimport'
+      filename: 'cognitoimport.csv'
