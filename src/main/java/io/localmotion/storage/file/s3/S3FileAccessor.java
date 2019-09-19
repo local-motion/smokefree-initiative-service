@@ -78,7 +78,6 @@ public class S3FileAccessor implements FileAccessor {
 		ObjectMetadata objectMetadata = new ObjectMetadata();
 		objectMetadata.setContentDisposition("attachment; filename =\"" + name + "\"");
         s3Client.putObject(location, getS3Key(path, name), stream, objectMetadata);
-//        s3Client.putObject(location, getS3Key(path, name), content);
     }
 
     @Override
