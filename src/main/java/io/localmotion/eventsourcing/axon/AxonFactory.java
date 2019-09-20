@@ -2,6 +2,7 @@ package io.localmotion.eventsourcing.axon;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.localmotion.audittrail.projection.AuditTrailProjection;
+import io.localmotion.chatbox.sync.ChatBoxProjection;
 import io.localmotion.eventsourcing.tracker.TrackerProjection;
 import io.localmotion.smokefreeplaygrounds.aggregate.PlaygroundInitiative;
 import io.localmotion.smokefreeplaygrounds.projection.PlaygroundProjection;
@@ -50,6 +51,7 @@ public class AxonFactory {
                                        PlaygroundProjection playgroundProjection,
                                        AuditTrailProjection auditTrailProjection,
                                        ProfileProjection profileProjection,
+                                       ChatBoxProjection chatBoxProjection,
                                        TrackerProjection trackerProjection
                                         ) {
 
@@ -73,7 +75,8 @@ public class AxonFactory {
                 .registerEventHandler(c -> playgroundProjection)
                 .registerEventHandler(c -> auditTrailProjection)
                 .registerEventHandler(c -> profileProjection)
-                .registerEventHandler(c -> trackerProjection);
+                .registerEventHandler(c -> chatBoxProjection)
+                .registerEventHandler(c -> trackerProjection);              // The tracker must be the last, so it receives the events after the others do
 
         Configuration configuration = configurer.buildConfiguration();
         configuration.start();

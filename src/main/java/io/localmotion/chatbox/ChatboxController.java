@@ -1,7 +1,10 @@
 package io.localmotion.chatbox;
 
+import io.localmotion.chatbox.model.ChatBox;
+import io.localmotion.chatbox.model.User;
 import io.localmotion.eventsourcing.tracker.TrackerProjection;
 import io.localmotion.initiative.projection.Initiative;
+import io.localmotion.initiative.projection.InitiativeProjection;
 import io.localmotion.security.user.SecurityContext;
 import io.localmotion.security.user.SecurityContextFactory;
 import io.micronaut.http.HttpResponse;
@@ -14,14 +17,11 @@ import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.validation.Validated;
 import lombok.extern.slf4j.Slf4j;
-import io.localmotion.initiative.projection.InitiativeProjection;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
-import javax.validation.Valid;
-import javax.validation.ValidationException;
-import javax.validation.constraints.Size;
-import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import static io.micronaut.security.rules.SecurityRule.IS_ANONYMOUS;
 import static io.micronaut.security.rules.SecurityRule.IS_AUTHENTICATED;
@@ -46,7 +46,7 @@ public class ChatboxController {
 
 
     @Post("/{chatboxId}")
-    public HttpResponse<ChatMessage> postMessage(Authentication authentication, String chatboxId, @Body ChatMessage chatMessage) {
+    public HttpResponse<SimpleResponse> postMessage(Authentication authentication, String chatboxId, @Body ChatMessageDTO chatMessage /* note that we only use the text attribute */ ) {
 
         // Validate that the projections are up-to-date
         if (!trackerProjection.isUpToDate())
@@ -58,33 +58,38 @@ public class ChatboxController {
         if (!securityContext.isAuthenticated())
             return HttpResponse.status(HttpStatus.UNAUTHORIZED, "User must be authenticated");
 
-        final String userName = securityContext.requireUserName();
 
-        log.info("chat message for"  + chatboxId + ": " + chatMessage + " from: " + userName);
-
-        if (!isValidChatboxId(chatboxId))
+        ChatBox chatBox = chatboxRepository.getChatBoxWithExternalId(chatboxId);
+        if (chatBox == null)
             return HttpResponse.status(HttpStatus.NOT_FOUND, "Invalid chatbox");
 
-        if (!isUserAuthorisedForChatbox(securityContext.requireUserId(), chatboxId))
+        User user = chatboxRepository.getUserWithExternalId(securityContext.requireUserId());
+        if (user == null)
+            return HttpResponse.status(HttpStatus.NOT_FOUND, "Invalid chatbox user");
+
+        if (!isUserAuthorisedForChatbox(user.getId(), chatBox.getId()))
             return HttpResponse.status(HttpStatus.UNAUTHORIZED, "User not authorised for chatbox");
 
-        chatMessage.setAuthor(userName);
-        chatMessage.setChatboxId(chatboxId);
 
-        chatboxRepository.storeMessage(chatboxId, chatMessage);
+        log.info("chat message for"  + chatboxId + ": " + chatMessage + " from: " + user.getName());
+        chatboxRepository.storeMessage(chatBox.getId(), user.getId(), chatMessage.getText());
 
-        return HttpResponse.ok(chatMessage);
+        return HttpResponse.ok(new SimpleResponse("ok"));
     }
 
     @Secured(IS_ANONYMOUS)
     @Get("/{chatboxId}{?since}")
-    public Collection<ChatMessage> getMessages(String chatboxId, @Nullable String since) {
+    public List<ChatMessageDTO> getMessages(String chatboxId, @Nullable String since) {
         log.info("fetching for: " + chatboxId + ", since: " + since);
 
+        ChatBox chatBox = chatboxRepository.getChatBoxWithExternalId(chatboxId);
+        if (chatBox == null)
+            return Collections.emptyList();
+
         if (since == null)
-            return chatboxRepository.getMessages(chatboxId);
+            return chatboxRepository.getMessages(chatBox.getId());
         else
-            return chatboxRepository.getMessagesSince(chatboxId, since);
+            return chatboxRepository.getMessagesSince(chatBox.getId(), since);
     }
 
     private boolean isValidChatboxId(String chatboxId) {
@@ -98,10 +103,14 @@ public class ChatboxController {
         return null;
     }
 
-    private boolean isUserAuthorisedForChatbox(String userId, String chatboxId) {
+    private boolean isUserAuthorisedForChatboxOld(String userId, String chatboxId) {
         final Initiative initiative = getPlayground(chatboxId);
         if (initiative != null)
             return initiative.getMembers().stream().anyMatch(volunteer -> volunteer.getUserId().equals(userId));
         return false;
+    }
+
+    private boolean isUserAuthorisedForChatbox(int userId, int chatboxId) {
+        return chatboxRepository.getParticipation(chatboxId, userId) != null;
     }
 }

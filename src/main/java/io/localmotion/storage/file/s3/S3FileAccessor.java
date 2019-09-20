@@ -3,6 +3,7 @@ package io.localmotion.storage.file.s3;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import io.localmotion.storage.file.FileAccessor;
 import io.micronaut.context.annotation.Requires;
@@ -10,10 +11,8 @@ import io.micronaut.context.annotation.Value;
 import lombok.SneakyThrows;
 
 import javax.inject.Singleton;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,8 +74,10 @@ public class S3FileAccessor implements FileAccessor {
         AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
                 .withRegion(clientRegion)
                 .build();
-
-        s3Client.putObject(location, getS3Key(path, name), content);
+		InputStream stream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
+		ObjectMetadata objectMetadata = new ObjectMetadata();
+		objectMetadata.setContentDisposition("attachment; filename =\"" + name + "\"");
+        s3Client.putObject(location, getS3Key(path, name), stream, objectMetadata);
     }
 
     @Override

@@ -23,8 +23,8 @@ public class CognitoSettings implements CloudUserManagement {
     @Value("${aws.cognito.userpoolwebclientid}")
     private String userPoolWebClientId;
 
-    @Value("${aws.cognito.domain}")
-    private String domain;
+//    @Value("${aws.cognito.domain}")
+//    private String domain;
 
     @Override
     public String getRegion() {
@@ -41,9 +41,9 @@ public class CognitoSettings implements CloudUserManagement {
         return this.userPoolWebClientId;
     }
 
-    @Override
-    public String getDomain() {
-        return this.domain;
-    }
+//    @Override
+//    public String getDomain() {
+//        return this.domain;
+//    }
 }
 

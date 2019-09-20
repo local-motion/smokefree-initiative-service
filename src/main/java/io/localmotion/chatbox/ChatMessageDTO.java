@@ -3,21 +3,18 @@ package io.localmotion.chatbox;
 import io.localmotion.storage.aws.rds.secretmanager.SmokefreeConstants;
 import lombok.*;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.time.Instant;
 import java.util.Date;
 
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
-@Entity
-public class ChatMessage {
+public class ChatMessageDTO {
 
     @Id
     private String messageId;
@@ -28,7 +25,8 @@ public class ChatMessage {
     @NotBlank
     private String author;
 
-    private final Date creationTime = new Date();
+    @NotBlank
+    private Instant creationTime = Instant.now();
 
     @NotBlank(message = "Message must have at least " + SmokefreeConstants.ChatBox.MINIMUM_MESSAGE_LENGTH + " characters")
     //@Pattern(regexp = "^[A-Za-z0-9\\n!@&(),.?\": ]+$", message = "Please enter only allowed special charaxters: @&(),.?\": ")

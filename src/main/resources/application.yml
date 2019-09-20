@@ -103,9 +103,8 @@ aws:
     region: eu-west-1
 
 # LocalMotion2 pool
-    userpoolid: eu-west-1_1nKYURwwe
-    userpoolwebclientid: 66b4h2jtrk309tlf2hlq5khkk2
-    domain: localmotion-dev2.auth.eu-west-1.amazoncognito.com
+    userpoolid: eu-west-1_EL0oWUEWV
+    userpoolwebclientid: 7vl2o0ki6vfq52utq9i9tca370
 
   rds:
     enableSsl: false
@@ -131,4 +130,4 @@ localmotion:
     historyfolder: 'history'    # folder for the job history files, will be located in the location specified above
 
     cognitoimportfile:
-      filename: 'cognitoimport'
+      filename: 'cognitoimport.csv'

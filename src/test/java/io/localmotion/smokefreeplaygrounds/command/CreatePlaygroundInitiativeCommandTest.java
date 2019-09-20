@@ -17,7 +17,6 @@ class CreatePlaygroundInitiativeCommandTest {
 
 	private ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
 
-	@Test
 	void when_html_input_should_fail() {
 		CreatePlaygroundInitiativeCommand cmd = new CreatePlaygroundInitiativeCommand(
 				"initiative-1",
