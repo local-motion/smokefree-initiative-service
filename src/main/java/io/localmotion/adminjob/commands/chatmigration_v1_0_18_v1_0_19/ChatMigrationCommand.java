@@ -81,6 +81,17 @@ public class ChatMigrationCommand implements AdminCommand {
                             new Gson().toJson(new ChatMigrationResult(Collections.emptyList()))
                     );
                 }
+                if (input.getMigrationAction() == ChatMigrationAction.DELETENEWTABLE) {
+                    connection = dataSource.getConnection();
+                    PreparedStatement statement = connection.prepareStatement("delete from cb1_chat_message;");
+                    statement.executeUpdate();
+
+                    return new JobResult(
+                            JobResultCode.SUCCESS,
+                            "Successfully delete table",
+                            new Gson().toJson(new ChatMigrationResult(Collections.emptyList()))
+                    );
+                }
                 else {
                     // Migrate action (for real or dry run)
                     List<String> conversions = new ArrayList<>();
@@ -94,8 +105,7 @@ public class ChatMigrationCommand implements AdminCommand {
                         String messageId = resultSet.getString("messageId");
                         String authorName = resultSet.getString("author");
                         String chatboxId = resultSet.getString("chatboxId");
-//                        Date creationTime = new Date(resultSet.getDate("creationTime").getTime());
-                        Date creationTime = new Date(resultSet.getTime("creationTime").getTime());
+                        Date creationTime = new Date(resultSet.getTimestamp("creationTime").getTime());
                         String text = resultSet.getString("text");
 
                         Profile profile = profileProjection.getProfileByName(authorName);

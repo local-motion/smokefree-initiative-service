@@ -103,8 +103,8 @@ aws:
     region: eu-west-1
 
 # LocalMotion2 pool
-    userpoolid: eu-west-1_EL0oWUEWV
-    userpoolwebclientid: 7vl2o0ki6vfq52utq9i9tca370
+    userpoolid: eu-west-1_CUK2yRnfY
+    userpoolwebclientid: 5nloqd804dmsvojf512pesofqn
 
   rds:
     enableSsl: false
