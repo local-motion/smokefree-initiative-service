@@ -96,6 +96,7 @@ public class ChatMigrationCommand implements AdminCommand {
                         String chatboxId = resultSet.getString("chatboxId");
 //                        Date creationTime = new Date(resultSet.getDate("creationTime").getTime());
                         Date creationTime = new Date(resultSet.getTime("creationTime").getTime());
+//                        Date creationTime = new Date(resultSet.getTimestamp("creationTime").getTime());
                         String text = resultSet.getString("text");
 
                         Profile profile = profileProjection.getProfileByName(authorName);
