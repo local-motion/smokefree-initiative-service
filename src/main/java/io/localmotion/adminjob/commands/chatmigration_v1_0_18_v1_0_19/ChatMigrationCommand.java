@@ -81,6 +81,17 @@ public class ChatMigrationCommand implements AdminCommand {
                             new Gson().toJson(new ChatMigrationResult(Collections.emptyList()))
                     );
                 }
+                if (input.getMigrationAction() == ChatMigrationAction.DELETENEWTABLE) {
+                    connection = dataSource.getConnection();
+                    PreparedStatement statement = connection.prepareStatement("delete from cb1_chat_message;");
+                    statement.executeUpdate();
+
+                    return new JobResult(
+                            JobResultCode.SUCCESS,
+                            "Successfully delete table",
+                            new Gson().toJson(new ChatMigrationResult(Collections.emptyList()))
+                    );
+                }
                 else {
                     // Migrate action (for real or dry run)
                     List<String> conversions = new ArrayList<>();
