@@ -50,7 +50,7 @@ public class StatisticsJobCommand implements AdminCommand {
         Connection connection = null;
         try {
             StatisticsResult result = new StatisticsResult(
-                    getCountFromTable("ChatMessage"),
+                    getCountFromTable("cb1_chat_message"),
                     getCountFromTable("DomainEventEntry"),
                     getCountFromTable("SnapshotEventEntry"),
                     getCountFromTable("UserDataRecord"),
