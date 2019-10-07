@@ -11,7 +11,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <lombok.version>1.18.10</lombok.version>
         <axon.version>4.2</axon.version>
-        <micronaut.version>1.2.0</micronaut.version>
+<!--        <micronaut.version>1.2.1</micronaut.version>-->
         <aws.version>1.11.637</aws.version>
         <jackson.version>2.10.0.pr3</jackson.version>
     </properties>
@@ -61,48 +61,84 @@
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
         </dependency>
-        <dependency>
-            <groupId>io.micronaut</groupId>
-            <artifactId>micronaut-inject</artifactId>
-            <version>${micronaut.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
+
+
+
+<!--		Micronaut dependencies-->
+		<dependency>
+			<groupId>io.micronaut</groupId>
+			<artifactId>micronaut-router</artifactId>
+			<version>1.2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>io.micronaut</groupId>
+			<artifactId>micronaut-inject</artifactId>
+			<version>1.2.1</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-runtime</artifactId>
-            <version>${micronaut.version}</version>
-            <scope>compile</scope>
+			<version>1.2.1</version>
+<!--			<version>1.2.2</version>-->
+			<scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-http-client</artifactId>
-            <version>${micronaut.version}</version>
+			<version>1.2.1</version>
+<!--			<version>1.2.2</version>-->
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-security</artifactId>
-            <version>${micronaut.version}</version>
+            <version>1.2.1</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-security-jwt</artifactId>
-            <version>${micronaut.version}</version>
+			<version>1.2.1</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-http-server-netty</artifactId>
-            <version>${micronaut.version}</version>
+			<version>1.2.1</version>
+<!--			<version>1.2.2</version>-->
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-inject-java</artifactId>
-            <version>${micronaut.version}</version>
+			<version>1.2.1</version>
+<!--			<version>1.2.2</version>-->
             <scope>provided</scope>
         </dependency>
+
+		<dependency>
+			<groupId>io.micronaut.configuration</groupId>
+			<artifactId>micronaut-jdbc-hikari</artifactId>
+			<version>1.2.1</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.micronaut.configuration</groupId>
+			<artifactId>micronaut-hibernate-jpa</artifactId>
+			<version>1.2.0</version>
+<!--			<version>1.2.1</version>-->
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>io.micronaut.test</groupId>
+			<artifactId>micronaut-test-junit5</artifactId>
+			<version>1.1.1</version>
+			<scope>test</scope>
+		</dependency>
+
+
 
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -188,18 +224,7 @@
             <artifactId>security-logging-logback</artifactId>
             <version>1.1.6</version>
         </dependency>
-        <dependency>
-            <groupId>io.micronaut.configuration</groupId>
-            <artifactId>micronaut-jdbc-hikari</artifactId>
-            <version>${micronaut.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.micronaut.configuration</groupId>
-            <artifactId>micronaut-hibernate-jpa</artifactId>
-            <version>${micronaut.version}</version>
-            <scope>compile</scope>
-        </dependency>
+
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
@@ -269,12 +294,7 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>io.micronaut.test</groupId>
-            <artifactId>micronaut-test-junit5</artifactId>
-            <version>1.1.1</version>
-            <scope>test</scope>
-        </dependency>
+
 
         <dependency>
             <groupId>org.mockito</groupId>
