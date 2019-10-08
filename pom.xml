@@ -12,7 +12,7 @@
         <lombok.version>1.18.10</lombok.version>
         <axon.version>4.2</axon.version>
         <micronaut.version>1.2.0</micronaut.version>
-        <aws.version>1.11.637</aws.version>
+        <aws.version>1.11.647</aws.version>
         <jackson.version>2.10.0.pr3</jackson.version>
     </properties>
     <scm>
