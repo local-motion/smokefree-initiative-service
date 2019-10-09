@@ -68,59 +68,47 @@
 		<dependency>
 			<groupId>io.micronaut</groupId>
 			<artifactId>micronaut-router</artifactId>
-<!--			<version>1.2.0</version>-->
 			<version>1.2.2</version>
 		</dependency>
 		<dependency>
 			<groupId>io.micronaut</groupId>
 			<artifactId>micronaut-inject</artifactId>
-<!--			<version>1.2.0</version>-->
-			<version>1.2.1</version>
+			<version>1.2.2</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-runtime</artifactId>
-<!--			<version>1.2.0</version>-->
-<!--			<version>1.2.1</version>-->
 			<version>1.2.2</version>
 			<scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-http-client</artifactId>
-<!--			<version>1.2.0</version>-->
-<!--			<version>1.2.1</version>-->
 			<version>1.2.2</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-security</artifactId>
-<!--			<version>1.2.0</version>-->
             <version>1.2.1</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-security-jwt</artifactId>
-<!--			<version>1.2.0</version>-->
 			<version>1.2.1</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-http-server-netty</artifactId>
-<!--			<version>1.2.0</version>-->
-<!--			<version>1.2.1</version>-->
 			<version>1.2.2</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-inject-java</artifactId>
-<!--			<version>1.2.0</version>-->
-<!--			<version>1.2.1</version>-->
 			<version>1.2.2</version>
             <scope>provided</scope>
         </dependency>
@@ -129,14 +117,14 @@
 			<groupId>io.micronaut.configuration</groupId>
 			<artifactId>micronaut-jdbc-hikari</artifactId>
 			<version>1.2.0</version>
-<!--			<version>1.2.1</version>  DOES NOT WORK -->
+<!--			<version>1.2.1</version>  DOES NOT WORK-->
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.micronaut.configuration</groupId>
 			<artifactId>micronaut-hibernate-jpa</artifactId>
 			<version>1.2.0</version>
-<!--			<version>1.2.1</version>  DOES NOT WORK -->
+<!--			<version>1.2.1</version>  DOES NOT WORK-->
 			<scope>compile</scope>
 		</dependency>
 
