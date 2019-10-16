@@ -90,7 +90,7 @@
         <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-security</artifactId>
-            <version>1.2.1</version>
+            <version>1.2.2</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -430,7 +430,7 @@
                             <path>
                                 <groupId>io.micronaut</groupId>
                                 <artifactId>micronaut-security</artifactId>
-                                <version>1.2.1</version>
+                                <version>1.2.2</version>
                             </path>
                         </annotationProcessorPaths>
                     </configuration>
