@@ -11,7 +11,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <lombok.version>1.18.10</lombok.version>
         <axon.version>4.2</axon.version>
-        <aws.version>1.11.648</aws.version>
+        <aws.version>1.11.653</aws.version>
         <jackson.version>2.10.0</jackson.version>
     </properties>
     <scm>
@@ -67,48 +67,48 @@
 		<dependency>
 			<groupId>io.micronaut</groupId>
 			<artifactId>micronaut-router</artifactId>
-			<version>1.2.2</version>
+			<version>1.2.4</version>
 		</dependency>
 		<dependency>
 			<groupId>io.micronaut</groupId>
 			<artifactId>micronaut-inject</artifactId>
-			<version>1.2.2</version>
+			<version>1.2.4</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-runtime</artifactId>
-			<version>1.2.2</version>
+			<version>1.2.4</version>
 			<scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-http-client</artifactId>
-			<version>1.2.2</version>
+			<version>1.2.4</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-security</artifactId>
-            <version>1.2.1</version>
+            <version>1.2.2</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-security-jwt</artifactId>
-			<version>1.2.1</version>
+			<version>1.2.2</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-http-server-netty</artifactId>
-			<version>1.2.2</version>
+			<version>1.2.4</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-inject-java</artifactId>
-			<version>1.2.2</version>
+			<version>1.2.4</version>
             <scope>provided</scope>
         </dependency>
 
@@ -303,7 +303,7 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>1.4.199</version>
+            <version>1.4.200</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -373,7 +373,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.4</version>
+                <version>0.8.5</version>
                 <executions>
                     <execution>
                         <goals>
@@ -425,12 +425,12 @@
                             <path>
                                 <groupId>io.micronaut</groupId>
                                 <artifactId>micronaut-inject-java</artifactId>
-                                <version>1.2.2</version>
+                                <version>1.2.4</version>
                             </path>
                             <path>
                                 <groupId>io.micronaut</groupId>
                                 <artifactId>micronaut-security</artifactId>
-                                <version>1.2.1</version>
+                                <version>1.2.2</version>
                             </path>
                         </annotationProcessorPaths>
                     </configuration>
@@ -448,12 +448,12 @@
                                     <path>
                                         <groupId>io.micronaut</groupId>
                                         <artifactId>micronaut-inject-java</artifactId>
-                                        <version>1.2.2</version>
+                                        <version>1.2.4</version>
                                     </path>
                                     <path>
                                         <groupId>io.micronaut</groupId>
                                         <artifactId>micronaut-validation</artifactId>
-                                        <version>1.2.2</version>
+                                        <version>1.2.4</version>
                                     </path>
                                 </annotationProcessorPaths>
                             </configuration>
