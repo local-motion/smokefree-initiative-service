@@ -2,10 +2,11 @@ FROM openjdk:11-jdk-slim
 
 # create a temp dir in which to work
 RUN OLDDIR="$PWD"
-COPY aws/rds-combined-ca-bundle.pem /tmp/rds-ca/rds-combined-ca-bundle.pem
+#COPY aws/rds-combined-ca-bundle.pem /tmp/rds-ca/rds-combined-ca-bundle.pem
+COPY aws/rds-ca-2019-root.pem /tmp/rds-ca/rds-certificate.pem
 
 # split the bundle into individual certs (prefixed with xx)
-RUN csplit -sz /tmp/rds-ca/rds-combined-ca-bundle.pem '/-BEGIN CERTIFICATE-/' '{*}'
+RUN csplit -sz /tmp/rds-ca/rds-certificate.pem '/-BEGIN CERTIFICATE-/' '{*}'
 
 # import each cert individually
 RUN for CERT in xx*; do keytool -import -keystore $JAVA_HOME/lib/security/cacerts -storepass changeit -noprompt -alias rds$CERT -file "$CERT"; done
