@@ -2,7 +2,6 @@ FROM openjdk:11-jdk-slim
 
 # create a temp dir in which to work
 RUN OLDDIR="$PWD"
-#COPY aws/rds-combined-ca-bundle.pem /tmp/rds-ca/rds-combined-ca-bundle.pem
 COPY aws/rds-ca-2019-root.pem /tmp/rds-ca/rds-certificate.pem
 
 # split the bundle into individual certs (prefixed with xx)
