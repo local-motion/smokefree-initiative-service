@@ -67,7 +67,7 @@
 		<dependency>
 			<groupId>io.micronaut</groupId>
 			<artifactId>micronaut-router</artifactId>
-			<version>1.2.4</version>
+			<version>1.3.7</version>
 		</dependency>
 		<dependency>
 			<groupId>io.micronaut</groupId>
