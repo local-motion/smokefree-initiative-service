@@ -122,7 +122,7 @@
 		<dependency>
 			<groupId>io.micronaut.configuration</groupId>
 			<artifactId>micronaut-hibernate-jpa</artifactId>
-			<version>1.2.0</version>
+			<version>1.4.1.TEST</version>
 <!--			<version>1.2.1</version>  DOES NOT WORK-->
 			<scope>compile</scope>
 		</dependency>
