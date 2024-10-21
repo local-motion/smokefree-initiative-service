@@ -11,7 +11,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <lombok.version>1.18.10</lombok.version>
         <axon.version>4.2</axon.version>
-        <aws.version>1.11.653</aws.version>
+        <aws.version>1.12.777</aws.version>
         <jackson.version>2.10.0</jackson.version>
     </properties>
     <scm>
